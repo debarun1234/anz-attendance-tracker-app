@@ -468,6 +468,21 @@
   .onboard-mark line{stroke:currentColor; stroke-width:1.5;}
   .onboard-mark polyline{fill:none; stroke:var(--warm); stroke-width:2; stroke-linecap:round; stroke-linejoin:round;}
 
+  /* Multi-step first-launch onboarding */
+  .ob-topbar{display:flex; align-items:center; justify-content:space-between; gap:10px;}
+  .ob-dots{display:flex; gap:6px;}
+  .ob-dot{width:6px; height:6px; border-radius:99px; background:var(--border); transition:all .2s ease;}
+  .ob-dot.on{background:var(--accent); width:20px; border-radius:4px;}
+  .ob-skip{background:none; border:none; color:var(--ink-faint); font-size:12.5px; font-weight:600; cursor:pointer; padding:4px 2px;}
+  .ob-slide{display:flex; flex-direction:column; gap:22px; animation:fade-in .22s ease;}
+  .ob-feature-list{display:flex; flex-direction:column; gap:14px;}
+  .ob-feature{display:flex; align-items:flex-start; gap:12px;}
+  .ob-feature-dot{width:10px; height:10px; border-radius:99px; margin-top:5px; flex:none;}
+  .ob-feature-title{font-weight:700; font-size:14.5px;}
+  .ob-feature-text{font-size:12.5px; color:var(--ink-soft); margin-top:2px;}
+  .ob-nav{display:flex; align-items:center; justify-content:space-between; gap:10px;}
+  .ob-nav .btn{flex:1;}
+
   .formula-box{
     background:var(--surface-2); border-radius:12px; padding:12px 14px; font-size:12.5px; line-height:1.6; color:var(--ink-soft);
     font-family:"IBM Plex Mono", monospace;
@@ -943,7 +958,8 @@ var TOUR_STEPS = {
     {sel:".cal-nav", title:"Browse months", text:"Step through months, or jump straight back to today."},
     {sel:"#view-calendar .cal-grid", title:"Tap any day", text:"Tap a date to set its status — Present, Work from home, Leave, Comp off, or a worked weekend."},
     {sel:"#view-calendar .legend", title:"Color legend", text:"Each color is a day status, so a whole month reads at a glance."},
-    {sel:"#monthSummaryCard", title:"Month summary", text:"The full breakdown for the month you're viewing, and its attendance percentage."}
+    {sel:"#monthSummaryCard", title:"Month summary", text:"The full breakdown for the month you're viewing, and its attendance percentage."},
+    {sel:"#fyTrendCard", title:"FY trend at a glance", text:"Every month of the financial year to date, each with its own percentage, plus the aggregate total for the whole year so far."}
   ],
   leave: [
     {sel:"#annualPoolCard", title:"Annual leave", text:"Report your Annual balance from HR each month — a drop since last time is counted as leave taken automatically."},
@@ -1296,6 +1312,9 @@ function renderCalendar(){
   var stats = rangeStats(mr.start, mr.end, tStr);
   var weekdayTotal = stats.eligibleFull + stats.leave + stats.holiday + stats.compoff - stats.weekendWorked;
 
+  var fy = fyOf(today());
+  var fyStats = rangeStats(isoOf(fy.start), isoOf(fy.end), tStr);
+
   var html =
     '<div class="card">'+
       '<div class="cal-nav">'+
@@ -1330,6 +1349,12 @@ function renderCalendar(){
       '</div>'+
       '<hr class="divider" style="margin:10px 0;">'+
       '<div class="card-row"><span style="font-weight:600;">Attendance</span><span class="status-pill '+pctColorClass(stats.pctResolved,state.profile.targetPct)+'">'+fmtPct(stats.pctResolved)+'</span></div>'+
+    '</div>'+
+    '<div class="card" id="fyTrendCard">'+
+      '<div class="card-row"><span class="eyebrow">'+fy.label+' to date</span><span class="status-pill '+pctColorClass(fyStats.pctResolved,state.profile.targetPct)+'">'+fmtPct(fyStats.pctResolved)+'</span></div>'+
+      '<p class="subtext" style="margin-top:6px;">'+fyStats.attended+' of '+fyStats.eligibleResolved+' eligible days attended since '+fmtShort(fy.start)+' — aggregated across every month below.</p>'+
+      '<hr class="divider" style="margin:14px 0;">'+
+      fyTrendTable(fy)+
     '</div>';
 
   var v = document.getElementById("view-calendar");
@@ -1836,37 +1861,105 @@ function reportBug(){
 }
 
 /* ---------- Onboarding ---------- */
-function renderOnboard(){
-  var html =
-    '<div class="onboard-inner">'+
-      '<svg class="onboard-mark" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="17" rx="4"></rect><line x1="3" y1="9" x2="21" y2="9"></line><polyline points="8 14.5 11 17.5 16.5 10.5"></polyline></svg>'+
+/* First-launch onboarding is a short multi-step wizard — a welcome slide,
+   a how-it-works slide, a what-you-can-track slide, then the actual profile
+   setup form on the last step. Purely presentational steps can be skipped
+   straight to setup; the form step can't, since the app needs that data.
+   Submitting the form on the last step does the same thing the old
+   single-screen onboarding always did. */
+var obStep = 0;
+function obFeature(color, title, text){
+  return '<div class="ob-feature">'+
+    '<span class="ob-feature-dot" style="background:'+color+';"></span>'+
+    '<div><div class="ob-feature-title">'+title+'</div><div class="ob-feature-text">'+text+'</div></div>'+
+  '</div>';
+}
+var OB_SLIDES = [
+  { render:function(){
+    return '<svg class="onboard-mark" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="17" rx="4"></rect><line x1="3" y1="9" x2="21" y2="9"></line><polyline points="8 14.5 11 17.5 16.5 10.5"></polyline></svg>'+
       '<div>'+
         '<div class="eyebrow">Welcome</div>'+
         '<h1 style="font-size:26px; margin-top:4px;">Office Ledger</h1>'+
-        '<p class="subtext" style="margin-top:8px;">Log your office days, track leave and public holidays, and see your attendance percentage against your company’s target. Everything stays on this device.</p>'+
+        '<p class="subtext" style="margin-top:8px;">Built for ANZ employees to track office attendance against the company’s hybrid-work target. Log your days, leave, public holidays and comp off, and watch your percentage update live. Everything stays on this device.</p>'+
+      '</div>';
+  }},
+  { render:function(){
+    return '<div>'+
+        '<div class="eyebrow">How it works</div>'+
+        '<h1 style="font-size:23px; margin-top:4px;">One simple formula</h1>'+
+        '<p class="subtext" style="margin-top:8px;">The financial year runs 1 October – 30 September. Every day you log feeds straight into this:</p>'+
       '</div>'+
-      '<form id="onboardForm">'+
+      '<div class="formula-box">attendance % =<br>&nbsp;&nbsp;days present ÷ eligible working days × 100<br><br>eligible working days =<br>&nbsp;&nbsp;working days − leave − public holidays − comp off</div>';
+  }},
+  { render:function(){
+    return '<div><div class="eyebrow">What you can track</div><h1 style="font-size:23px; margin-top:4px;">Everything, in one tap</h1></div>'+
+      '<div class="ob-feature-list">'+
+        obFeature("var(--good)","Present or Work from home","Mark each weekday from the Calendar tab.")+
+        obFeature("var(--warn)","Annual &amp; Sick/Carer leave","Two separate pools, reported monthly — the app works out the days taken from the drop.")+
+        obFeature("var(--warm)","Public holidays","Add your company’s list once a year and they’re excluded automatically.")+
+        obFeature("var(--accent)","Comp off","Earned on worked weekends, spent when you take it.")+
+      '</div>';
+  }},
+  { render:function(){
+    return '<div><div class="eyebrow">Almost there</div><h1 style="font-size:23px; margin-top:4px;">Set up your profile</h1></div>'+
+      '<form id="onboardForm" style="gap:12px;">'+
         '<div class="field"><label for="obName">Your name</label><input type="text" id="obName" placeholder="e.g. Debarun" required></div>'+
         '<div class="field"><label for="obTarget">Attendance target (%)</label><input type="number" id="obTarget" min="0" max="100" value="50" required></div>'+
         '<div class="field"><label for="obCompOff">Current comp off balance (days)</label><input type="number" id="obCompOff" min="0" step="0.5" value="0"></div>'+
-        '<div class="formula-box">Financial year: 1 Oct – 30 Sep<br>attendance % = present ÷ eligible × 100</div>'+
-        '<button class="btn btn-primary btn-block" type="submit">Start tracking</button>'+
-      '</form>'+
+      '</form>';
+  }}
+];
+function renderOnboard(){
+  obStep = 0;
+  var shell =
+    '<div class="onboard-inner">'+
+      '<div class="ob-topbar">'+
+        '<div class="ob-dots" id="obDots"></div>'+
+        '<button class="ob-skip" id="obSkip">Skip intro</button>'+
+      '</div>'+
+      '<div class="ob-slide" id="obSlide"></div>'+
+      '<div class="ob-nav" id="obNav"></div>'+
     '</div>';
-  document.getElementById("onboard").innerHTML = html;
-  document.getElementById("onboardForm").addEventListener("submit", function(e){
-    e.preventDefault();
-    var name = document.getElementById("obName").value.trim();
-    var tgt = parseInt(document.getElementById("obTarget").value,10);
-    var co = parseFloat(document.getElementById("obCompOff").value);
-    state = defaultState();
-    state.profile.name = name;
-    state.profile.targetPct = isNaN(tgt)?50:Math.max(0,Math.min(100,tgt));
-    state.profile.openingCompOff = isNaN(co)?0:co;
-    saveState();
-    document.getElementById("onboard").classList.add("hidden");
-    switchView("today");
-  });
+  document.getElementById("onboard").innerHTML = shell;
+  document.getElementById("obSkip").addEventListener("click", function(){ goToObStep(OB_SLIDES.length-1); });
+  renderObStep();
+}
+function goToObStep(n){
+  obStep = Math.max(0, Math.min(OB_SLIDES.length-1, n));
+  renderObStep();
+}
+function renderObStep(){
+  var isLast = obStep===OB_SLIDES.length-1;
+  var dots = document.getElementById("obDots");
+  dots.innerHTML = OB_SLIDES.map(function(_,i){ return '<span class="ob-dot'+(i===obStep?' on':'')+'"></span>'; }).join("");
+  document.getElementById("obSkip").classList.toggle("hidden", isLast);
+
+  var slide = document.getElementById("obSlide");
+  slide.classList.remove("ob-slide"); void slide.offsetWidth; slide.classList.add("ob-slide"); // restart fade-in
+  slide.innerHTML = OB_SLIDES[obStep].render();
+
+  document.getElementById("obNav").innerHTML =
+    (obStep>0 ? '<button class="btn btn-secondary" id="obBack" type="button">Back</button>' : '<span></span>')+
+    '<button class="btn btn-primary" id="obNext" type="'+(isLast?'submit':'button')+'"'+(isLast?' form="onboardForm"':'')+'>'+(isLast?"Start tracking":"Next")+'</button>';
+  var backBtn = document.getElementById("obBack");
+  if(backBtn) backBtn.addEventListener("click", function(){ goToObStep(obStep-1); });
+  if(!isLast){
+    document.getElementById("obNext").addEventListener("click", function(){ goToObStep(obStep+1); });
+  } else {
+    document.getElementById("onboardForm").addEventListener("submit", function(e){
+      e.preventDefault();
+      var name = document.getElementById("obName").value.trim();
+      var tgt = parseInt(document.getElementById("obTarget").value,10);
+      var co = parseFloat(document.getElementById("obCompOff").value);
+      state = defaultState();
+      state.profile.name = name;
+      state.profile.targetPct = isNaN(tgt)?50:Math.max(0,Math.min(100,tgt));
+      state.profile.openingCompOff = isNaN(co)?0:co;
+      saveState();
+      document.getElementById("onboard").classList.add("hidden");
+      switchView("today");
+    });
+  }
 }
 
 /* ---------- pull-to-refresh ----------
