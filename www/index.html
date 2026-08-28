@@ -2454,6 +2454,7 @@ function renderObStep(){
       saveState();
       document.getElementById("onboard").classList.add("hidden");
       switchView("today");
+      checkForUpdateAuto(); // init() ran before state existed, so this session's first check happens here instead
     });
   }
 }
