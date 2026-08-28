@@ -1,0 +1,15 @@
+node_modules/
+.DS_Store
+ios/App/Pods/
+ios/App/build/
+xcuserdata/
+*.xcuserstate
+DerivedData/
+
+# Android build outputs
+android/.gradle/
+android/local.properties
+android/app/build/
+android/build/
+android/captures/
+android/app/release/
