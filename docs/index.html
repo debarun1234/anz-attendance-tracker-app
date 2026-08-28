@@ -23,6 +23,8 @@
     --stamp-green-soft:#E0F0EA;
     --stamp-red:#B5473C;
     --stamp-red-soft:#F6E1DE;
+    --warm:#946A2B;
+    --warm-soft:#F1E6D2;
     --shadow:0 1px 2px rgba(22,35,58,.06), 0 8px 24px -12px rgba(22,35,58,.18);
     --shadow-lift:0 4px 10px rgba(22,35,58,.08), 0 20px 40px -16px rgba(22,35,58,.28);
   }
@@ -42,6 +44,8 @@
       --stamp-green-soft:#1E3327;
       --stamp-red:#E28A7E;
       --stamp-red-soft:#3B211E;
+      --warm:#D9B872;
+      --warm-soft:#3A2E17;
       --shadow:0 1px 2px rgba(0,0,0,.3), 0 8px 24px -12px rgba(0,0,0,.5);
       --shadow-lift:0 4px 10px rgba(0,0,0,.35), 0 20px 40px -16px rgba(0,0,0,.6);
     }
@@ -61,6 +65,8 @@
     --stamp-green-soft:#1E3327;
     --stamp-red:#E28A7E;
     --stamp-red-soft:#3B211E;
+    --warm:#D9B872;
+    --warm-soft:#3A2E17;
     --shadow:0 1px 2px rgba(0,0,0,.3), 0 8px 24px -12px rgba(0,0,0,.5);
     --shadow-lift:0 4px 10px rgba(0,0,0,.35), 0 20px 40px -16px rgba(0,0,0,.6);
   }
@@ -68,7 +74,10 @@
   *{box-sizing:border-box;}
   html{-webkit-text-size-adjust:100%;}
   body{
-    margin:0; background:var(--paper); color:var(--ink);
+    margin:0; color:var(--ink);
+    background:
+      radial-gradient(900px 420px at 50% -160px, var(--accent-soft) 0%, transparent 68%),
+      var(--paper);
     font-family:"IBM Plex Sans", ui-sans-serif, system-ui, sans-serif;
     font-size:16px; line-height:1.6;
     -webkit-font-smoothing:antialiased;
@@ -84,13 +93,6 @@
   .wrap{max-width:920px; margin:0 auto; padding:0 24px;}
   .rule{border:none; border-top:1px solid var(--rule); margin:0;}
   .rule-strong{border:none; border-top:1.5px solid var(--rule-strong); margin:0;}
-
-  /* Ruled ledger-paper background used behind the whole document */
-  .ledger-bg{
-    background-image: repeating-linear-gradient(
-      to bottom, transparent, transparent 43px, var(--rule) 43px, var(--rule) 44px
-    );
-  }
 
   @media (prefers-reduced-motion: reduce){
     *{animation-duration:.01ms !important; animation-iteration-count:1 !important; transition-duration:.01ms !important; scroll-behavior:auto !important;}
@@ -115,7 +117,6 @@
 
   /* ============ Hero ============ */
   .hero{padding:64px 0 40px;}
-  .hero .eyebrow{margin-bottom:18px; display:inline-block; background:var(--accent-soft); color:var(--accent); padding:5px 10px; border-radius:99px; letter-spacing:.07em;}
   .hero h1{
     font-size:clamp(32px, 5.2vw, 52px); font-weight:600; line-height:1.08; max-width:15ch;
   }
@@ -138,11 +139,59 @@
   .btn-ghost:hover{border-color:var(--accent); color:var(--accent);}
   .btn svg{width:16px; height:16px; flex:none;}
 
+  /* ============ Stickers ============
+     A small "cut vinyl" badge system: a colored fill, a paper-coloured
+     die-cut ring around it, a lifted shadow, and a slight rotation so
+     they read as stuck on rather than laid out in a grid. Reused for
+     eyebrows, section numbers, platform icons and the approval stamps. */
+  .sticker{
+    --sc:var(--accent); --sc-soft:var(--accent-soft);
+    display:inline-flex; flex:none; align-items:center; justify-content:center;
+    border-radius:999px; background:var(--paper-raised);
+    box-shadow:var(--shadow-lift); padding:4px;
+  }
+  .sticker-fill{
+    display:flex; align-items:center; justify-content:center; gap:5px;
+    width:100%; height:100%; border-radius:inherit;
+    background:var(--sc-soft); color:var(--sc);
+  }
+  .sticker.fill-accent{ --sc:var(--accent); --sc-soft:var(--accent-soft); }
+  .sticker.fill-good{ --sc:var(--stamp-green); --sc-soft:var(--stamp-green-soft); }
+  .sticker.fill-warm{ --sc:var(--warm); --sc-soft:var(--warm-soft); }
+  .sticker.fill-red{ --sc:var(--stamp-red); --sc-soft:var(--stamp-red-soft); }
+  .sticker.fill-neutral{ --sc:var(--ink-faint); --sc-soft:var(--rule); }
+
+  .sticker-num{width:38px; height:38px;}
+  .sticker-num .sticker-fill{font-family:"IBM Plex Mono",monospace; font-weight:700; font-size:13px;}
+
+  .sticker-tag{border-radius:999px; padding:4px;}
+  .sticker-tag .sticker-fill{
+    border-radius:999px; padding:6px 14px;
+    font-family:"IBM Plex Mono",monospace; font-weight:700; font-size:11px;
+    letter-spacing:.07em; text-transform:uppercase; white-space:nowrap;
+  }
+
+  .sticker-plat{width:60px; height:60px;}
+  .sticker-plat .sticker-fill svg{width:30px; height:30px;}
+
+  .sticker-seal{width:76px; height:76px;}
+  .sticker-seal .sticker-fill{
+    flex-direction:column; gap:1px; text-align:center;
+    font-family:"IBM Plex Mono",monospace; font-weight:700; font-size:10.5px;
+    letter-spacing:.05em; text-transform:uppercase; line-height:1.25;
+  }
+  .sticker-seal .sticker-fill svg{width:18px; height:18px; margin-bottom:2px;}
+
+  .tilt-1{transform:rotate(-5deg);}
+  .tilt-2{transform:rotate(4deg);}
+  .tilt-3{transform:rotate(-3deg);}
+  .tilt-4{transform:rotate(6deg);}
+  .tilt-5{transform:rotate(-6deg);}
+
   /* ============ Sections generic ============ */
   section{padding:52px 0;}
   section > .rule{margin:0 0 52px;}
-  .section-head{display:flex; align-items:baseline; gap:14px; margin-bottom:28px; flex-wrap:wrap;}
-  .section-head .num{font-family:"IBM Plex Mono", monospace; font-size:13px; color:var(--accent); font-weight:600;}
+  .section-head{display:flex; align-items:center; gap:14px; margin-bottom:28px; flex-wrap:wrap;}
   .section-head h2{font-size:clamp(24px,3vw,30px); font-weight:600;}
   .section-lede{color:var(--ink-soft); max-width:62ch; font-size:16px;}
 
@@ -213,20 +262,7 @@
     padding:26px; box-shadow:var(--shadow); overflow:hidden;
   }
   .dl-card.disabled{opacity:.88;}
-  .stamp{
-    position:absolute; top:20px; right:20px;
-    font-family:"IBM Plex Mono", monospace; font-weight:700; font-size:11px; letter-spacing:.08em;
-    padding:6px 10px; border:2px solid; border-radius:6px; transform:rotate(6deg);
-    text-transform:uppercase;
-  }
-  .stamp-approved{color:var(--stamp-green); border-color:var(--stamp-green); background:var(--stamp-green-soft);}
-  .stamp-pending{color:var(--stamp-red); border-color:var(--stamp-red); background:var(--stamp-red-soft); transform:rotate(-5deg);}
-  .dl-card .plat-icon{
-    width:44px; height:44px; border-radius:12px; background:var(--accent-soft); color:var(--accent);
-    display:flex; align-items:center; justify-content:center; margin-bottom:16px;
-  }
-  .dl-card.disabled .plat-icon{background:var(--rule); color:var(--ink-faint);}
-  .dl-card .plat-icon svg{width:24px; height:24px;}
+  .dl-card .sticker-plat{margin-bottom:16px;}
   .dl-card h3{font-size:21px; font-weight:600; margin-bottom:6px;}
   .dl-card .meta{font-family:"IBM Plex Mono", monospace; font-size:12px; color:var(--ink-faint); margin-bottom:14px;}
   .dl-card p.desc{color:var(--ink-soft); font-size:14px; margin:0 0 20px; line-height:1.6; min-height:64px;}
@@ -277,7 +313,7 @@
   @keyframes fadeUp{from{opacity:0; transform:translateY(10px);} to{opacity:1; transform:none;}}
 </style>
 
-<div class="ledger-bg">
+<div>
 
 <header class="letterhead">
   <div class="wrap letterhead-row">
@@ -297,7 +333,10 @@
 <div class="wrap">
 
   <section class="hero fade-up">
-    <span class="eyebrow">For ANZ eyes (mostly) only</span>
+    <div style="display:flex; align-items:center; gap:14px; flex-wrap:wrap; margin-bottom:18px;">
+      <span class="sticker sticker-tag fill-accent tilt-1"><span class="sticker-fill">For ANZ eyes (mostly) only</span></span>
+      <span class="sticker sticker-tag fill-warm tilt-2" title="Homemade fan badge — not ANZ's actual mark"><span class="sticker-fill">ANZ Hybrid Crew &middot; Unofficial</span></span>
+    </div>
     <h1>Your hybrid&#8209;work attendance, <em>audited nightly</em> by an app that's actually on your side.</h1>
     <p class="lede">Office Ledger counts your days present against your eligible working days — leave, public holidays and comp&#8209;off excluded, exactly the way the policy says it should — so you know where you stand before it comes up in your 1:1.</p>
     <div class="hero-cta">
@@ -315,7 +354,7 @@
   <hr class="rule-strong">
 
   <section>
-    <div class="section-head"><span class="num">01</span><h2>Why this exists</h2></div>
+    <div class="section-head"><span class="sticker sticker-num fill-accent tilt-1"><span class="sticker-fill">01</span></span><h2>Why this exists</h2></div>
     <div class="intro-grid">
       <div class="intro-text">
         <p>ANZ's hybrid&#8209;work policy runs on a percentage. Most of us track that percentage the way we track our steps: badly, from memory, right before the quarterly check&#8209;in — usually while squinting at a spreadsheet someone built in 2019.</p>
@@ -334,7 +373,7 @@
   <hr class="rule-strong">
 
   <section>
-    <div class="section-head"><span class="num">02</span><h2>Exhibits — the app, in evidence</h2></div>
+    <div class="section-head"><span class="sticker sticker-num fill-good tilt-2"><span class="sticker-fill">02</span></span><h2>Exhibits — the app, in evidence</h2></div>
     <p class="section-lede">Eight screens, presented as filed. Scroll sideways; nothing here has been staged for the demo.</p>
     <div class="exhibits" id="exhibits"></div>
   </section>
@@ -342,7 +381,7 @@
   <hr class="rule-strong">
 
   <section>
-    <div class="section-head"><span class="num">03</span><h2>What's on the ledger</h2></div>
+    <div class="section-head"><span class="sticker sticker-num fill-warm tilt-3"><span class="sticker-fill">03</span></span><h2>What's on the ledger</h2></div>
     <div class="ledger-rows">
       <div class="ledger-row"><div class="idx">01</div><div><h3>Calendar tracking</h3><p>Tap any day — Present, Work from home, Leave, Comp off, or a worked weekend. Colour&#8209;coded, so a whole month reads at a glance instead of a wall of blue.</p></div></div>
       <div class="ledger-row"><div class="idx">02</div><div><h3>Two leave pools, tracked honestly</h3><p>Annual and Sick/Carer draw from separate balances — because HR already keeps them separate, the app just stopped pretending otherwise.</p></div></div>
@@ -356,15 +395,22 @@
   <hr class="rule-strong">
 
   <section id="download">
-    <div class="section-head"><span class="num">04</span><h2>Requisition — choose your platform</h2></div>
+    <div class="section-head"><span class="sticker sticker-num fill-red tilt-4"><span class="sticker-fill">04</span></span><h2>Requisition — choose your platform</h2></div>
     <p class="section-lede">One platform is ready. One is still in procurement.</p>
     <div class="dl-grid">
 
       <div class="dl-card">
-        <span class="stamp stamp-approved">Approved</span>
-        <div class="plat-icon">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="2" width="14" height="20" rx="2"/><line x1="5" y1="18" x2="19" y2="18"/></svg>
-        </div>
+        <span class="sticker sticker-seal fill-good tilt-2" style="position:absolute; top:18px; right:18px;">
+          <span class="sticker-fill">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="4 12.5 9.5 18 20 6"/></svg>
+            Approved
+          </span>
+        </span>
+        <span class="sticker sticker-plat fill-good tilt-1">
+          <span class="sticker-fill" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M7 9.5A1.1 1.1 0 0 1 8.1 8.4h7.8A1.1 1.1 0 0 1 17 9.5V17a1.1 1.1 0 0 1-1.1 1.1h-.4v2a1.15 1.15 0 0 1-2.3 0v-2h-2.4v2a1.15 1.15 0 0 1-2.3 0v-2h-.4A1.1 1.1 0 0 1 7 17z"/><path d="M5.6 9.6a1 1 0 0 1 2 0v5a1 1 0 0 1-2 0z"/><path d="M16.4 9.6a1 1 0 0 1 2 0v5a1 1 0 0 1-2 0z"/><circle cx="9.6" cy="12" r="0.95" fill="var(--paper-raised)"/><circle cx="14.4" cy="12" r="0.95" fill="var(--paper-raised)"/><path d="M8.4 7.6 7.3 5.9a.55.55 0 0 1 .92-.6l1.2 1.85a5.6 5.6 0 0 1 5.16 0l1.2-1.85a.55.55 0 1 1 .92.6l-1.1 1.7"/></svg>
+          </span>
+        </span>
         <h3>Android</h3>
         <div class="meta">v1.3.0 &middot; ~3.8&nbsp;MB &middot; sideload, no Play Store</div>
         <p class="desc">A signed APK, built straight from the repo linked above. Android will call it "unrecognised" — correct, it's from one person's GitHub, not a corporation.</p>
@@ -378,10 +424,17 @@
       </div>
 
       <div class="dl-card disabled">
-        <span class="stamp stamp-pending">Pending</span>
-        <div class="plat-icon">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="2" width="12" height="20" rx="2.5"/><line x1="10" y1="19" x2="14" y2="19"/></svg>
-        </div>
+        <span class="sticker sticker-seal fill-warm tilt-4" style="position:absolute; top:18px; right:18px;">
+          <span class="sticker-fill">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15.5 13.8"/></svg>
+            Pending
+          </span>
+        </span>
+        <span class="sticker sticker-plat fill-neutral tilt-5">
+          <span class="sticker-fill" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="6.2" y="2.2" width="11.6" height="19.6" rx="2.6"/><line x1="6.2" y1="17.4" x2="17.8" y2="17.4"/><circle cx="12" cy="19.5" r="0.9" fill="currentColor" stroke="none"/></svg>
+          </span>
+        </span>
         <h3>iOS</h3>
         <div class="meta">Status: coming soon</div>
         <p class="desc">Pending one developer deciding whether $99/year to Apple is worth it for an app with a user base of himself and a few coworkers. Watch this space.</p>
