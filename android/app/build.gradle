@@ -7,8 +7,13 @@ android {
         applicationId "com.debarun.officeledger"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 1
-        versionName "1.0"
+        // versionCode must strictly increase every release, or Android's own
+        // package installer refuses to treat a new APK as an update over an
+        // already-installed one (silently fails the in-app "Update now"
+        // flow). It was hardcoded at 1 for every build through v1.3.0 — bump
+        // both of these together with every release from here on.
+        versionCode 2
+        versionName "1.3.1"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         aaptOptions {
              // Files and dirs to omit from the packaged assets dir, modified to accommodate modern web apps.

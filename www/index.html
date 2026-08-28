@@ -2231,14 +2231,71 @@ async function fetchLatestRelease(){
   });
   if(!res.ok) throw new Error("GitHub API returned "+res.status);
   var data = await res.json();
-  return { tag:(data.tag_name||"").replace(/^v/i,""), url:data.html_url };
+  var apkAsset = (data.assets||[]).find(function(a){ return /\.apk$/i.test(a.name||""); });
+  return {
+    tag:(data.tag_name||"").replace(/^v/i,""),
+    url:data.html_url,
+    apkUrl: apkAsset ? apkAsset.browser_download_url : null,
+    apkName: apkAsset ? apkAsset.name : "update.apk"
+  };
 }
 function notifyUpdateAvailable(tag){
   if(!state || !tag) return;
   if(state.lastNotifiedVersion === tag) return; // already raised for this version
   state.lastNotifiedVersion = tag;
   saveState();
-  addNotification("update", "Update available", "Version "+tag+" is available — you're on "+APP_VERSION+".");
+  var title = "Update available";
+  var body = "Version "+tag+" is available — you're on "+APP_VERSION+".";
+  addNotification("update", title, body);
+  // Also push to the phone's own notification panel, not just the in-app
+  // inbox, so it's seen even if the app isn't open — same mechanism the
+  // day-logging reminders already use, deduped per version via its own key.
+  notifyOnce("update-"+tag, title, body);
+}
+/* True only on the native Android build, with both the Filesystem plugin
+   (to download the APK) and the custom ApkInstaller plugin (to hand it to
+   the OS package installer) present. Anywhere else — iOS, the web preview,
+   or an older build without ApkInstaller — the update flow falls back to
+   just opening the release page in a browser. */
+function apkInstallReady(){
+  return !!(window.Capacitor && window.Capacitor.isNativePlatform && window.Capacitor.isNativePlatform()
+    && window.Capacitor.getPlatform && window.Capacitor.getPlatform()==="android"
+    && window.Capacitor.Plugins && window.Capacitor.Plugins.Filesystem && window.Capacitor.Plugins.ApkInstaller);
+}
+/* Downloads the release APK straight into the app's cache dir, then hands
+   it to Android's own package installer — the same "sideload" install
+   prompt as before, just without the user having to leave the app, find
+   the file in Downloads, and open it themselves. Android still requires a
+   final tap to actually install (no app can silently replace itself), and
+   the very first time it also requires the user to grant "install unknown
+   apps" for Office Ledger specifically — handled below. */
+async function downloadAndInstallUpdate(rel, btn, statusEl){
+  if(!apkInstallReady() || !rel.apkUrl){
+    openExternal(rel.url);
+    return;
+  }
+  var originalLabel = btn ? btn.textContent : "";
+  try{
+    if(btn){ btn.disabled = true; btn.textContent = "Downloading…"; }
+    if(statusEl) statusEl.textContent = "Downloading "+rel.apkName+"…";
+    var dl = await window.Capacitor.Plugins.Filesystem.downloadFile({
+      url: rel.apkUrl, path: "update.apk", directory: "CACHE"
+    });
+    if(statusEl) statusEl.textContent = "Opening installer…";
+    await window.Capacitor.Plugins.ApkInstaller.install({ path: dl.path });
+    if(statusEl) statusEl.textContent = "Follow the prompt to finish installing "+rel.tag+".";
+  }catch(e){
+    console.warn("Office Ledger: update download/install failed", e);
+    var reason = (e && (e.message||e.errorMessage)) || "";
+    if(/install_unknown_apps/i.test(reason)){
+      if(statusEl) statusEl.textContent = "Allow \"Install unknown apps\" for Office Ledger in the settings screen that just opened, then tap Update again.";
+    } else {
+      if(statusEl) statusEl.textContent = "Couldn't download the update — opening the release page instead.";
+      openExternal(rel.url);
+    }
+  } finally {
+    if(btn){ btn.disabled = false; btn.textContent = originalLabel || "Update now"; }
+  }
 }
 async function checkForUpdate(){
   var statusEl = document.getElementById("updateStatus");
@@ -2252,7 +2309,8 @@ async function checkForUpdate(){
       if(statusEl) statusEl.innerHTML = "Version <b>"+esc(rel.tag)+"</b> is available — you're on "+esc(APP_VERSION)+".";
       if(openBtn){
         openBtn.classList.remove("hidden");
-        openBtn.onclick = function(){ openExternal(rel.url); };
+        openBtn.textContent = apkInstallReady() ? "Update now" : "View latest release";
+        openBtn.onclick = function(){ downloadAndInstallUpdate(rel, openBtn, statusEl); };
       }
       notifyUpdateAvailable(rel.tag);
     } else {

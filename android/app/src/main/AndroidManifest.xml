@@ -26,7 +26,7 @@
 
         <provider
             android:name="androidx.core.content.FileProvider"
-            android:authorities="${applicationId}.FileProvider"
+            android:authorities="${applicationId}.fileprovider"
             android:exported="false"
             android:grantUriPermissions="true">
             <meta-data
@@ -38,4 +38,8 @@
     <!-- Permissions -->
 
     <uses-permission android:name="android.permission.INTERNET" />
+    <!-- Lets the app trigger the system installer for a downloaded update APK
+         (in-app "Update now"). The user still confirms the install themselves;
+         this only lets Office Ledger be a source Android will ask about. -->
+    <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
 </manifest>
