@@ -34,6 +34,8 @@
     --warn-soft:#F5EBD6;
     --critical:#B5473C;
     --critical-soft:#F6E1DE;
+    --holiday:#C0264F;
+    --holiday-soft:#F7DCE5;
     --wfh:#4A4FB0;
     --wfh-soft:#E5E6F7;
     --shadow: 0 1px 2px rgba(16,35,63,0.07), 0 6px 20px -8px rgba(16,35,63,0.18);
@@ -60,6 +62,8 @@
       --warn-soft:#362A16;
       --critical:#E28A7E;
       --critical-soft:#3B211E;
+      --holiday:#EA92AC;
+      --holiday-soft:#3A1C28;
       --wfh:#A3AAF0;
       --wfh-soft:#28305C;
       --shadow: 0 1px 2px rgba(0,0,0,0.3), 0 8px 24px -10px rgba(0,0,0,0.55);
@@ -85,6 +89,8 @@
     --warn-soft:#362A16;
     --critical:#E28A7E;
     --critical-soft:#3B211E;
+    --holiday:#EA92AC;
+    --holiday-soft:#3A1C28;
     --wfh:#A3AAF0;
     --wfh-soft:#28305C;
     --shadow: 0 1px 2px rgba(0,0,0,0.3), 0 8px 24px -10px rgba(0,0,0,0.55);
@@ -313,12 +319,19 @@
   .cal-cell.st-present{background:var(--good-soft); color:var(--good);}
   .cal-cell.st-workedWeekend{background:var(--good-soft); color:var(--good);}
   .cal-cell.st-leave{background:var(--warn-soft); color:var(--warn);}
-  .cal-cell.st-holiday{background:var(--warm-soft); color:var(--warm);}
+  .cal-cell.st-holiday{background:var(--holiday-soft); color:var(--holiday);}
   .cal-cell.st-compoff{background:var(--accent-soft); color:var(--accent);}
   .cal-cell.st-wfh{background:var(--wfh-soft); color:var(--wfh);}
   .cal-cell.st-weekend{color:var(--ink-faint);}
   .cal-cell.st-untracked{color:var(--ink-faint); opacity:.7;}
-  .cal-cell.st-unmarked-past{background:var(--critical-soft); color:var(--critical);}
+  .cal-cell.st-unmarked-past{
+    background-color:var(--critical-soft);
+    background-image:repeating-linear-gradient(45deg,
+      transparent, transparent 5px,
+      color-mix(in srgb, var(--critical) 24%, transparent) 5px,
+      color-mix(in srgb, var(--critical) 24%, transparent) 10px);
+    color:var(--critical);
+  }
   .cal-cell.st-future{color:var(--ink-faint);}
 
   .legend{display:flex; flex-wrap:wrap; gap:10px; margin-top:2px;}
@@ -645,14 +658,14 @@
 
 /* ---------- constants ---------- */
 var STORAGE_KEY = "officeLedger.v1";
-var APP_VERSION = "1.3.0"; // keep in sync with package.json's "version"
+var APP_VERSION = "1.3.1"; // keep in sync with package.json's "version"
 var UPDATE_REPO = "debarun1234/anz-attendance-tracker-app"; // GitHub owner/repo checked for releases
 var DOW_LABELS = ["Mon","Tue","Wed","Thu","Fri","Sat","Sun"];
 var STATUS_META = {
   present:        {label:"Present (Office)", color:"var(--good)"},
   workedWeekend:  {label:"Worked Weekend",    color:"var(--good)"},
   leave:          {label:"Leave",             color:"var(--warn)"},
-  holiday:        {label:"Public Holiday",    color:"var(--warm)"},
+  holiday:        {label:"Public Holiday",    color:"var(--holiday)"},
   compoff:        {label:"Comp Off Taken",    color:"var(--accent)"},
   wfh:            {label:"Work From Home",    color:"var(--wfh)"},
   weekend:        {label:"Weekend",           color:"var(--ink-faint)"},
@@ -1632,7 +1645,7 @@ function renderCalendar(){
       '<div class="legend" style="margin-top:14px;">'+
         legendItem("var(--good)","Present / Worked wknd")+
         legendItem("var(--warn)","Leave")+
-        legendItem("var(--warm)","Public holiday")+
+        legendItem("var(--holiday)","Public holiday")+
         legendItem("var(--accent)","Comp off")+
         legendItem("var(--wfh)","Work from home")+
         legendItem("var(--critical)","Unmarked (past)")+
@@ -2392,7 +2405,7 @@ var OB_SLIDES = [
       '<div class="ob-feature-list">'+
         obFeature("var(--good)","Present or Work from home","Mark each weekday from the Calendar tab.")+
         obFeature("var(--warn)","Annual &amp; Sick/Carer leave","Two separate pools, reported monthly — the app works out the days taken from the drop.")+
-        obFeature("var(--warm)","Public holidays","Add your company’s list once a year and they’re excluded automatically.")+
+        obFeature("var(--holiday)","Public holidays","Add your company’s list once a year and they’re excluded automatically.")+
         obFeature("var(--accent)","Comp off","Earned on worked weekends, spent when you take it.")+
       '</div>';
   }},
