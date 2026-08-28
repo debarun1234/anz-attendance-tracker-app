@@ -155,6 +155,31 @@
   }
   .help-btn svg{width:15px; height:15px;}
   .help-btn:active{background:var(--accent-soft); color:var(--accent);}
+  .notif-btn{position:relative;}
+  .notif-badge{
+    position:absolute; top:-4px; right:-4px; min-width:15px; height:15px; padding:0 3px;
+    border-radius:99px; background:var(--critical); color:#fff; font-size:9.5px; font-weight:700;
+    display:flex; align-items:center; justify-content:center; line-height:1; font-family:"IBM Plex Mono", monospace;
+    border:1.5px solid var(--surface);
+  }
+  .notif-badge.hidden{display:none;}
+
+  /* Notification center */
+  .notif-item{display:flex; gap:11px; padding:12px 0; border-bottom:1px solid var(--border); align-items:flex-start;}
+  .notif-item:last-child{border-bottom:none;}
+  .notif-item.unread{background:color-mix(in srgb, var(--accent-soft) 45%, transparent); margin:0 -18px; padding:12px 18px; border-radius:10px;}
+  .notif-icon{
+    width:32px; height:32px; border-radius:99px; flex:none; display:flex; align-items:center; justify-content:center;
+  }
+  .notif-icon svg{width:16px; height:16px;}
+  .notif-icon.t-error{background:var(--critical-soft); color:var(--critical);}
+  .notif-icon.t-update{background:var(--accent-soft); color:var(--accent);}
+  .notif-icon.t-bug{background:var(--warn-soft); color:var(--warn);}
+  .notif-body{flex:1; min-width:0;}
+  .notif-title{font-size:13.5px; font-weight:600;}
+  .notif-msg{font-size:12.5px; color:var(--ink-soft); margin-top:2px; line-height:1.4;}
+  .notif-time{font-size:11px; color:var(--ink-faint); margin-top:4px; font-family:"IBM Plex Mono", monospace;}
+  .notif-empty{text-align:center; padding:36px 10px; color:var(--ink-faint); font-size:13.5px;}
 
   /* Pull-to-refresh: an expanding bar under the topbar, driven by touch
      drag distance in JS. Zero height / hidden until pulled. */
@@ -317,11 +342,12 @@
 
   .field{display:flex; flex-direction:column; gap:5px;}
   .field label{font-size:12px; font-weight:600; color:var(--ink-soft);}
-  .field input, .field select{
+  .field input, .field select, .field textarea{
     font:inherit; font-size:15px; padding:10px 12px; border-radius:10px; border:1px solid var(--border);
     background:var(--surface); color:var(--ink); width:100%;
   }
-  .field input:focus, .field select:focus{border-color:var(--accent);}
+  .field textarea{resize:vertical; min-height:64px; line-height:1.4;}
+  .field input:focus, .field select:focus, .field textarea:focus{border-color:var(--accent); outline:none;}
   .field-hint{font-size:11.5px; color:var(--ink-faint);}
 
   .list-item{
@@ -562,6 +588,10 @@
       <span class="brand-name">Office Ledger</span>
     </div>
     <div class="topbar-actions">
+      <button class="help-btn notif-btn" id="notifBtn" aria-label="Notifications" title="Notifications">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9a6 6 0 1 1 12 0c0 4.2 1.2 5.6 1.6 6.4H4.4C4.8 14.6 6 13.2 6 9z"></path><path d="M9.5 18.5a2.5 2.5 0 0 0 5 0"></path></svg>
+        <span class="notif-badge hidden" id="notifBadge">0</span>
+      </button>
       <button class="help-btn" id="helpBtn" aria-label="Show guide for this page" title="How to use this page">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9.3"></circle><path d="M9.3 9.3a2.7 2.7 0 1 1 3.9 2.4c-.9.5-1.2 1-1.2 2"></path><line x1="12" y1="16.7" x2="12" y2="16.8"></line></svg>
       </button>
@@ -615,7 +645,7 @@
 
 /* ---------- constants ---------- */
 var STORAGE_KEY = "officeLedger.v1";
-var APP_VERSION = "1.2.1"; // keep in sync with package.json's "version"
+var APP_VERSION = "1.3.0"; // keep in sync with package.json's "version"
 var UPDATE_REPO = "debarun1234/anz-attendance-tracker-app"; // GitHub owner/repo checked for releases
 var DOW_LABELS = ["Mon","Tue","Wed","Thu","Fri","Sat","Sun"];
 var STATUS_META = {
@@ -691,9 +721,12 @@ function defaultState(){
     monthOverrides:{},  // "YYYY-MM" -> {eligible, attended} — manual backfill for months
                          // tracked before day-by-day logging started. Hidden testing tool,
                          // not part of normal use — see openBackfillSheet().
-    fyTotalOverride:null // number|null — forces the FY-to-date percentage shown on Calendar
+    fyTotalOverride:null, // number|null — forces the FY-to-date percentage shown on Calendar
                          // to this exact figure, for matching an officially reported total
                          // that doesn't reconcile with the per-month backfill's day-count math.
+    notifications:[],    // {id, type:'error'|'update'|'bug', title, message, ts, read} — newest first
+    lastUpdateCheck:0,    // ms timestamp of the last silent update check (throttles the GitHub call)
+    lastNotifiedVersion:null // last release tag we already raised an "update available" notification for
   };
 }
 /* Storage: on the native app this writes through Capacitor's Preferences plugin,
@@ -747,7 +780,8 @@ async function loadState(){
       holidays: parsed.holidays || [],
       dismissed: parsed.dismissed || {},
       notified: parsed.notified || {},
-      monthOverrides: parsed.monthOverrides || {}
+      monthOverrides: parsed.monthOverrides || {},
+      notifications: parsed.notifications || []
     });
     // One-time migration: older backups stored a single shared leaveBalance
     // pool. Carry that figure into Annual leave so nothing is lost, and
@@ -762,6 +796,99 @@ async function saveState(){
   try{ await storageSet(STORAGE_KEY, JSON.stringify(state)); }
   catch(e){ console.warn("Office Ledger: could not save data", e); showToast("Couldn't save — device storage may be full"); }
 }
+
+/* ---------- notification center ----------
+   A lightweight in-app inbox: app errors, "update available" pings, and a
+   record of bug reports you've sent — accessed via the bell icon in the
+   top bar. Stored on state so it survives restarts; capped so it can't
+   grow forever. */
+function addNotification(type, title, message){
+  if(!state) return; // nothing to log into before onboarding finishes
+  state.notifications = state.notifications || [];
+  state.notifications.unshift({
+    id:"n"+Date.now()+Math.random().toString(36).slice(2,7),
+    type:type, title:title, message:message||"", ts:Date.now(), read:false
+  });
+  if(state.notifications.length > 100) state.notifications.length = 100;
+  saveState();
+  updateNotifBadge();
+}
+function unreadNotifCount(){
+  return ((state && state.notifications) || []).filter(function(n){ return !n.read; }).length;
+}
+function updateNotifBadge(){
+  var badge = document.getElementById("notifBadge");
+  if(!badge) return;
+  var n = unreadNotifCount();
+  if(n>0){ badge.textContent = n>99 ? "99+" : String(n); badge.classList.remove("hidden"); }
+  else { badge.classList.add("hidden"); }
+}
+function notifIcon(type){
+  if(type==="error") return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9.3"></circle><line x1="12" y1="7.5" x2="12" y2="13"></line><line x1="12" y1="16.7" x2="12" y2="16.8"></line></svg>';
+  if(type==="update") return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"></path><polyline points="7 10 12 15 17 10"></polyline><path d="M5 19h14"></path></svg>';
+  return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="7" y="8" width="10" height="10" rx="3"></rect><path d="M9 8V6a3 3 0 0 1 6 0v2"></path><line x1="3.5" y1="12" x2="7" y2="12"></line><line x1="17" y1="12" x2="20.5" y2="12"></line><line x1="9" y1="18.5" x2="7" y2="21"></line><line x1="15" y1="18.5" x2="17" y2="21"></line></svg>';
+}
+function timeAgo(ts){
+  var s = Math.max(0, Math.floor((Date.now()-ts)/1000));
+  if(s<60) return "just now";
+  var m = Math.floor(s/60); if(m<60) return m+"m ago";
+  var h = Math.floor(m/60); if(h<24) return h+"h ago";
+  var d = Math.floor(h/24); if(d<7) return d+"d ago";
+  return new Date(ts).toLocaleDateString(undefined,{day:"numeric",month:"short"});
+}
+function openNotifCenter(){
+  var list = ((state && state.notifications) || []);
+  var rows = list.map(function(n){
+    return '<div class="notif-item'+(n.read?"":" unread")+'" data-id="'+n.id+'">'+
+      '<div class="notif-icon t-'+n.type+'">'+notifIcon(n.type)+'</div>'+
+      '<div class="notif-body"><div class="notif-title">'+esc(n.title)+'</div>'+
+      (n.message ? '<div class="notif-msg">'+esc(n.message)+'</div>' : '')+
+      '<div class="notif-time">'+timeAgo(n.ts)+'</div></div>'+
+    '</div>';
+  }).join("");
+  var html =
+    '<div class="sheet-grabber"></div>'+
+    '<div class="sheet-header">'+
+      '<div><div class="eyebrow">Inbox</div><h2 style="font-size:19px;">Notifications</h2></div>'+
+      '<button class="sheet-close" id="sheetClose" aria-label="Close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="5" y1="5" x2="19" y2="19"></line><line x1="19" y1="5" x2="5" y2="19"></line></svg></button>'+
+    '</div>'+
+    (list.length ? '<button class="btn btn-secondary btn-block" id="clearNotifsBtn" style="margin-top:4px;">Clear all</button>' : '')+
+    '<div style="margin-top:6px;">'+
+    (rows || '<div class="notif-empty">Nothing here yet — errors, update alerts and bug reports you send will show up in this list.</div>')+
+    '</div>';
+  document.getElementById("sheetContent").innerHTML = html;
+  var overlay = document.getElementById("sheetOverlay");
+  overlay.classList.add("center");
+  overlay.classList.add("open");
+  document.getElementById("sheetClose").addEventListener("click", closeSheet);
+  overlay.onclick = function(e){ if(e.target===overlay) closeSheet(); };
+  var clearBtn = document.getElementById("clearNotifsBtn");
+  if(clearBtn) clearBtn.addEventListener("click", function(){
+    state.notifications = [];
+    saveState();
+    updateNotifBadge();
+    closeSheet();
+    showToast("Notifications cleared");
+  });
+  // Opening the inbox marks everything read.
+  var changed = false;
+  list.forEach(function(n){ if(!n.read){ n.read = true; changed = true; } });
+  if(changed){ saveState(); updateNotifBadge(); }
+}
+// Catch runtime errors app-wide and log them into the notification center,
+// so "something broke" is visible in-app instead of only in a console
+// nobody on a phone can see.
+window.addEventListener("error", function(e){
+  try{ addNotification("error", "Something went wrong", (e && e.message) ? String(e.message) : "An unexpected error occurred."); }
+  catch(_e){}
+});
+window.addEventListener("unhandledrejection", function(e){
+  try{
+    var reason = e && e.reason;
+    var msg = (reason && (reason.message || String(reason))) || "An unexpected error occurred.";
+    addNotification("error", "Something went wrong", msg);
+  }catch(_e){}
+});
 
 /* ---------- holiday lookup ---------- */
 function holidayMap(){
@@ -1045,7 +1172,7 @@ function goToFyTrend(){
    time from the help icon in the top bar or from About → Show all guides. */
 var TOUR_STEPS = {
   today: [
-    {sel:".topbar", title:"Financial year", text:"Office Ledger tracks ANZ’s financial year — 1 October to 30 September. This chip always shows which one you're in."},
+    {sel:".topbar", title:"Financial year", text:"Office Ledger tracks ANZ’s financial year — 1 October to 30 September. This chip always shows which one you're in. The bell next to it is your notification center — errors, update alerts, and bug reports you've sent."},
     {sel:"#statHeroCard", title:"This month, live", text:"Your attendance percentage for the current month — present ÷ eligible days × 100 — recalculated the moment you log a day. Swipe it sideways for the financial-year aggregate."},
     {sel:"#logTodayBtn", title:"Log today", text:"Tap here any day to mark Present, Work from home, Leave, or Comp off taken."},
     {sel:".bottomnav-inner", title:"Get around", text:"Today, Calendar, Leave, Holidays and Settings — everything is one tap away."}
@@ -2085,6 +2212,21 @@ async function syncStatusBar(){
     await window.Capacitor.Plugins.StatusBar.setStyle({style: dark ? "DARK" : "LIGHT"});
   }catch(e){ console.warn("Office Ledger: status bar style sync failed", e); }
 }
+async function fetchLatestRelease(){
+  var res = await fetch("https://api.github.com/repos/"+UPDATE_REPO+"/releases/latest", {
+    headers:{"Accept":"application/vnd.github+json"}
+  });
+  if(!res.ok) throw new Error("GitHub API returned "+res.status);
+  var data = await res.json();
+  return { tag:(data.tag_name||"").replace(/^v/i,""), url:data.html_url };
+}
+function notifyUpdateAvailable(tag){
+  if(!state || !tag) return;
+  if(state.lastNotifiedVersion === tag) return; // already raised for this version
+  state.lastNotifiedVersion = tag;
+  saveState();
+  addNotification("update", "Update available", "Version "+tag+" is available — you're on "+APP_VERSION+".");
+}
 async function checkForUpdate(){
   var statusEl = document.getElementById("updateStatus");
   var btn = document.getElementById("checkUpdateBtn");
@@ -2092,18 +2234,14 @@ async function checkForUpdate(){
   if(statusEl) statusEl.textContent = "Checking…";
   if(btn) btn.disabled = true;
   try{
-    var res = await fetch("https://api.github.com/repos/"+UPDATE_REPO+"/releases/latest", {
-      headers:{"Accept":"application/vnd.github+json"}
-    });
-    if(!res.ok) throw new Error("GitHub API returned "+res.status);
-    var data = await res.json();
-    var latestTag = (data.tag_name||"").replace(/^v/i,"");
-    if(latestTag && compareVersions(latestTag, APP_VERSION) > 0){
-      if(statusEl) statusEl.innerHTML = "Version <b>"+esc(latestTag)+"</b> is available — you're on "+esc(APP_VERSION)+".";
+    var rel = await fetchLatestRelease();
+    if(rel.tag && compareVersions(rel.tag, APP_VERSION) > 0){
+      if(statusEl) statusEl.innerHTML = "Version <b>"+esc(rel.tag)+"</b> is available — you're on "+esc(APP_VERSION)+".";
       if(openBtn){
         openBtn.classList.remove("hidden");
-        openBtn.onclick = function(){ openExternal(data.html_url); };
+        openBtn.onclick = function(){ openExternal(rel.url); };
       }
+      notifyUpdateAvailable(rel.tag);
     } else {
       if(statusEl) statusEl.textContent = "You're on the latest version ("+esc(APP_VERSION)+").";
       if(openBtn) openBtn.classList.add("hidden");
@@ -2114,6 +2252,20 @@ async function checkForUpdate(){
   } finally {
     if(btn) btn.disabled = false;
   }
+}
+// Silent background check, run once at startup and throttled to at most
+// once every 12h — surfaces a notification without the user having to
+// open About and tap "Check for updates" themselves.
+async function checkForUpdateAuto(){
+  try{
+    if(!state) return;
+    var last = state.lastUpdateCheck || 0;
+    if(Date.now() - last < 12*60*60*1000) return;
+    state.lastUpdateCheck = Date.now();
+    saveState();
+    var rel = await fetchLatestRelease();
+    if(rel.tag && compareVersions(rel.tag, APP_VERSION) > 0) notifyUpdateAvailable(rel.tag);
+  }catch(e){ console.warn("Office Ledger: silent update check failed", e); }
 }
 function openAboutSheet(){
   var html =
@@ -2140,7 +2292,7 @@ function openAboutSheet(){
     '</div>'+
     '<hr class="divider" style="margin:16px 0;">'+
     '<span class="eyebrow">Help &amp; support</span>'+
-    '<p class="subtext" style="margin-top:4px;">Found a bug, or something looks off? Email it straight to the developer.</p>'+
+    '<p class="subtext" style="margin-top:4px;">Found a bug, or something looks off? Fill in a quick form and it goes straight to the developer.</p>'+
     '<button class="btn btn-secondary btn-block" id="reportBugBtn" style="margin-top:10px;">Report a bug</button>'+
     '<hr class="divider" style="margin:16px 0;">'+
     '<button class="btn btn-secondary btn-block" id="checkUpdateBtn">Check for updates</button>'+
@@ -2156,7 +2308,7 @@ function openAboutSheet(){
   document.getElementById("checkUpdateBtn").addEventListener("click", checkForUpdate);
   document.getElementById("linkedinLink").addEventListener("click", function(e){ e.preventDefault(); openExternal("https://www.linkedin.com/in/debarunghosh2024/"); });
   document.getElementById("githubLink").addEventListener("click", function(e){ e.preventDefault(); openExternal("https://github.com/debarun1234"); });
-  document.getElementById("reportBugBtn").addEventListener("click", reportBug);
+  document.getElementById("reportBugBtn").addEventListener("click", openBugReportSheet);
   document.getElementById("replayGuidesBtn").addEventListener("click", function(){
     state.profile.tourSeen = {};
     saveState();
@@ -2166,14 +2318,42 @@ function openAboutSheet(){
   });
 }
 
-function reportBug(){
+function openBugReportSheet(){
   var platform = "web";
   try{ if(window.Capacitor && window.Capacitor.getPlatform) platform = window.Capacitor.getPlatform(); }catch(e){}
-  var subject = "Office Ledger bug report (v"+APP_VERSION+")";
-  var body = "Describe what happened:\n\n\n---\nApp version: "+APP_VERSION+"\nPlatform: "+platform;
-  var url = "mailto:debarun.ghosh.2024@gmail.com?subject="+encodeURIComponent(subject)+"&body="+encodeURIComponent(body);
-  try{ window.location.href = url; }
-  catch(e){ showToast("Couldn't open email — write to debarun.ghosh.2024@gmail.com"); }
+  var html =
+    '<div class="sheet-grabber"></div>'+
+    '<div class="sheet-header">'+
+      '<div><div class="eyebrow">Help &amp; support</div><h2 style="font-size:19px;">Report a bug</h2></div>'+
+      '<button class="sheet-close" id="sheetClose" aria-label="Close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="5" y1="5" x2="19" y2="19"></line><line x1="19" y1="5" x2="5" y2="19"></line></svg></button>'+
+    '</div>'+
+    '<p class="subtext" style="margin-top:4px;">Describe what happened — this opens your email app with the details filled in, addressed straight to me.</p>'+
+    '<form id="bugForm" style="display:flex; flex-direction:column; gap:12px; margin-top:14px;">'+
+      '<div class="field"><label for="bugWhat">What happened? *</label><textarea id="bugWhat" rows="4" placeholder="e.g. The Calendar screen froze when I tapped a holiday" required></textarea></div>'+
+      '<div class="field"><label for="bugSteps">Steps to reproduce (optional)</label><textarea id="bugSteps" rows="3" placeholder="1. Open Calendar&#10;2. Tap a date&#10;3. ..."></textarea></div>'+
+      '<div class="field-hint">App version '+esc(APP_VERSION)+' · '+esc(platform)+' — included automatically.</div>'+
+      '<button type="submit" class="btn btn-primary btn-block">Send bug report</button>'+
+    '</form>';
+  document.getElementById("sheetContent").innerHTML = html;
+  var overlay = document.getElementById("sheetOverlay");
+  overlay.classList.add("center");
+  overlay.classList.add("open");
+  document.getElementById("sheetClose").addEventListener("click", closeSheet);
+  overlay.onclick = function(e){ if(e.target===overlay) closeSheet(); };
+  document.getElementById("bugForm").addEventListener("submit", function(e){
+    e.preventDefault();
+    var what = document.getElementById("bugWhat").value.trim();
+    var steps = document.getElementById("bugSteps").value.trim();
+    if(!what){ showToast("Describe what happened first"); return; }
+    var subject = "Office Ledger bug report (v"+APP_VERSION+")";
+    var body = "What happened:\n"+what+"\n\n"+(steps ? ("Steps to reproduce:\n"+steps+"\n\n") : "")+"---\nApp version: "+APP_VERSION+"\nPlatform: "+platform;
+    var url = "mailto:debarun.ghosh.2024@gmail.com?subject="+encodeURIComponent(subject)+"&body="+encodeURIComponent(body);
+    try{ window.location.href = url; }
+    catch(err){ showToast("Couldn't open email — write to debarun.ghosh.2024@gmail.com"); }
+    addNotification("bug", "Bug report submitted", what.length>90 ? (what.slice(0,90)+"…") : what);
+    closeSheet();
+    showToast("Opening your email app to send the report…");
+  });
 }
 
 /* ---------- Onboarding ---------- */
@@ -2342,9 +2522,12 @@ async function init(){
   });
   document.getElementById("fyChip").textContent = fyOf(today()).label;
   document.getElementById("helpBtn").addEventListener("click", function(){ startTour(currentView); });
+  document.getElementById("notifBtn").addEventListener("click", openNotifCenter);
+  updateNotifBadge();
   setupBackfillTrigger();
   setupPullToRefresh();
   syncStatusBar();
+  checkForUpdateAuto();
   if(window.matchMedia){
     var darkModeQuery = window.matchMedia("(prefers-color-scheme: dark)");
     if(darkModeQuery.addEventListener) darkModeQuery.addEventListener("change", syncStatusBar);
