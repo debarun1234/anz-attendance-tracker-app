@@ -455,6 +455,18 @@
         <p>Yes — that warning appears for any app installed outside the Play Store, including this one. Settings &rarr; Apps &rarr; Special access &rarr; Install unknown apps &rarr; allow it for your browser or Files app, then install as normal. The app makes no network calls except an optional, anonymous check for new GitHub releases.</p>
       </details>
       <details class="faq">
+        <summary>How do I install this on iPhone?</summary>
+        <p>Open <a href="./app/">the app link</a> in <b>Safari</b> — has to be Safari, Chrome and Firefox on iOS don't offer this option. Tap the Share icon, scroll down to "Add to Home Screen," tap Add. It's now a normal-looking app icon: full-screen, no address bar, own name. Always launch it from that icon afterwards, not from a Safari tab — that's what makes the next answer true.</p>
+      </details>
+      <details class="faq">
+        <summary>Will my iPhone wipe my data if I don't open it for a while?</summary>
+        <p>Not if you installed it properly (previous question). Regular Safari tabs get their storage wiped by Apple's Intelligent Tracking Prevention after 7 days of inactivity — that's an Apple policy, not a bug here. An app added to the Home Screen runs in its own separate storage that sits outside that sweep, so it's exempt in practice. Apple has never put that exemption in writing, so treat it as very likely rather than guaranteed, and use Settings &rarr; Export occasionally if you want a copy that doesn't depend on Apple's storage policy at all.</p>
+      </details>
+      <details class="faq">
+        <summary>Why doesn't it notify me on iPhone the way it does on Android?</summary>
+        <p>iOS won't let a locally-installed app push to the lock screen or notification centre without a server sending that push — and standing one up would mean this app suddenly needing a backend and an internet connection it doesn't have today. The in-app reminders still work the moment you open it; you just won't get pinged while it's closed. Android gets the full treatment because it allows notifications to be scheduled locally, no server required.</p>
+      </details>
+      <details class="faq">
         <summary>Does this connect to any ANZ system?</summary>
         <p>No. It doesn't touch SuccessFactors, your calendar, badge data, or anything else. You tell it what happened; it does the maths. That's the entire integration surface.</p>
       </details>
