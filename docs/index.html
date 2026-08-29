@@ -325,7 +325,7 @@
       <span><b>Form</b> ATT&#8209;2026</span>
       <span><b>Status</b> Unofficial</span>
       <span><b>Filed by</b> D. Ghosh, SRE</span>
-      <span><b>Rev.</b> 1.3.2</span>
+      <span><b>Rev.</b> 1.4.0</span>
     </div>
   </div>
 </header>
@@ -412,7 +412,7 @@
           </span>
         </span>
         <h3>Android</h3>
-        <div class="meta">v1.3.2 &middot; ~3.8&nbsp;MB &middot; sideload, no Play Store</div>
+        <div class="meta">v1.4.0 &middot; ~3.8&nbsp;MB &middot; sideload, no Play Store</div>
         <p class="desc">A signed APK, built straight from the repo linked above. Android will call it "unrecognised" — correct, it's from one person's GitHub, not a corporation.</p>
         <div class="actions" style="flex-direction:column; align-items:stretch; gap:10px;">
           <a class="btn btn-primary btn-block" href="https://github.com/debarun1234/anz-attendance-tracker-app/releases/latest/download/app-release.apk">
@@ -436,7 +436,7 @@
           </span>
         </span>
         <h3>iOS</h3>
-        <div class="meta">v1.3.2 &middot; installs from Safari, no App Store</div>
+        <div class="meta">v1.4.0 &middot; installs from Safari, no App Store</div>
         <p class="desc">No $99/year developer account, no App Store review — this is a PWA. Open it in Safari, tap Share, then "Add to Home Screen." It runs full-screen with its own icon like any other app.</p>
         <div class="actions" style="flex-direction:column; align-items:stretch; gap:10px;">
           <a class="btn btn-primary btn-block" href="./app/">
@@ -465,6 +465,10 @@
       <details class="faq">
         <summary>Why doesn't it notify me on iPhone the way it does on Android?</summary>
         <p>iOS won't let a locally-installed app push to the lock screen or notification centre without a server sending that push — and standing one up would mean this app suddenly needing a backend and an internet connection it doesn't have today. The in-app reminders still work the moment you open it; you just won't get pinged while it's closed. Android gets the full treatment because it allows notifications to be scheduled locally, no server required.</p>
+      </details>
+      <details class="faq">
+        <summary>Does Plan mode count toward my real percentage?</summary>
+        <p>No, on purpose. Plan mode is a forecast — turn it on for a future month, sketch out Present/WFH/Leave/Comp off day by day, and it shows a separate "Projected" percentage next to your real one. Nothing you plan touches the actual figure until that day arrives and you log it for real, exactly the same way you always have.</p>
       </details>
       <details class="faq">
         <summary>Does this connect to any ANZ system?</summary>
@@ -502,7 +506,7 @@
         <a href="mailto:debarun.ghosh.2024@gmail.com">Email</a>
       </div>
     </div>
-    <div class="footer-fine">&copy; 2026 Debarun Ghosh &middot; Office Ledger v1.3.2 &middot; Data lives on your device only.</div>
+    <div class="footer-fine">&copy; 2026 Debarun Ghosh &middot; Office Ledger v1.4.0 &middot; Data lives on your device only.</div>
   </div>
 </footer>
 
@@ -518,7 +522,8 @@
     {src:"assets/img/exhibit-e.jpg", tag:"Exhibit E", cap:"<b>Public holidays.</b> Add them before FY&#8209;end, or the app will count them against you. It has no sense of national pride."},
     {src:"assets/img/exhibit-f.jpg", tag:"Exhibit F", cap:"<b>The bit you control.</b> Name, target %, opening balances — set once, argue with the maths never again."},
     {src:"assets/img/exhibit-g.jpg", tag:"Exhibit G", cap:"<b>The mission statement.</b> No login, no backend, no analytics SDK quietly phoning home."},
-    {src:"assets/img/exhibit-h.jpg", tag:"Exhibit H", cap:"<b>Who to blame.</b> One SRE, one repo, zero Jira tickets filed against him — so far."}
+    {src:"assets/img/exhibit-h.jpg", tag:"Exhibit H", cap:"<b>Who to blame.</b> One SRE, one repo, zero Jira tickets filed against him — so far."},
+    {src:"assets/img/exhibit-i.jpg", tag:"Exhibit I", cap:"<b>Plan mode.</b> Turn it on for a future month and sketch a schedule — dashed cells, a separate projected %, and nothing counts for real until you actually log the day."}
   ];
   var wrap = document.getElementById("exhibits");
   wrap.innerHTML = EXHIBITS.map(function(e){

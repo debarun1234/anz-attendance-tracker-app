@@ -334,6 +334,33 @@
     color:var(--critical);
   }
   .cal-cell.st-future{color:var(--ink-faint);}
+  /* Plan mode: a forecast day, not a real entry — same status color as text/
+     border, but hollow (dashed outline, neutral fill) so it never reads as
+     an actual logged day at a glance. */
+  .cal-cell.is-planned{
+    background:var(--surface-2);
+    border-style:dashed; border-width:1.5px; border-color:currentColor;
+  }
+
+  .plan-toggle-row{
+    display:flex; align-items:center; justify-content:space-between; gap:14px;
+    margin-top:14px; padding-top:14px; border-top:1px solid var(--border);
+  }
+  .plan-toggle-label{font-weight:600; font-size:13.5px;}
+  .switch{position:relative; display:inline-block; width:42px; height:25px; flex:none; cursor:pointer;}
+  .switch input{position:absolute; opacity:0; width:100%; height:100%; margin:0; cursor:pointer;}
+  .switch-track{
+    position:absolute; inset:0; background:var(--surface-2); border:1.5px solid var(--border);
+    border-radius:99px; transition:background .15s, border-color .15s;
+  }
+  .switch-track::after{
+    content:""; position:absolute; top:2px; left:2px; width:18px; height:18px; border-radius:99px;
+    background:var(--ink-faint); transition:transform .15s, background .15s;
+  }
+  .switch input:checked ~ .switch-track{background:var(--accent-soft); border-color:var(--accent);}
+  .switch input:checked ~ .switch-track::after{transform:translateX(17px); background:var(--accent);}
+  .switch input:disabled ~ .switch-track{opacity:.45; cursor:not-allowed;}
+  .switch input:disabled{cursor:not-allowed;}
 
   .legend{display:flex; flex-wrap:wrap; gap:10px; margin-top:2px;}
   .legend-item{display:flex; align-items:center; gap:5px; font-size:11.5px; color:var(--ink-soft);}
@@ -659,7 +686,7 @@
 
 /* ---------- constants ---------- */
 var STORAGE_KEY = "officeLedger.v1";
-var APP_VERSION = "1.3.2"; // keep in sync with package.json's "version"
+var APP_VERSION = "1.4.0"; // keep in sync with package.json's "version"
 var UPDATE_REPO = "debarun1234/anz-attendance-tracker-app"; // GitHub owner/repo checked for releases
 var DOW_LABELS = ["Mon","Tue","Wed","Thu","Fri","Sat","Sun"];
 var STATUS_META = {
@@ -725,6 +752,11 @@ function defaultState(){
     profile:{ name:"", targetPct:50, openingCompOff:0, openingAnnualLeave:null, openingCarerSickLeave:null, createdAt: todayStr(), tourSeen:{} },
     days:{},          // "YYYY-MM-DD" -> {status, leaveType}
     holidays:[],       // {id, date, name}
+    plan:{},            // "YYYY-MM-DD" -> {status, leaveType} — Plan mode entries. Same
+                         // shape as `days`, but kept fully separate: a plan is a forecast,
+                         // never counted in real attendance, only in the "Projected" figure.
+    planMonths:{},       // "YYYY-MM" -> true — months where Plan mode is switched on. Turning
+                         // a month off clears every plan entry inside it (see clearPlanForMonth).
     // Two separate pools, matching how the company actually runs leave:
     // Annual leave accrues and is tracked on its own; Sick and Carer leave
     // share one combined pool, distinct from Annual.
@@ -792,6 +824,8 @@ async function loadState(){
       carerSickLeave: Object.assign(d.carerSickLeave, parsed.carerSickLeave),
       days: parsed.days || {},
       holidays: parsed.holidays || [],
+      plan: parsed.plan || {},
+      planMonths: parsed.planMonths || {},
       dismissed: parsed.dismissed || {},
       notified: parsed.notified || {},
       monthOverrides: parsed.monthOverrides || {},
@@ -923,6 +957,37 @@ function classifyDay(dateStr, hMap){
   return "unmarked";
 }
 
+/* ---------- Plan mode ----------
+   A separate, opt-in-per-month forecast layer. A planned day never becomes
+   a real attendance record on its own — classifyDay() above never looks at
+   state.plan — it only feeds classifyDayWithPlan() below, which is used
+   exclusively to compute the "Projected" figure and to render planned
+   (dashed) calendar cells. Logging the real day when it arrives, via the
+   normal day sheet, is what actually counts. */
+function planMonthKey(dateStr){ return dateStr.slice(0,7); }
+function monthIsPlannable(y,m){
+  var mr = monthRangeStr(y,m);
+  return mr.end >= todayStr(); // not fully in the past
+}
+function isPlanModeOn(monthKey){ return !!(state.planMonths && state.planMonths[monthKey]); }
+function planCountForMonth(monthKey){
+  return Object.keys(state.plan||{}).filter(function(ds){ return planMonthKey(ds)===monthKey; }).length;
+}
+function clearPlanForMonth(monthKey){
+  Object.keys(state.plan||{}).forEach(function(ds){ if(planMonthKey(ds)===monthKey) delete state.plan[ds]; });
+}
+/* Same as classifyDay, but a future day with no real entry and no holiday
+   falls back to whatever was planned for it, instead of "unmarked". Used
+   only for the Projected figure and for painting planned calendar cells —
+   never for real attendance math. */
+function classifyDayWithPlan(dateStr, hMap){
+  if(state.days[dateStr] && state.days[dateStr].status) return classifyDay(dateStr, hMap);
+  if(hMap[dateStr]) return "holiday";
+  var planned = state.plan[dateStr];
+  if(planned && planned.status) return planned.status;
+  return classifyDay(dateStr, hMap);
+}
+
 /* range stats: iterates [startStr, endStr] inclusive, split around cutoffStr (usually today).
    "Resolved" days (<= cutoff) are the true to-date figures: an unmarked resolved weekday
    counts as eligible but NOT attended (a logging gap that counts against you).
@@ -971,7 +1036,8 @@ function inferredLeaveByMonth(){
   return out;
 }
 
-function rangeStats(startStr, endStr, cutoffStr){
+function rangeStats(startStr, endStr, cutoffStr, classifier){
+  classifier = classifier || classifyDay;
   var hMap = holidayMap();
   var start = parseIso(startStr), end = parseIso(endStr);
   var eligibleResolved=0, eligibleFull=0, attendedResolved=0, attendedFull=0, leaveN=0, holidayN=0, compoffN=0,
@@ -979,7 +1045,7 @@ function rangeStats(startStr, endStr, cutoffStr){
   var cur = new Date(start.getTime());
   while(cur.getTime() <= end.getTime()){
     var ds = isoOf(cur);
-    var cls = classifyDay(ds, hMap);
+    var cls = classifier(ds, hMap);
     var isResolved = ds <= cutoffStr;
     if(cls==="present" || cls==="workedWeekend"){
       eligibleFull++; attendedFull++;
@@ -1043,9 +1109,9 @@ function rangeStats(startStr, endStr, cutoffStr){
    aggregate. Every other field on the stats object is left as actually
    computed, and untouched months are unaffected. */
 function monthOverrideKey(y,m){ return y+"-"+pad2(m+1); }
-function monthStats(y, m, cutoffStr){
+function monthStats(y, m, cutoffStr, classifier){
   var mr = monthRangeStr(y,m);
-  var real = rangeStats(mr.start, mr.end, cutoffStr);
+  var real = rangeStats(mr.start, mr.end, cutoffStr, classifier);
   var ov = state.monthOverrides && state.monthOverrides[monthOverrideKey(y,m)];
   if(!ov) return real;
   var eligible = Math.max(0, ov.eligible||0);
@@ -1062,11 +1128,11 @@ function monthStats(y, m, cutoffStr){
    overridden — mathematically identical to one continuous rangeStats() call
    over the whole FY when nothing is overridden, since day classification
    and leave inference are both already month-scoped internally. */
-function fyAggregateStats(fy){
+function fyAggregateStats(fy, classifier){
   var tStr = todayStr();
   var out = {eligibleResolved:0, eligibleFull:0, attended:0, attendedFull:0, pending:0};
   fyMonths(fy).forEach(function(mo){
-    var s = monthStats(mo.year, mo.month, tStr);
+    var s = monthStats(mo.year, mo.month, tStr, classifier);
     out.eligibleResolved += s.eligibleResolved;
     out.eligibleFull += s.eligibleFull;
     out.attended += s.attended;
@@ -1195,6 +1261,7 @@ var TOUR_STEPS = {
     {sel:".cal-nav", title:"Browse months", text:"Step through months, or jump straight back to today."},
     {sel:"#view-calendar .cal-grid", title:"Tap any day", text:"Tap a date to set its status — Present, Work from home, Leave, Comp off, or a worked weekend."},
     {sel:"#view-calendar .legend", title:"Color legend", text:"Each color is a day status, so a whole month reads at a glance."},
+    {sel:".plan-toggle-row", title:"Plan ahead", text:"Turn on Plan mode for a future month to sketch out a schedule — planned days show as dashed cells and feed a projected percentage, but never count for real until you log the actual day."},
     {sel:"#monthSummaryCard", title:"Month summary", text:"The full breakdown for the month you're viewing, and its attendance percentage."},
     {sel:"#fyTrendCard", title:"FY trend at a glance", text:"Every month of the financial year to date, each with its own percentage, plus the aggregate total for the whole year so far."}
   ],
@@ -1614,15 +1681,27 @@ function renderCalendar(){
   var total = daysInMonth(y,m);
   var tStr = todayStr();
 
+  var monthKey = monthOverrideKey(y,m);
+  var plannable = monthIsPlannable(y,m);
+  var planOn = isPlanModeOn(monthKey);
+  var planCount = planCountForMonth(monthKey);
+
   var cells = "";
   for(var i=0;i<lead;i++) cells += '<div class="cal-cell empty"></div>';
   for(var day=1; day<=total; day++){
     var ds = iso(y,m,day);
-    var cls = classifyDay(ds, hMap);
     var isPast = ds <= tStr;
-    var cssClass = cls==="unmarked" ? (isPast ? "st-unmarked-past" : "st-future") : "st-"+cls;
+    var planned = (!isPast && planOn && !hMap[ds] && !(state.days[ds]&&state.days[ds].status)) ? state.plan[ds] : null;
+    var cssClass, planCls="";
+    if(planned && planned.status){
+      cssClass = "st-"+planned.status;
+      planCls = " is-planned";
+    } else {
+      var cls = classifyDay(ds, hMap);
+      cssClass = cls==="unmarked" ? (isPast ? "st-unmarked-past" : "st-future") : "st-"+cls;
+    }
     var todayCls = ds===tStr ? " is-today" : "";
-    cells += '<div class="cal-cell '+cssClass+todayCls+'" data-date="'+ds+'">'+day+'</div>';
+    cells += '<div class="cal-cell '+cssClass+planCls+todayCls+'" data-date="'+ds+'">'+day+'</div>';
   }
 
   var mr = monthRangeStr(y,m);
@@ -1631,6 +1710,23 @@ function renderCalendar(){
 
   var fy = fyOf(today());
   var fyStats = fyAggregateStats(fy);
+
+  // Projected card: scoped to whichever FY the browsed month belongs to (so
+  // planning ahead into next FY still shows its own trajectory), and only
+  // shown at all once a plan actually exists somewhere in that FY.
+  var planFy = fyOf(new Date(y,m,1));
+  var planFyStartStr = isoOf(planFy.start), planFyEndStr = isoOf(planFy.end);
+  var hasPlanInFy = Object.keys(state.plan||{}).some(function(ds){ return ds>=planFyStartStr && ds<=planFyEndStr; });
+  var planForecastHtml = "";
+  if(hasPlanInFy){
+    var projStats = fyAggregateStats(planFy, classifyDayWithPlan);
+    var sameFy = planFy.startYear===fy.startYear;
+    planForecastHtml =
+      '<div class="card" id="planForecastCard">'+
+        '<div class="card-row"><span class="eyebrow">Projected'+(sameFy?"":" — "+esc(planFy.label))+'</span><span class="status-pill '+pctColorClass(projStats.pctFull,state.profile.targetPct)+'">'+fmtPct(projStats.pctFull)+'</span></div>'+
+        '<p class="subtext" style="margin-top:6px;">Where '+esc(planFy.label)+' lands if you follow the plan you\'ve set below — it\'s a forecast, and won\'t count toward your real percentage until each planned day actually happens.</p>'+
+      '</div>';
+  }
 
   var html =
     '<div class="card">'+
@@ -1650,7 +1746,20 @@ function renderCalendar(){
         legendItem("var(--accent)","Comp off")+
         legendItem("var(--wfh)","Work from home")+
         legendItem("var(--critical)","Unmarked (past)")+
+        (planOn ? '<div class="legend-item"><span class="legend-swatch" style="background:transparent; border:1.5px dashed var(--ink-soft);"></span>Planned</div>' : "")+
       '</div>'+
+      (plannable || planOn ?
+        '<div class="plan-toggle-row">'+
+          '<div>'+
+            '<div class="plan-toggle-label">Plan mode</div>'+
+            '<div class="subtext" style="margin-top:2px;">Try a schedule for '+MONTH_NAMES[m]+' — it won\'t count toward your real percentage.</div>'+
+          '</div>'+
+          '<label class="switch">'+
+            '<input type="checkbox" id="planModeToggle"'+(planOn?" checked":"")+(!plannable&&!planOn?" disabled":"")+'>'+
+            '<span class="switch-track"></span>'+
+          '</label>'+
+        '</div>'
+      : "")+
     '</div>'+
     '<div class="card" id="monthSummaryCard">'+
       '<span class="eyebrow">Month summary</span>'+
@@ -1676,13 +1785,35 @@ function renderCalendar(){
       (fyRecoveryMessage(fyStats, state.profile.targetPct, fy, today()) ? '<p class="to-target" style="margin-top:8px;">'+fyRecoveryMessage(fyStats, state.profile.targetPct, fy, today())+'</p>' : '')+
       '<hr class="divider" style="margin:14px 0;">'+
       fyTrendTable(fy)+
-    '</div>';
+    '</div>'+
+    planForecastHtml;
 
   var v = document.getElementById("view-calendar");
   v.innerHTML = html;
   v.querySelectorAll(".cal-cell[data-date]").forEach(function(c){
-    c.addEventListener("click", function(){ openDaySheet(c.getAttribute("data-date")); });
+    c.addEventListener("click", function(){
+      var ds = c.getAttribute("data-date");
+      if(ds > tStr && isPlanModeOn(planMonthKey(ds)) && !hMap[ds]) openPlanDaySheet(ds);
+      else openDaySheet(ds);
+    });
   });
+  var pmToggle = document.getElementById("planModeToggle");
+  if(pmToggle){
+    pmToggle.addEventListener("change", function(){
+      if(pmToggle.checked){
+        state.planMonths[monthKey] = true;
+        saveState();
+        renderCalendar();
+      } else if(planCount>0){
+        pmToggle.checked = true; // hold visually until the clear is confirmed
+        openPlanClearConfirm(monthKey, MONTH_NAMES[m]+" "+y, planCount);
+      } else {
+        delete state.planMonths[monthKey];
+        saveState();
+        renderCalendar();
+      }
+    });
+  }
   document.getElementById("calPrev").addEventListener("click", function(){ shiftMonth(-1); });
   document.getElementById("calNext").addEventListener("click", function(){ shiftMonth(1); });
   document.getElementById("calToday").addEventListener("click", function(){ calCursor={year:today().getFullYear(), month:today().getMonth()}; renderCalendar(); });
@@ -2065,6 +2196,122 @@ function clearDay(dateStr){
   saveState();
   showToast("Cleared");
   renderCurrentView();
+}
+
+/* ---------- Plan mode day sheet ----------
+   Opened instead of the normal day sheet when the tapped date is in the
+   future, its month has Plan mode on, and it isn't a public holiday. Writes
+   to state.plan, never state.days — a plan is a forecast, not a log. */
+function openPlanDaySheet(dateStr){
+  sheetDate = dateStr;
+  var d = parseIso(dateStr);
+  var weekend = isWeekend(d);
+  var planned = state.plan[dateStr] || {};
+  var effective = planned.status || null;
+
+  var optionsHtml;
+  if(weekend){
+    optionsHtml =
+      optBtn("workedWeekend","Worked (office)", effective==="workedWeekend", "var(--good)")+
+      optBtn("clear","Clear plan", !effective, "var(--ink-faint)");
+  } else {
+    optionsHtml =
+      optBtn("present","Present", effective==="present", "var(--good)")+
+      optBtn("wfh","Work from home", effective==="wfh", "var(--wfh)")+
+      optBtn("leave","Leave", effective==="leave", "var(--warn)")+
+      optBtn("compoff","Comp off taken", effective==="compoff", "var(--accent)")+
+      optBtn("clear","Clear plan", !effective, "var(--ink-faint)");
+  }
+
+  var subtypeHtml = '<div class="subtype-row hidden" id="subtypeRow">'+
+    LEAVE_TYPES.map(function(lt){
+      var sel = planned.status==="leave" && planned.leaveType===lt.k;
+      return '<button type="button" class="subtype-chip'+(sel?" selected":"")+'" data-leavetype="'+lt.k+'">'+lt.l+'</button>';
+    }).join("")+'</div>';
+
+  var html =
+    '<div class="sheet-grabber"></div>'+
+    '<div class="sheet-header">'+
+      '<div><div class="eyebrow">Planning · '+(weekend?"Weekend":"Weekday")+'</div><h2 style="font-size:19px;">'+fmtLong(d)+'</h2></div>'+
+      '<button class="sheet-close" id="sheetClose" aria-label="Close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="5" y1="5" x2="19" y2="19"></line><line x1="19" y1="5" x2="5" y2="19"></line></svg></button>'+
+    '</div>'+
+    '<div class="banner" style="margin-bottom:14px;"><div class="banner-text"><strong>This is a plan, not a log</strong>It shows up in your projected percentage, but won\'t count for real until you log this day when it arrives.</div></div>'+
+    '<div class="option-grid">'+optionsHtml+'</div>'+
+    subtypeHtml;
+
+  document.getElementById("sheetContent").innerHTML = html;
+  var overlay = document.getElementById("sheetOverlay");
+  overlay.classList.remove("center");
+  overlay.classList.add("open");
+
+  document.getElementById("sheetClose").addEventListener("click", closeSheet);
+  overlay.onclick = function(e){ if(e.target===overlay) closeSheet(); };
+
+  document.querySelectorAll("#sheetContent [data-status]").forEach(function(b){
+    b.addEventListener("click", function(){
+      var status = b.getAttribute("data-status");
+      if(status==="leave"){
+        document.getElementById("subtypeRow").classList.remove("hidden");
+        document.querySelectorAll("#sheetContent [data-status]").forEach(function(x){ x.classList.toggle("selected", x===b); });
+        setPlanDay(dateStr, "leave", planned.leaveType||null);
+      } else if(status==="clear"){
+        clearPlanDay(dateStr);
+        closeSheet();
+      } else {
+        setPlanDay(dateStr, status, null);
+        closeSheet();
+      }
+    });
+  });
+  document.querySelectorAll("#sheetContent [data-leavetype]").forEach(function(b){
+    b.addEventListener("click", function(){
+      setPlanDay(dateStr, "leave", b.getAttribute("data-leavetype"));
+      closeSheet();
+    });
+  });
+}
+function setPlanDay(dateStr, status, leaveType){
+  state.plan[dateStr] = {status:status, leaveType:leaveType||null};
+  saveState();
+  showToast("Planned");
+  renderCurrentView();
+}
+function clearPlanDay(dateStr){
+  delete state.plan[dateStr];
+  saveState();
+  showToast("Plan cleared");
+  renderCurrentView();
+}
+/* Confirms before wiping a month's plan — the only destructive action Plan
+   mode has, so it gets a step users have to actively confirm rather than a
+   silent toggle-off. */
+function openPlanClearConfirm(monthKey, monthLabel, count){
+  var html =
+    '<div class="sheet-grabber"></div>'+
+    '<div class="sheet-header">'+
+      '<div><div class="eyebrow">Plan mode</div><h2 style="font-size:19px;">Clear the plan for '+esc(monthLabel)+'?</h2></div>'+
+      '<button class="sheet-close" id="sheetClose" aria-label="Close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="5" y1="5" x2="19" y2="19"></line><line x1="19" y1="5" x2="5" y2="19"></line></svg></button>'+
+    '</div>'+
+    '<p class="subtext">Turning this off removes '+plural(count,"planned day")+' you\'ve set for '+esc(monthLabel)+'. This can\'t be undone.</p>'+
+    '<div style="display:flex; gap:10px; margin-top:16px;">'+
+      '<button class="btn btn-secondary btn-block" id="planClearCancel">Keep plan</button>'+
+      '<button class="btn btn-primary btn-block" id="planClearConfirm" style="background:var(--critical); color:#fff;">Clear plan</button>'+
+    '</div>';
+  document.getElementById("sheetContent").innerHTML = html;
+  var overlay = document.getElementById("sheetOverlay");
+  overlay.classList.add("center");
+  overlay.classList.add("open");
+  document.getElementById("sheetClose").addEventListener("click", closeSheet);
+  overlay.onclick = function(e){ if(e.target===overlay) closeSheet(); };
+  document.getElementById("planClearCancel").addEventListener("click", closeSheet);
+  document.getElementById("planClearConfirm").addEventListener("click", function(){
+    clearPlanForMonth(monthKey);
+    delete state.planMonths[monthKey];
+    saveState();
+    closeSheet();
+    showToast("Plan cleared");
+    renderCurrentView();
+  });
 }
 function closeSheet(){
   document.getElementById("sheetOverlay").classList.remove("open");
