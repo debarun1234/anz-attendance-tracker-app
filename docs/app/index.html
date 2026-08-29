@@ -1628,8 +1628,14 @@ async function scheduleWfhReminders(){
 
 /* If the financial-year-to-date % is below target, work out whether it's
    still mathematically reachable by FY end (30 Sep) given the eligible
-   working days left, and if so, roughly how many of them are needed —
-   spread across the remaining months for a concrete recovery plan. */
+   working days left, and if so, exactly where those days fall.
+   Deliberately NOT "needed ÷ calendar months left": that always counts
+   today's own month as a whole month of runway even with only a day or
+   two actually remaining in it, which overstates how much is realistically
+   left to do there. Instead this looks up each remaining month's own
+   still-pending eligible days directly, so a nearly-over month correctly
+   shows up as having almost nothing left, and the days needed land where
+   they can actually happen. */
 function fyRecoveryMessage(stats, target, fy, t){
   if(stats.pctResolved===null || stats.pctResolved>=target) return null;
   var neededMore = Math.max(0, Math.ceil(target/100*stats.eligibleFull) - stats.attendedFull);
@@ -1644,9 +1650,16 @@ function fyRecoveryMessage(stats, target, fy, t){
     var bestCase = stats.eligibleFull>0 ? ((stats.attendedFull+remaining)/stats.eligibleFull*100) : null;
     return "Even attending every remaining eligible day in "+fy.label+", the best reachable is <b>"+Math.round(bestCase)+"%</b> — below the "+target+"% target.";
   }
-  var monthsLeft = (fy.end.getFullYear()*12+fy.end.getMonth()) - (t.getFullYear()*12+t.getMonth()) + 1;
-  var perMonth = Math.ceil(neededMore/monthsLeft);
-  return "To recover to "+target+"% by the end of "+fy.label+", attend <b>"+plural(neededMore,"more day")+"</b> out of the <b>"+plural(remaining,"eligible day")+"</b> left — roughly <b>"+plural(perMonth,"day")+"</b> a month across the remaining "+plural(monthsLeft,"month")+".";
+  var tStr = todayStr();
+  var breakdown = fyMonths(fy).map(function(mo){
+    var mr = monthRangeStr(mo.year, mo.month);
+    if(mr.end < tStr) return null; // this month already fully resolved — nothing pending here
+    var s = monthStats(mo.year, mo.month, tStr);
+    if(s.pending<=0) return null;
+    var isCurrent = (mo.year===t.getFullYear() && mo.month===t.getMonth());
+    return plural(s.pending,"day") + (isCurrent ? " left this month" : " in "+MONTH_NAMES[mo.month]);
+  }).filter(Boolean).join(", ");
+  return "To recover to "+target+"% by the end of "+fy.label+", attend <b>"+plural(neededMore,"more day")+"</b> out of the <b>"+plural(remaining,"eligible day")+"</b> left"+(breakdown?" — "+breakdown:"")+".";
 }
 
 function fyTrendTable(fy){
@@ -1906,6 +1919,11 @@ function renderCalendar(){
   var mr = monthRangeStr(y,m);
   var stats = monthStats(y, m, tStr);
   var weekdayTotal = stats.eligibleFull + stats.leave + stats.holiday + stats.compoff - stats.weekendWorked;
+  // This month's own forecast — separate from the FY-wide "Projected" card
+  // below, which blends every month together. Only shown once this month
+  // actually has planned days, so "what would THIS month look like" has a
+  // direct answer instead of being buried in the FY total.
+  var monthProjStats = (planOn && planCount>0) ? monthStats(y, m, tStr, classifyDayWithPlan) : null;
 
   var fy = fyOf(today());
   var fyStats = fyAggregateStats(fy);
@@ -1975,6 +1993,10 @@ function renderCalendar(){
       '</div>'+
       '<hr class="divider" style="margin:10px 0;">'+
       '<div class="card-row"><span style="font-weight:600;">Attendance</span><span class="status-pill '+pctColorClass(stats.pctResolved,state.profile.targetPct)+'">'+fmtPct(stats.pctResolved)+'</span></div>'+
+      (monthProjStats ?
+        '<div class="card-row" style="margin-top:8px;"><span style="font-weight:600;">Projected</span><span class="status-pill '+pctColorClass(monthProjStats.pctFull,state.profile.targetPct)+'">'+fmtPct(monthProjStats.pctFull)+'</span></div>'+
+        '<p class="subtext" style="margin-top:4px;">'+plural(planCount,"day")+' planned this month, out of '+monthProjStats.eligibleFull+' eligible — forecast only, doesn\'t count until you log the real day.</p>'
+      : '')+
     '</div>'+
     '<div class="card" id="fyTrendCard">'+
       '<div class="card-row"><span class="eyebrow">'+fy.label+' to date</span><span class="status-pill '+pctColorClass(fyStats.pctResolved,state.profile.targetPct)+'">'+fmtPct(fyStats.pctResolved)+(fyStats.totalOverridden?' †':'')+'</span></div>'+
