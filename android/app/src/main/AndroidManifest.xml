@@ -42,4 +42,9 @@
          (in-app "Update now"). The user still confirms the install themselves;
          this only lets Office Ledger be a source Android will ask about. -->
     <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
+    <!-- Foreground-only office auto-detection: checked once when the app is
+         opened, never in the background — deliberately NOT requesting
+         ACCESS_BACKGROUND_LOCATION. -->
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
 </manifest>

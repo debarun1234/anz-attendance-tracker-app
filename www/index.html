@@ -404,6 +404,7 @@
   }
   .icon-btn:hover{color:var(--critical);}
   .icon-btn svg{width:17px; height:17px;}
+  .icon-btn-edit:hover{color:var(--accent);}
 
   .empty-state{text-align:center; padding:26px 10px; color:var(--ink-faint);}
   .empty-state svg{width:34px; height:34px; margin-bottom:8px; opacity:.6;}
@@ -647,6 +648,7 @@
     <section class="view" id="view-leave"></section>
     <section class="view" id="view-holidays"></section>
     <section class="view" id="view-settings"></section>
+    <section class="view" id="view-location"></section>
   </main>
 
   <nav class="bottomnav">
@@ -685,7 +687,7 @@
 
 /* ---------- constants ---------- */
 var STORAGE_KEY = "officeLedger.v1";
-var APP_VERSION = "1.4.0"; // keep in sync with package.json's "version"
+var APP_VERSION = "1.5.0"; // keep in sync with package.json's "version"
 var UPDATE_REPO = "debarun1234/anz-attendance-tracker-app"; // GitHub owner/repo checked for releases
 var DOW_LABELS = ["Mon","Tue","Wed","Thu","Fri","Sat","Sun"];
 var STATUS_META = {
@@ -756,6 +758,17 @@ function defaultState(){
                          // never counted in real attendance, only in the "Projected" figure.
     planMonths:{},       // "YYYY-MM" -> true — months where Plan mode is switched on. Turning
                          // a month off clears every plan entry inside it (see clearPlanForMonth).
+    officeLocations:[     // {id, name, address, lat, lng, radiusM} — places auto-detection
+                         // will match against. Pre-seeded with the two Bangalore offices;
+                         // fully editable, and a fresh "Take my current location" capture
+                         // replaces the seeded coordinates with an on-site-accurate reading.
+      { id:"loc-acacia", name:"Acacia Office", address:"Acacia Parcel 1, Embassy Manyata Business Park, Outer Ring Road, Rachenahalli Village, K.R. Puram Hobli, Nagavara, Bengaluru - 560045, Karnataka", lat:13.048355, lng:77.620706, radiusM:350 },
+      { id:"loc-hibiscus", name:"Hibiscus Office", address:"2B Tower 1 (Hibiscus), Embassy Tech Village, 6th & 7th Floor, Devarabeesanahalli Village, Varthur Hobli, Bengaluru East Taluk, Bengaluru - 560103, Karnataka", lat:12.926596, lng:77.693002, radiusM:350 }
+    ],
+    locationSettings:{ enabled:false, confirmedDates:{}, dismissedDates:{} },
+                         // confirmedDates/dismissedDates: "YYYY-MM-DD" -> true, per-day dedupe
+                         // so a match is only ever offered once, whichever way it's resolved.
+    wfhReminders:{ enabled:false, startTime:"09:15", endTime:"17:45" },
     // Two separate pools, matching how the company actually runs leave:
     // Annual leave accrues and is tracked on its own; Sick and Carer leave
     // share one combined pool, distinct from Annual.
@@ -825,6 +838,12 @@ async function loadState(){
       holidays: parsed.holidays || [],
       plan: parsed.plan || {},
       planMonths: parsed.planMonths || {},
+      officeLocations: parsed.officeLocations || defaultState().officeLocations,
+      locationSettings: Object.assign(d.locationSettings, parsed.locationSettings, {
+        confirmedDates: (parsed.locationSettings && parsed.locationSettings.confirmedDates) || {},
+        dismissedDates: (parsed.locationSettings && parsed.locationSettings.dismissedDates) || {}
+      }),
+      wfhReminders: Object.assign(d.wfhReminders, parsed.wfhReminders),
       dismissed: parsed.dismissed || {},
       notified: parsed.notified || {},
       monthOverrides: parsed.monthOverrides || {},
@@ -1224,6 +1243,7 @@ function renderCurrentView(){
   else if(currentView==="leave") renderLeave();
   else if(currentView==="holidays") renderHolidays();
   else if(currentView==="settings") renderSettings();
+  else if(currentView==="location") renderLocationSettings();
   document.getElementById("fyChip").textContent = fyOf(today()).label;
 }
 
@@ -1253,6 +1273,7 @@ var TOUR_STEPS = {
   today: [
     {sel:".topbar", title:"Financial year", text:"Office Ledger tracks ANZ’s financial year — 1 October to 30 September. This chip always shows which one you're in. The bell next to it is your notification center — errors, update alerts, and bug reports you've sent."},
     {sel:"#statHeroCard", title:"This month, live", text:"Your attendance percentage for the current month — present ÷ eligible days × 100 — recalculated the moment you log a day. Swipe it sideways for the financial-year aggregate."},
+    {sel:"#officeMatchConfirm", title:"Near the office?", text:"Turn on location auto-detect in Settings and, when you're near an office you've added, this banner offers to mark today present — you always confirm it yourself first."},
     {sel:"#logTodayBtn", title:"Log today", text:"Tap here any day to mark Present, Work from home, Leave, or Comp off taken."},
     {sel:".bottomnav-inner", title:"Get around", text:"Today, Calendar, Leave, Holidays and Settings — everything is one tap away."}
   ],
@@ -1275,7 +1296,13 @@ var TOUR_STEPS = {
   settings: [
     {sel:"#profileForm", title:"Your profile", text:"Name, attendance target, opening leave balances, and your tracking start date all live here."},
     {sel:"#setCreatedAt", title:"Tracking start date", text:"Keep this set to when you actually started using the app. Days before it aren't held against you — but if it's wrong, real unmarked days get silently excluded too."},
+    {sel:"#manageLocBtn", title:"Auto-detect the office", text:"Turn this on and add your office locations to get a confirm-first prompt on Today whenever you're nearby — and a gentle nudge to log manually on days that don't match any of them. Never on weekends, and never over a day you've already logged."},
+    {sel:"#saveWfhBtn", title:"Don't forget WFH days", text:"Two daily reminders — start and end of day — so a work-from-home day never slips through unlogged. Android only."},
     {sel:"#aboutBtn", title:"About & help", text:"App version, update checks, who built this, and how to report a bug."}
+  ],
+  location: [
+    {sel:"#locAddBtn", title:"Add an office", text:"Give it a name and its coordinates — the two Bangalore offices are pre-loaded, but add as many as you use."},
+    {sel:"#locListCard", title:"Your locations", text:"Edit or remove any location. The radius controls how close you need to be for a match — bigger for a business park, tighter for a single building."}
   ]
 };
 var tour = { active:false, view:null, idx:0, steps:[] };
@@ -1454,6 +1481,150 @@ async function sendPendingNotifications(){
   }
 }
 
+/* ---------- office location auto-detection ----------
+   Foreground-only: checked once when the app is opened (see init()), never
+   in the background — no ACCESS_BACKGROUND_LOCATION, nothing running while
+   the app is closed. A match is only ever offered, never applied silently:
+   the person always taps "Mark present" themselves on the Today banner.
+   Safety: never on a weekend, never overriding a day already logged, and
+   each day is only ever offered once (confirmedDates/dismissedDates).
+   Coordinates are compared entirely on-device against state.officeLocations
+   — nothing about location is ever sent anywhere. */
+function nativeGeoReady(){
+  return !!(window.Capacitor && window.Capacitor.isNativePlatform && window.Capacitor.isNativePlatform()
+    && window.Capacitor.Plugins && window.Capacitor.Plugins.Geolocation);
+}
+async function ensureLocationPermission(){
+  try{
+    if(nativeGeoReady()){
+      var Geo = window.Capacitor.Plugins.Geolocation;
+      var perm = await Geo.checkPermissions();
+      if(perm.location !== "granted" && perm.coarseLocation !== "granted") perm = await Geo.requestPermissions();
+      return perm.location === "granted" || perm.coarseLocation === "granted";
+    }
+    return !!(navigator.geolocation);
+  }catch(e){ console.warn("Office Ledger: location permission check failed", e); return false; }
+}
+async function getCurrentPosition(){
+  var ok = await ensureLocationPermission();
+  if(!ok) return null;
+  try{
+    if(nativeGeoReady()){
+      var pos = await window.Capacitor.Plugins.Geolocation.getCurrentPosition({enableHighAccuracy:true, timeout:15000});
+      return {lat:pos.coords.latitude, lng:pos.coords.longitude, accuracy:pos.coords.accuracy};
+    }
+    if(!navigator.geolocation) return null;
+    return await new Promise(function(resolve){
+      navigator.geolocation.getCurrentPosition(
+        function(pos){ resolve({lat:pos.coords.latitude, lng:pos.coords.longitude, accuracy:pos.coords.accuracy}); },
+        function(err){ console.warn("Office Ledger: geolocation error", err); resolve(null); },
+        {enableHighAccuracy:true, timeout:15000, maximumAge:60000}
+      );
+    });
+  }catch(e){ console.warn("Office Ledger: could not read location", e); return null; }
+}
+function haversineMeters(lat1,lng1,lat2,lng2){
+  var R = 6371000;
+  var toRad = function(d){ return d*Math.PI/180; };
+  var dLat = toRad(lat2-lat1), dLng = toRad(lng2-lng1);
+  var a = Math.sin(dLat/2)*Math.sin(dLat/2) + Math.cos(toRad(lat1))*Math.cos(toRad(lat2))*Math.sin(dLng/2)*Math.sin(dLng/2);
+  var c = 2*Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+  return R*c;
+}
+function findNearestOfficeMatch(lat,lng){
+  var locs = state.officeLocations || [];
+  var best = null;
+  for(var i=0;i<locs.length;i++){
+    var loc = locs[i];
+    if(loc.lat==null || loc.lng==null) continue;
+    var dist = haversineMeters(lat,lng,loc.lat,loc.lng);
+    if(dist <= (loc.radiusM||300) && (!best || dist<best.dist)) best = {loc:loc, dist:dist};
+  }
+  return best;
+}
+var pendingOfficeMatch = null; // {loc, dist, dateStr} — surfaced as a confirm banner on Today
+var pendingLocationNudge = null; // {dateStr} — shown instead, when auto-detect is on but today's
+                         // location didn't match any saved office (a client site, a third office
+                         // not added yet, working from a different city). People move between
+                         // locations day to day, so a non-match is expected, not an error — but it
+                         // also means GPS has nothing to log, and that's exactly the day someone's
+                         // most likely to forget about. Rather than staying silent, this nudges a
+                         // manual log instead of leaving the day to quietly go unmarked.
+async function checkOfficeLocationAuto(){
+  try{
+    if(!state.locationSettings || !state.locationSettings.enabled) return;
+    if(!(state.officeLocations||[]).length) return;
+    var t = today();
+    if(isWeekend(t)) return; // safety: never trigger on weekends, even if someone's nearby
+    var dStr = todayStr();
+    if(state.days[dStr] && state.days[dStr].status) return; // never override a day already logged
+    if(state.locationSettings.confirmedDates[dStr] || state.locationSettings.dismissedDates[dStr]) return; // only ever ask once a day
+    var pos = await getCurrentPosition();
+    if(!pos) return;
+    var match = findNearestOfficeMatch(pos.lat, pos.lng);
+    if(match){
+      pendingOfficeMatch = {loc:match.loc, dist:Math.round(match.dist), dateStr:dStr};
+    } else {
+      pendingLocationNudge = {dateStr:dStr};
+    }
+    renderCurrentView();
+  }catch(e){ console.warn("Office Ledger: location auto-check failed", e); }
+}
+function confirmOfficeMatch(){
+  if(!pendingOfficeMatch) return;
+  var dStr = pendingOfficeMatch.dateStr;
+  state.days[dStr] = {status:"present", leaveType:null};
+  state.locationSettings.confirmedDates[dStr] = true;
+  pendingOfficeMatch = null;
+  saveState();
+  renderCurrentView();
+}
+function dismissOfficeMatch(){
+  if(!pendingOfficeMatch) return;
+  state.locationSettings.dismissedDates[pendingOfficeMatch.dateStr] = true;
+  pendingOfficeMatch = null;
+  saveState();
+  renderCurrentView();
+}
+function openLocationNudge(){
+  if(!pendingLocationNudge) return;
+  openDaySheet(pendingLocationNudge.dateStr);
+}
+function dismissLocationNudge(){
+  if(!pendingLocationNudge) return;
+  state.locationSettings.dismissedDates[pendingLocationNudge.dateStr] = true;
+  pendingLocationNudge = null;
+  saveState();
+  renderCurrentView();
+}
+
+/* ---------- WFH day-start / day-end reminders ----------
+   Fixed daily-repeating native notifications (schedule.on with only
+   hour/minute repeats every day) so nobody forgets to log a WFH day.
+   Fixed IDs so re-saving settings cancels and reschedules cleanly instead
+   of piling up duplicates. Android-only — same as the rest of the app's
+   notification-centre pushes, there is no way for a closed iOS/PWA tab to
+   fire a notification on its own. */
+var WFH_REMINDER_IDS = { start:9001, end:9002 };
+async function scheduleWfhReminders(){
+  if(!nativeNotifReady()) return;
+  try{
+    var LN = window.Capacitor.Plugins.LocalNotifications;
+    await LN.cancel({ notifications:[{id:WFH_REMINDER_IDS.start},{id:WFH_REMINDER_IDS.end}] });
+    if(!state.wfhReminders || !state.wfhReminders.enabled) return;
+    var ok = await ensureNotifPermission();
+    if(!ok) return;
+    var sp = (state.wfhReminders.startTime||"09:15").split(":");
+    var ep = (state.wfhReminders.endTime||"17:45").split(":");
+    await LN.schedule({ notifications:[
+      { id:WFH_REMINDER_IDS.start, title:"Log today's attendance", body:"Don't forget to mark today in Office Ledger.",
+        schedule:{ on:{ hour:parseInt(sp[0],10), minute:parseInt(sp[1],10) }, allowWhileIdle:true } },
+      { id:WFH_REMINDER_IDS.end, title:"Still need to log today?", body:"A quick check before the day ends — mark it in Office Ledger.",
+        schedule:{ on:{ hour:parseInt(ep[0],10), minute:parseInt(ep[1],10) }, allowWhileIdle:true } }
+    ]});
+  }catch(e){ console.warn("Office Ledger: could not schedule WFH reminders", e); }
+}
+
 /* If the financial-year-to-date % is below target, work out whether it's
    still mathematically reachable by FY end (30 Sep) given the eligible
    working days left, and if so, roughly how many of them are needed —
@@ -1596,8 +1767,28 @@ function renderToday(){
     '</div>';
   }).join("");
 
+  var officeBanner = pendingOfficeMatch ?
+    '<div class="banner" style="border-color:var(--accent);">'+
+      '<div class="banner-text"><strong>Looks like you\'re at '+esc(pendingOfficeMatch.loc.name)+'</strong>'+
+        'Your location matched, about '+pendingOfficeMatch.dist+'m from the office. Mark today as present?'+
+        '<div class="banner-actions">'+
+          '<button class="banner-btn" id="officeMatchConfirm">Mark present</button>'+
+          '<button class="banner-btn" id="officeMatchDismiss" style="background:var(--surface-2); color:var(--text);">Not today</button>'+
+        '</div>'+
+      '</div>'+
+    '</div>' : (pendingLocationNudge ?
+    '<div class="banner">'+
+      '<div class="banner-text"><strong>Not at a saved office today</strong>'+
+        'Your location didn\'t match any of your saved offices — a client site, another office, or just an ordinary day off the map. Don\'t forget to log it yourself.'+
+        '<div class="banner-actions">'+
+          '<button class="banner-btn" id="locNudgeLog">Log today</button>'+
+          '<button class="banner-btn" id="locNudgeDismiss" style="background:var(--surface-2); color:var(--text);">Not now</button>'+
+        '</div>'+
+      '</div>'+
+    '</div>' : '');
+
   var html =
-    (banners ? '<div style="display:flex; flex-direction:column; gap:10px;">'+banners+'</div>' : '') +
+    (officeBanner || banners ? '<div style="display:flex; flex-direction:column; gap:10px;">'+officeBanner+banners+'</div>' : '') +
     '<div>'+
       '<div class="eyebrow">'+fmtLong(t)+'</div>'+
       '<h1 class="page-title">Hi'+(state.profile.name?" "+esc(state.profile.name):"")+'</h1>'+
@@ -1667,6 +1858,14 @@ function renderToday(){
   });
   var gotoCal = v.querySelector("[data-goto='calendar']");
   if(gotoCal) gotoCal.addEventListener("click", function(){ switchView("calendar"); });
+  var omConfirm = document.getElementById("officeMatchConfirm");
+  if(omConfirm) omConfirm.addEventListener("click", confirmOfficeMatch);
+  var omDismiss = document.getElementById("officeMatchDismiss");
+  if(omDismiss) omDismiss.addEventListener("click", dismissOfficeMatch);
+  var lnLog = document.getElementById("locNudgeLog");
+  if(lnLog) lnLog.addEventListener("click", openLocationNudge);
+  var lnDismiss = document.getElementById("locNudgeDismiss");
+  if(lnDismiss) lnDismiss.addEventListener("click", dismissLocationNudge);
 }
 
 function esc(s){ var d=document.createElement("div"); d.textContent=s; return d.innerHTML; }
@@ -1957,6 +2156,116 @@ function renderHolidays(){
   });
 }
 
+/* ---------- OFFICE LOCATIONS view (pushed from Settings) ---------- */
+var locEditId = null; // null = list view, "new" = add form, else the id being edited
+function renderLocationSettings(){
+  var locs = state.officeLocations || [];
+  var editing = (locEditId && locEditId!=="new") ? locs.filter(function(l){ return l.id===locEditId; })[0] : null;
+  var showForm = locEditId!==null;
+
+  var itemsHtml = locs.length ? locs.map(function(loc){
+    return '<div class="list-item">'+
+      '<div class="list-item-main">'+
+        '<div class="list-item-name">'+esc(loc.name)+'</div>'+
+        '<div class="list-item-date">'+(loc.lat!=null ? loc.lat.toFixed(5)+", "+loc.lng.toFixed(5)+" · "+(loc.radiusM||300)+"m radius" : "No coordinates set")+'</div>'+
+      '</div>'+
+      '<div style="display:flex; gap:2px;">'+
+        '<button class="icon-btn icon-btn-edit" data-edit="'+loc.id+'" aria-label="Edit"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"></path><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"></path></svg></button>'+
+        '<button class="icon-btn" data-del="'+loc.id+'" aria-label="Delete"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><line x1="5" y1="5" x2="19" y2="19"></line><line x1="19" y1="5" x2="5" y2="19"></line></svg></button>'+
+      '</div>'+
+    '</div>';
+  }).join("") : '<div class="empty-state"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><circle cx="12" cy="10" r="3"></circle><path d="M12 21s-7-7.5-7-12a7 7 0 0 1 14 0c0 4.5-7 12-7 12Z"></path></svg><p>No office locations added yet.</p></div>';
+
+  var formHtml = showForm ?
+    '<div class="card" id="locFormCard">'+
+      '<span class="eyebrow">'+(editing?"Edit office location":"Add office location")+'</span>'+
+      '<form id="locForm" style="margin-top:10px;">'+
+        '<div class="field"><label for="locName">Name</label><input type="text" id="locName" placeholder="e.g. Acacia Office" required value="'+(editing?esc(editing.name):"")+'"></div>'+
+        '<div class="field"><label for="locAddress">Address (optional)</label><input type="text" id="locAddress" placeholder="Street, area, city" value="'+(editing?esc(editing.address||""):"")+'"></div>'+
+        '<button type="button" class="btn btn-secondary btn-block" id="locCaptureBtn">Use my current location</button>'+
+        '<div class="field-hint" id="locCaptureStatus" style="margin-top:8px;">'+(editing&&editing.lat!=null?("Currently set to "+editing.lat.toFixed(5)+", "+editing.lng.toFixed(5)+"."):"Stand near the office and tap above for the most accurate reading, or enter coordinates manually below.")+'</div>'+
+        '<div class="field"><label for="locLat">Latitude</label><input type="number" step="0.000001" id="locLat" value="'+(editing&&editing.lat!=null?editing.lat:"")+'" required></div>'+
+        '<div class="field"><label for="locLng">Longitude</label><input type="number" step="0.000001" id="locLng" value="'+(editing&&editing.lng!=null?editing.lng:"")+'" required></div>'+
+        '<div class="field"><label for="locRadius">Match radius (metres)</label><input type="number" min="50" max="2000" id="locRadius" value="'+(editing?(editing.radiusM||350):300)+'"></div>'+
+        '<div class="field-hint">A large campus or business park usually needs 300–400m; a single standalone building can go tighter.</div>'+
+        '<div style="display:flex; gap:9px; margin-top:6px;">'+
+          '<button type="button" class="btn btn-secondary" id="locCancelBtn" style="flex:1;">Cancel</button>'+
+          '<button type="submit" class="btn btn-primary" style="flex:1;">Save location</button>'+
+        '</div>'+
+      '</form>'+
+    '</div>' : '';
+
+  var html =
+    '<div style="display:flex; align-items:center; gap:8px;">'+
+      '<button class="icon-btn" id="locBackBtn" aria-label="Back" style="padding:6px 4px 6px 0;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:20px;height:20px;"><path d="M15 18l-6-6 6-6"></path></svg></button>'+
+      '<div><div class="eyebrow">Settings</div><h1 class="page-title" style="margin:0;">Office locations</h1></div>'+
+    '</div>'+
+    '<p class="subtext">Coordinates are compared to your device\'s location entirely on this phone — nothing about where you are is ever sent anywhere.</p>'+
+    (!showForm ? '<button class="btn btn-primary btn-block" id="locAddBtn">+ Add office location</button>' : '')+
+    formHtml+
+    (!showForm ? '<div class="card" id="locListCard"><span class="eyebrow">Your office locations</span><div style="margin-top:6px;">'+itemsHtml+'</div></div>' : '');
+
+  var v = document.getElementById("view-location");
+  v.innerHTML = html;
+
+  document.getElementById("locBackBtn").addEventListener("click", function(){
+    if(showForm){ locEditId=null; renderLocationSettings(); } else { switchView("settings"); }
+  });
+  var addBtn = document.getElementById("locAddBtn");
+  if(addBtn) addBtn.addEventListener("click", function(){ locEditId="new"; renderLocationSettings(); });
+  var cancelBtn = document.getElementById("locCancelBtn");
+  if(cancelBtn) cancelBtn.addEventListener("click", function(){ locEditId=null; renderLocationSettings(); });
+
+  var captureBtn = document.getElementById("locCaptureBtn");
+  if(captureBtn) captureBtn.addEventListener("click", async function(){
+    var statusEl = document.getElementById("locCaptureStatus");
+    statusEl.textContent = "Getting your current location…";
+    captureBtn.disabled = true;
+    var pos = await getCurrentPosition();
+    captureBtn.disabled = false;
+    if(!pos){
+      statusEl.textContent = "Couldn't get a location — check the location permission for Office Ledger and try again.";
+      return;
+    }
+    document.getElementById("locLat").value = pos.lat.toFixed(6);
+    document.getElementById("locLng").value = pos.lng.toFixed(6);
+    statusEl.textContent = "Location acquired ✓ "+pos.lat.toFixed(5)+", "+pos.lng.toFixed(5)+(pos.accuracy?(" (±"+Math.round(pos.accuracy)+"m)"):"")+" — confirm it looks right, then save.";
+  });
+
+  var form = document.getElementById("locForm");
+  if(form) form.addEventListener("submit", function(e){
+    e.preventDefault();
+    var name = document.getElementById("locName").value.trim();
+    var address = document.getElementById("locAddress").value.trim();
+    var lat = parseFloat(document.getElementById("locLat").value);
+    var lng = parseFloat(document.getElementById("locLng").value);
+    var radius = parseInt(document.getElementById("locRadius").value,10) || 300;
+    if(!name || isNaN(lat) || isNaN(lng)) return;
+    if(editing){
+      editing.name=name; editing.address=address; editing.lat=lat; editing.lng=lng; editing.radiusM=radius;
+    } else {
+      state.officeLocations.push({id:"loc"+Date.now()+Math.random().toString(36).slice(2,7), name:name, address:address, lat:lat, lng:lng, radiusM:radius});
+    }
+    saveState();
+    showToast("Office location saved");
+    locEditId = null;
+    renderLocationSettings();
+  });
+
+  v.querySelectorAll("[data-edit]").forEach(function(b){
+    b.addEventListener("click", function(){ locEditId = b.getAttribute("data-edit"); renderLocationSettings(); });
+  });
+  v.querySelectorAll("[data-del]").forEach(function(b){
+    b.addEventListener("click", function(){
+      var id = b.getAttribute("data-del");
+      if(!confirm("Remove this office location?")) return;
+      state.officeLocations = state.officeLocations.filter(function(l){ return l.id!==id; });
+      saveState();
+      renderLocationSettings();
+    });
+  });
+}
+
 /* ---------- SETTINGS view ---------- */
 function renderSettings(){
   var p = state.profile;
@@ -1979,6 +2288,30 @@ function renderSettings(){
       '<span class="eyebrow">How attendance is calculated</span>'+
       '<div class="formula-box" style="margin-top:10px;">attendance % =<br>&nbsp;&nbsp;days present ÷ eligible working days × 100<br><br>eligible working days =<br>&nbsp;&nbsp;working days − leave − public holidays − comp off</div>'+
       '<p class="subtext" style="margin-top:10px;">A day worked over a weekend adds to both the attended and eligible counts, and a comp off taken later is excluded like a holiday. "Leave" here counts both days you\'ve explicitly marked on the Calendar and, if not already marked, any drop in a reported leave balance since its last update. A day marked Work From Home stays an eligible working day — same as any other weekday — but never counts as attended, since the target is specifically about being in the office.</p>'+
+    '</div>'+
+    '<div class="card">'+
+      '<span class="eyebrow">Location</span>'+
+      '<div class="field" style="margin-top:8px;">'+
+        '<label for="locEnableToggle" style="display:flex; align-items:center; justify-content:space-between; cursor:pointer;">'+
+          '<span>Auto-detect office &amp; mark present</span>'+
+          '<label class="switch"><input type="checkbox" id="locEnableToggle"'+(state.locationSettings.enabled?" checked":"")+'><span class="switch-track"></span></label>'+
+        '</label>'+
+      '</div>'+
+      '<p class="field-hint" style="margin-top:0;">When you\'re near an office you\'ve added below, Today will ask you to confirm before marking the day present — it never logs a day on its own. Not near any of them, on a weekday? It nudges you to log it yourself instead of staying quiet — handy if you split time between offices, work from a client site, or just forget. Off on weekends and on any day you\'ve already logged, always. Location is compared entirely on this device; nothing is ever sent anywhere.</p>'+
+      '<button class="btn btn-secondary btn-block" id="manageLocBtn" style="margin-top:12px;">Manage office locations ('+((state.officeLocations||[]).length)+')</button>'+
+    '</div>'+
+    '<div class="card">'+
+      '<span class="eyebrow">Daily reminders</span>'+
+      '<div class="field" style="margin-top:8px;">'+
+        '<label for="wfhEnableToggle" style="display:flex; align-items:center; justify-content:space-between; cursor:pointer;">'+
+          '<span>Remind me to log today</span>'+
+          '<label class="switch"><input type="checkbox" id="wfhEnableToggle"'+(state.wfhReminders.enabled?" checked":"")+'><span class="switch-track"></span></label>'+
+        '</label>'+
+      '</div>'+
+      '<div class="field"><label for="wfhStartTime">Morning reminder</label><input type="time" id="wfhStartTime" value="'+esc(state.wfhReminders.startTime||"09:15")+'"></div>'+
+      '<div class="field"><label for="wfhEndTime">End-of-day reminder</label><input type="time" id="wfhEndTime" value="'+esc(state.wfhReminders.endTime||"17:45")+'"></div>'+
+      '<div class="field-hint">Fires every day at these times, handy for WFH days you might otherwise forget to log. Android only — a closed browser tab on iPhone or the web app can\'t push a notification on its own.</div>'+
+      '<button class="btn btn-primary btn-block" id="saveWfhBtn" style="margin-top:12px;">Save reminders</button>'+
     '</div>'+
     '<div class="card">'+
       '<span class="eyebrow">Backup</span>'+
@@ -2018,6 +2351,24 @@ function renderSettings(){
     saveState();
     showToast("Profile saved");
     document.getElementById("fyChip").textContent = fyOf(today()).label;
+  });
+
+  document.getElementById("locEnableToggle").addEventListener("change", function(e){
+    state.locationSettings.enabled = e.target.checked;
+    saveState();
+    if(state.locationSettings.enabled) checkOfficeLocationAuto();
+  });
+  document.getElementById("manageLocBtn").addEventListener("click", function(){ locEditId=null; switchView("location"); });
+  document.getElementById("wfhEnableToggle").addEventListener("change", function(e){
+    state.wfhReminders.enabled = e.target.checked;
+    saveState();
+  });
+  document.getElementById("saveWfhBtn").addEventListener("click", function(){
+    state.wfhReminders.startTime = document.getElementById("wfhStartTime").value || "09:15";
+    state.wfhReminders.endTime = document.getElementById("wfhEndTime").value || "17:45";
+    saveState();
+    scheduleWfhReminders();
+    showToast("Reminders saved");
   });
 
   document.getElementById("exportBtn").addEventListener("click", function(){ exportBackup(); });
@@ -2186,6 +2537,8 @@ function optBtn(status,label,selected,color){
 }
 function setDay(dateStr, status, leaveType){
   state.days[dateStr] = {status:status, leaveType:leaveType||null};
+  if(pendingOfficeMatch && pendingOfficeMatch.dateStr===dateStr) pendingOfficeMatch=null;
+  if(pendingLocationNudge && pendingLocationNudge.dateStr===dateStr) pendingLocationNudge=null;
   saveState();
   showToast("Saved");
   renderCurrentView();
@@ -2858,6 +3211,8 @@ async function init(){
   } else {
     switchView("today");
     sendPendingNotifications();
+    scheduleWfhReminders();
+    checkOfficeLocationAuto();
   }
 }
 if(document.readyState==="loading") document.addEventListener("DOMContentLoaded", init);
