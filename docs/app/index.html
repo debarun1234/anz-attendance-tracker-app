@@ -1,0 +1,2636 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Office Ledger</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0B63C4">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Office Ledger">
+<link rel="apple-touch-icon" href="data:image/png;base64,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">
+<link rel="icon" href="data:image/png;base64,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">
+<link rel="manifest" href="./manifest.webmanifest">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,440;9..144,560;9..144,650&family=Work+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#EEF3FA;
+    --surface:#FFFFFF;
+    --surface-2:#E3EBF6;
+    --border:#CBD8EA;
+    --ink:#10233F;
+    --ink-soft:#4C6180;
+    --ink-faint:#8598B3;
+    --accent:#0B63C4;
+    --accent-ink:#F3F7FC;
+    --accent-soft:#DCE9FA;
+    --warm:#3A5786;
+    --warm-soft:#E4EAF4;
+    --good:#2E8B6B;
+    --good-soft:#E0F0EA;
+    --warn:#B8862B;
+    --warn-soft:#F5EBD6;
+    --critical:#B5473C;
+    --critical-soft:#F6E1DE;
+    --holiday:#C0264F;
+    --holiday-soft:#F7DCE5;
+    --wfh:#4A4FB0;
+    --wfh-soft:#E5E6F7;
+    --shadow: 0 1px 2px rgba(16,35,63,0.07), 0 6px 20px -8px rgba(16,35,63,0.18);
+    --focus:#0B63C4;
+    color-scheme: light;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg:#0D1626;
+      --surface:#15223A;
+      --surface-2:#1C2C48;
+      --border:#2E4164;
+      --ink:#E7EEF8;
+      --ink-soft:#A7B7CE;
+      --ink-faint:#7C8CA8;
+      --accent:#6FA8E8;
+      --accent-ink:#0B1B30;
+      --accent-soft:#1F3B5C;
+      --warm:#93AAD3;
+      --warm-soft:#233350;
+      --good:#74C39B;
+      --good-soft:#1E3327;
+      --warn:#DCB265;
+      --warn-soft:#362A16;
+      --critical:#E28A7E;
+      --critical-soft:#3B211E;
+      --holiday:#EA92AC;
+      --holiday-soft:#3A1C28;
+      --wfh:#A3AAF0;
+      --wfh-soft:#28305C;
+      --shadow: 0 1px 2px rgba(0,0,0,0.3), 0 8px 24px -10px rgba(0,0,0,0.55);
+      color-scheme: dark;
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#0D1626;
+    --surface:#15223A;
+    --surface-2:#1C2C48;
+    --border:#2E4164;
+    --ink:#E7EEF8;
+    --ink-soft:#A7B7CE;
+    --ink-faint:#7C8CA8;
+    --accent:#6FA8E8;
+    --accent-ink:#0B1B30;
+    --accent-soft:#1F3B5C;
+    --warm:#93AAD3;
+    --warm-soft:#233350;
+    --good:#74C39B;
+    --good-soft:#1E3327;
+    --warn:#DCB265;
+    --warn-soft:#362A16;
+    --critical:#E28A7E;
+    --critical-soft:#3B211E;
+    --holiday:#EA92AC;
+    --holiday-soft:#3A1C28;
+    --wfh:#A3AAF0;
+    --wfh-soft:#28305C;
+    --shadow: 0 1px 2px rgba(0,0,0,0.3), 0 8px 24px -10px rgba(0,0,0,0.55);
+    color-scheme: dark;
+  }
+
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--bg);
+    color:var(--ink);
+    font-family:"Work Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    -webkit-font-smoothing:antialiased;
+    min-height:100vh;
+    overscroll-behavior-y:none;
+  }
+  h1,h2,h3{
+    font-family:"Fraunces", Georgia, serif;
+    font-weight:600;
+    text-wrap:balance;
+    margin:0;
+  }
+  .mono{font-family:"IBM Plex Mono", ui-monospace, SFMono-Regular, monospace; font-variant-numeric:tabular-nums;}
+  button{font-family:inherit; -webkit-tap-highlight-color:transparent;}
+  a{color:var(--accent);}
+  ::selection{background:var(--accent-soft);}
+  :focus-visible{outline:2.5px solid var(--focus); outline-offset:2px; border-radius:4px;}
+  @media (prefers-reduced-motion: reduce){
+    *{animation-duration:0.001ms !important; transition-duration:0.001ms !important;}
+  }
+
+  #app{
+    max-width:560px;
+    margin:0 auto;
+    min-height:100vh;
+    display:flex;
+    flex-direction:column;
+    padding-bottom:calc(100px + env(safe-area-inset-bottom));
+  }
+
+  /* Top bar */
+  .topbar{
+    position:sticky; top:0; z-index:20;
+    display:flex; align-items:center; justify-content:space-between;
+    gap:10px;
+    padding:14px 18px;
+    padding-top:calc(14px + env(safe-area-inset-top));
+    background:color-mix(in srgb, var(--surface) 92%, transparent);
+    backdrop-filter:blur(10px);
+    border-bottom:1px solid var(--border);
+  }
+  .brand{display:flex; align-items:center; gap:9px;}
+  .brand-mark{width:26px; height:26px; color:var(--accent); flex:none;}
+  .brand-mark rect{fill:none; stroke:currentColor; stroke-width:1.7;}
+  .brand-mark line{stroke:currentColor; stroke-width:1.7;}
+  .brand-mark polyline{fill:none; stroke:var(--warm); stroke-width:2.2; stroke-linecap:round; stroke-linejoin:round;}
+  .brand-name{font-family:"Fraunces", serif; font-weight:600; font-size:18px; letter-spacing:-0.01em;}
+  .fy-chip{
+    font-family:"IBM Plex Mono", monospace; font-size:11.5px; font-weight:600;
+    color:var(--ink-soft); background:var(--surface-2); border:1px solid var(--border);
+    padding:5px 9px; border-radius:99px; white-space:nowrap;
+  }
+  .topbar-actions{display:flex; align-items:center; gap:8px; flex:none;}
+  .help-btn{
+    width:29px; height:29px; border-radius:99px; flex:none;
+    border:1px solid var(--border); background:var(--surface-2); color:var(--ink-soft);
+    display:flex; align-items:center; justify-content:center; cursor:pointer; padding:0;
+  }
+  .help-btn svg{width:15px; height:15px;}
+  .help-btn:active{background:var(--accent-soft); color:var(--accent);}
+  .notif-btn{position:relative;}
+  .notif-badge{
+    position:absolute; top:-4px; right:-4px; min-width:15px; height:15px; padding:0 3px;
+    border-radius:99px; background:var(--critical); color:#fff; font-size:9.5px; font-weight:700;
+    display:flex; align-items:center; justify-content:center; line-height:1; font-family:"IBM Plex Mono", monospace;
+    border:1.5px solid var(--surface);
+  }
+  .notif-badge.hidden{display:none;}
+
+  /* Notification center */
+  .notif-item{display:flex; gap:11px; padding:12px 0; border-bottom:1px solid var(--border); align-items:flex-start;}
+  .notif-item:last-child{border-bottom:none;}
+  .notif-item.unread{background:color-mix(in srgb, var(--accent-soft) 45%, transparent); margin:0 -18px; padding:12px 18px; border-radius:10px;}
+  .notif-icon{
+    width:32px; height:32px; border-radius:99px; flex:none; display:flex; align-items:center; justify-content:center;
+  }
+  .notif-icon svg{width:16px; height:16px;}
+  .notif-icon.t-error{background:var(--critical-soft); color:var(--critical);}
+  .notif-icon.t-update{background:var(--accent-soft); color:var(--accent);}
+  .notif-icon.t-bug{background:var(--warn-soft); color:var(--warn);}
+  .notif-body{flex:1; min-width:0;}
+  .notif-title{font-size:13.5px; font-weight:600;}
+  .notif-msg{font-size:12.5px; color:var(--ink-soft); margin-top:2px; line-height:1.4;}
+  .notif-time{font-size:11px; color:var(--ink-faint); margin-top:4px; font-family:"IBM Plex Mono", monospace;}
+  .notif-empty{text-align:center; padding:36px 10px; color:var(--ink-faint); font-size:13.5px;}
+
+  /* Pull-to-refresh: an expanding bar under the topbar, driven by touch
+     drag distance in JS. Zero height / hidden until pulled. */
+  .ptr-bar{
+    height:0; overflow:hidden; opacity:0;
+    display:flex; align-items:center; justify-content:center; gap:8px;
+    background:var(--surface-2); color:var(--ink-soft);
+    font-size:12px; font-weight:600;
+    transition:height .18s ease, opacity .18s ease;
+  }
+  .ptr-spinner{
+    width:14px; height:14px; border-radius:99px; flex:none;
+    border:2px solid var(--ink-faint); border-top-color:var(--accent);
+    animation:ptr-spin .7s linear infinite;
+  }
+  @keyframes ptr-spin{to{transform:rotate(360deg);}}
+
+  main{flex:1; padding:16px 16px 8px; display:flex; flex-direction:column; gap:14px;}
+  .view{display:none; flex-direction:column; gap:14px; animation:fade-in .18s ease;}
+  .view.active{display:flex;}
+  @keyframes fade-in{from{opacity:0; transform:translateY(4px);} to{opacity:1; transform:none;}}
+
+  .eyebrow{
+    font-size:11px; font-weight:600; letter-spacing:0.08em; text-transform:uppercase;
+    color:var(--ink-faint);
+  }
+  .page-title{font-size:22px;}
+  .subtext{color:var(--ink-soft); font-size:13.5px; line-height:1.5;}
+
+  .card{
+    background:var(--surface);
+    border:1px solid var(--border);
+    border-radius:16px;
+    padding:18px;
+    box-shadow:var(--shadow);
+  }
+  .card + .card{margin-top:0;}
+  @keyframes flash-highlight{
+    0%{box-shadow:0 0 0 3px var(--accent), var(--shadow);}
+    100%{box-shadow:0 0 0 0px transparent, var(--shadow);}
+  }
+  .flash-highlight{animation:flash-highlight 1.1s ease;}
+  .card-row{display:flex; align-items:center; justify-content:space-between; gap:12px;}
+
+  /* Banners */
+  .banner{
+    display:flex; align-items:flex-start; gap:10px;
+    background:var(--warm-soft); border:1px solid color-mix(in srgb, var(--warm) 35%, var(--border));
+    border-radius:14px; padding:12px 14px; font-size:13.5px; line-height:1.45;
+  }
+  .banner .banner-text{flex:1;}
+  .banner strong{display:block; font-weight:600; margin-bottom:2px; color:var(--ink);}
+  .banner-actions{display:flex; gap:8px; margin-top:8px;}
+  .banner-btn{
+    border:none; background:var(--warm); color:#fff; font-weight:600; font-size:12.5px;
+    padding:6px 11px; border-radius:8px; cursor:pointer;
+  }
+  .banner-dismiss{
+    border:none; background:transparent; color:var(--ink-faint); cursor:pointer;
+    font-size:16px; line-height:1; padding:2px 4px;
+  }
+
+  /* Ring */
+  .ring-wrap{position:relative; width:150px; height:150px; margin:0 auto; flex:none;}
+  .ring-wrap svg{transform:rotate(-90deg);}
+  .ring-center{
+    position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center;
+  }
+  .ring-pct{font-family:"IBM Plex Mono", monospace; font-size:30px; font-weight:600; line-height:1;}
+  .ring-label{font-size:10.5px; color:var(--ink-faint); text-transform:uppercase; letter-spacing:0.06em; margin-top:4px;}
+
+  .stat-hero{display:flex; align-items:center; gap:18px;}
+  .stat-hero-info{flex:1; min-width:0; display:flex; flex-direction:column; gap:8px;}
+  .stat-chip-row{display:flex; gap:8px; flex-wrap:wrap;}
+  .stat-chip{
+    background:var(--surface-2); border-radius:10px; padding:7px 10px; flex:1; min-width:74px;
+  }
+  .stat-chip .n{font-family:"IBM Plex Mono", monospace; font-weight:600; font-size:16px; display:block;}
+  .stat-chip .l{font-size:10.5px; color:var(--ink-faint); text-transform:uppercase; letter-spacing:.04em;}
+
+  /* Home hero card — swipeable between "this month" and the FY aggregate */
+  .stat-hero-card{padding:0; overflow:hidden;}
+  .stat-hero-track{display:flex; width:200%; touch-action:pan-y; transition:transform .32s cubic-bezier(.2,.8,.3,1);}
+  .stat-hero-slide{width:50%; flex:none; padding:18px; box-sizing:border-box;}
+  .stat-hero-dots{display:flex; justify-content:center; gap:6px; padding:0 0 14px;}
+  .stat-hero-dot{width:6px; height:6px; border-radius:99px; background:var(--border); transition:all .2s ease;}
+  .stat-hero-dot.on{background:var(--accent); width:16px; border-radius:4px;}
+
+  .status-pill{
+    display:inline-flex; align-items:center; gap:5px; font-size:12px; font-weight:600;
+    padding:4px 10px; border-radius:99px;
+  }
+  .status-good{background:var(--good-soft); color:var(--good);}
+  .status-warn{background:var(--warn-soft); color:var(--warn);}
+  .status-critical{background:var(--critical-soft); color:var(--critical);}
+
+  .to-target{font-size:14.5px; line-height:1.55;}
+  .to-target b{font-family:"IBM Plex Mono", monospace; font-weight:600;}
+
+  .btn{
+    border:none; border-radius:11px; padding:11px 16px; font-weight:600; font-size:14px;
+    cursor:pointer; display:inline-flex; align-items:center; justify-content:center; gap:6px;
+  }
+  .btn-primary{background:var(--accent); color:var(--accent-ink);}
+  .btn-secondary{background:var(--surface-2); color:var(--ink); border:1px solid var(--border);}
+  .btn-danger{background:var(--critical-soft); color:var(--critical);}
+  .btn-block{width:100%;}
+  .btn-sm{padding:7px 12px; font-size:12.5px; border-radius:8px;}
+
+  /* Calendar */
+  .cal-nav{display:flex; align-items:center; justify-content:space-between; gap:10px;}
+  .cal-nav-btn{
+    background:var(--surface-2); border:1px solid var(--border); border-radius:9px;
+    width:34px; height:34px; display:flex; align-items:center; justify-content:center; cursor:pointer;
+    color:var(--ink);
+  }
+  .cal-nav-btn svg{width:16px; height:16px;}
+  .cal-month-label{font-family:"Fraunces", serif; font-weight:600; font-size:17px; text-align:center;}
+  .cal-today-link{font-size:11.5px; color:var(--accent); font-weight:600; background:none; border:none; cursor:pointer; text-decoration:underline; text-underline-offset:2px;}
+
+  .cal-grid{display:grid; grid-template-columns:repeat(7,1fr); gap:5px; margin-top:12px;}
+  .cal-dow{font-size:10px; text-align:center; color:var(--ink-faint); text-transform:uppercase; letter-spacing:.04em; padding-bottom:2px;}
+  .cal-cell{
+    aspect-ratio:1; border-radius:9px; display:flex; flex-direction:column; align-items:center; justify-content:center;
+    font-family:"IBM Plex Mono", monospace; font-size:13px; font-weight:500; cursor:pointer;
+    background:var(--surface-2); color:var(--ink); position:relative; border:1.5px solid transparent;
+  }
+  .cal-cell.empty{visibility:hidden; cursor:default;}
+  .cal-cell.is-today{border-color:var(--accent);}
+  .cal-cell .dot{width:5px; height:5px; border-radius:99px; margin-top:3px;}
+  .cal-cell.st-present{background:var(--good-soft); color:var(--good);}
+  .cal-cell.st-workedWeekend{background:var(--good-soft); color:var(--good);}
+  .cal-cell.st-leave{background:var(--warn-soft); color:var(--warn);}
+  .cal-cell.st-holiday{background:var(--holiday-soft); color:var(--holiday);}
+  .cal-cell.st-compoff{background:var(--accent-soft); color:var(--accent);}
+  .cal-cell.st-wfh{background:var(--wfh-soft); color:var(--wfh);}
+  .cal-cell.st-weekend{color:var(--ink-faint);}
+  .cal-cell.st-untracked{color:var(--ink-faint); opacity:.7;}
+  .cal-cell.st-unmarked-past{
+    background-color:var(--critical-soft);
+    background-image:repeating-linear-gradient(45deg,
+      transparent, transparent 5px,
+      color-mix(in srgb, var(--critical) 24%, transparent) 5px,
+      color-mix(in srgb, var(--critical) 24%, transparent) 10px);
+    color:var(--critical);
+  }
+  .cal-cell.st-future{color:var(--ink-faint);}
+
+  .legend{display:flex; flex-wrap:wrap; gap:10px; margin-top:2px;}
+  .legend-item{display:flex; align-items:center; gap:5px; font-size:11.5px; color:var(--ink-soft);}
+  .legend-swatch{width:9px; height:9px; border-radius:3px;}
+
+  .summary-table{width:100%; border-collapse:collapse; font-size:13px;}
+  .summary-table th{
+    text-align:left; font-size:10.5px; color:var(--ink-faint); text-transform:uppercase; letter-spacing:.04em;
+    font-weight:600; padding:0 6px 6px; border-bottom:1px solid var(--border);
+  }
+  .summary-table td{padding:8px 6px; border-bottom:1px solid var(--border);}
+  .summary-table tr:last-child td{border-bottom:none;}
+  .summary-table td.num, .summary-table th.num{text-align:right; font-family:"IBM Plex Mono",monospace;}
+  .table-scroll{overflow-x:auto;}
+
+  .kv-list{display:flex; flex-direction:column; gap:0;}
+  .kv-row{display:flex; justify-content:space-between; align-items:center; padding:9px 0; border-bottom:1px solid var(--border); font-size:13.5px;}
+  .kv-row:last-child{border-bottom:none;}
+  .kv-row .v{font-family:"IBM Plex Mono", monospace; font-weight:600;}
+
+  .field{display:flex; flex-direction:column; gap:5px;}
+  .field label{font-size:12px; font-weight:600; color:var(--ink-soft);}
+  .field input, .field select, .field textarea{
+    font:inherit; font-size:15px; padding:10px 12px; border-radius:10px; border:1px solid var(--border);
+    background:var(--surface); color:var(--ink); width:100%;
+  }
+  .field textarea{resize:vertical; min-height:64px; line-height:1.4;}
+  .field input:focus, .field select:focus, .field textarea:focus{border-color:var(--accent); outline:none;}
+  .field-hint{font-size:11.5px; color:var(--ink-faint);}
+
+  .list-item{
+    display:flex; align-items:center; justify-content:space-between; gap:10px;
+    padding:11px 0; border-bottom:1px solid var(--border);
+  }
+  .list-item:last-child{border-bottom:none;}
+  .list-item-main{min-width:0;}
+  .list-item-date{font-family:"IBM Plex Mono", monospace; font-size:11.5px; color:var(--ink-faint);}
+  .list-item-name{font-size:14.5px; font-weight:500; margin-top:1px;}
+  .icon-btn{
+    background:none; border:none; color:var(--ink-faint); cursor:pointer; padding:6px; flex:none;
+    display:flex; align-items:center; justify-content:center;
+  }
+  .icon-btn:hover{color:var(--critical);}
+  .icon-btn svg{width:17px; height:17px;}
+
+  .empty-state{text-align:center; padding:26px 10px; color:var(--ink-faint);}
+  .empty-state svg{width:34px; height:34px; margin-bottom:8px; opacity:.6;}
+  .empty-state p{font-size:13.5px; margin:4px 0 0;}
+
+  .divider{height:1px; background:var(--border); border:none; margin:2px 0;}
+
+  form{display:flex; flex-direction:column; gap:12px;}
+
+  /* Bottom nav — floating glass pill */
+  .bottomnav{
+    position:fixed; left:0; right:0; bottom:0;
+    z-index:30;
+    display:flex; justify-content:center;
+    padding:0 14px;
+    pointer-events:none;
+  }
+  .bottomnav-inner{
+    display:flex; width:100%; max-width:520px; gap:2px;
+    pointer-events:auto;
+    background:color-mix(in srgb, var(--surface) 70%, transparent);
+    backdrop-filter:blur(22px) saturate(1.7);
+    -webkit-backdrop-filter:blur(22px) saturate(1.7);
+    border:1px solid var(--border);
+    border-bottom:none;
+    border-radius:22px 22px 0 0;
+    padding:6px 6px calc(6px + env(safe-area-inset-bottom));
+    box-shadow:0 12px 32px -10px rgba(4,14,30,0.32), 0 2px 10px -2px rgba(4,14,30,0.14);
+  }
+  .navbtn{
+    flex:1; display:flex; flex-direction:column; align-items:center; gap:3px;
+    background:none; border:none; border-radius:16px; padding:9px 4px 8px; color:var(--ink-faint); cursor:pointer;
+    transition:background .18s ease, color .18s ease;
+  }
+  .navbtn svg{width:21px; height:21px; fill:none; stroke:currentColor; stroke-width:1.7; stroke-linecap:round; stroke-linejoin:round;}
+  .navbtn span{font-size:10px; font-weight:600;}
+  .navbtn.active{color:var(--accent); background:color-mix(in srgb, var(--accent-soft) 80%, transparent);}
+
+  /* Sheet / modal */
+  .overlay{
+    position:fixed; inset:0; background:rgba(15,20,19,0.45); z-index:50;
+    display:flex; align-items:flex-end; justify-content:center;
+    opacity:0; pointer-events:none; transition:opacity .18s ease;
+  }
+  .overlay.open{opacity:1; pointer-events:auto;}
+  .overlay.center{align-items:center; padding:20px;}
+  .sheet{
+    background:var(--surface); width:100%; max-width:560px; border-radius:20px 20px 0 0;
+    padding:18px 18px calc(20px + env(safe-area-inset-bottom));
+    transform:translateY(100%); transition:transform .22s cubic-bezier(.2,.8,.3,1);
+    max-height:86vh; overflow-y:auto;
+    box-shadow:0 -8px 30px rgba(0,0,0,0.18);
+  }
+  .overlay.open .sheet{transform:translateY(0);}
+  .overlay.center .sheet{
+    border-radius:18px; transform:translateY(10px) scale(.98); max-height:80vh;
+  }
+  .overlay.center.open .sheet{transform:none;}
+  .sheet-grabber{width:36px; height:4px; background:var(--border); border-radius:99px; margin:0 auto 14px;}
+  .sheet-header{display:flex; align-items:flex-start; justify-content:space-between; margin-bottom:14px; gap:10px;}
+  .sheet-close{background:var(--surface-2); border:none; border-radius:99px; width:30px; height:30px; display:flex; align-items:center; justify-content:center; cursor:pointer; color:var(--ink-soft); flex:none;}
+  .sheet-close svg{width:15px; height:15px;}
+
+  /* Hidden backfill sheet — hold-out testing tool, not part of normal use */
+  .bf-note{background:var(--warn-soft); color:var(--ink); border-radius:12px; padding:10px 12px; font-size:12.5px; line-height:1.5;}
+  .bf-row{border:1px solid var(--border); border-radius:12px; padding:12px; margin-top:10px;}
+  .bf-row-head{display:flex; align-items:center; justify-content:space-between; gap:8px;}
+  .bf-month{font-weight:700; font-size:13.5px;}
+  .bf-toggle{display:flex; align-items:center; gap:6px; font-size:12px; font-weight:600; color:var(--ink-soft); cursor:pointer;}
+  .bf-toggle input{width:15px; height:15px;}
+  .bf-fields{display:flex; gap:8px; margin-top:10px;}
+  .bf-fields .field{flex:1; margin:0;}
+  .bf-fields input:disabled{opacity:.45;}
+  .bf-pct{font-size:11.5px; color:var(--ink-faint); margin-top:6px;}
+
+  /* About page — developer / help sections */
+  .about-person{display:flex; align-items:center; gap:12px; margin-top:10px;}
+  .about-avatar{
+    width:44px; height:44px; border-radius:99px; flex:none;
+    background:var(--accent-soft); color:var(--accent);
+    display:flex; align-items:center; justify-content:center;
+    font-family:"Fraunces", serif; font-weight:600; font-size:17px;
+  }
+  .about-person-name{font-weight:700; font-size:14.5px;}
+  .about-person-role{font-size:12.5px; color:var(--ink-soft); margin-top:1px;}
+  .about-link-row{display:flex; gap:8px; margin-top:12px;}
+  .about-link{
+    flex:1; display:flex; align-items:center; justify-content:center; gap:6px;
+    background:var(--surface-2); border:1px solid var(--border); border-radius:10px;
+    padding:9px 10px; font-size:12.5px; font-weight:600; color:var(--ink); text-decoration:none;
+  }
+  .about-link svg{width:14px; height:14px; flex:none;}
+
+  /* Guided tour / coach marks */
+  .tour-block{position:fixed; inset:0; z-index:199; background:transparent;}
+  .tour-spot{
+    position:fixed; z-index:200; pointer-events:none;
+    border-radius:16px; border:2px solid var(--accent);
+    box-shadow:0 0 0 9999px rgba(6,14,28,0.72);
+    transition:top .22s ease, left .22s ease, width .22s ease, height .22s ease, opacity .15s ease;
+  }
+  .tour-card{
+    position:fixed; z-index:201; width:calc(100% - 32px); max-width:320px;
+    background:var(--surface); border:1px solid var(--border); border-radius:16px;
+    padding:16px; box-shadow:0 16px 40px -12px rgba(4,14,30,0.45);
+    transition:top .22s ease, left .22s ease, bottom .22s ease, opacity .15s ease;
+  }
+  .tour-step{font-size:11px; font-weight:700; color:var(--accent); text-transform:uppercase; letter-spacing:.04em;}
+  .tour-card h3{font-size:15.5px; margin:4px 0 6px; font-family:"Fraunces", serif;}
+  .tour-card p{font-size:13px; color:var(--ink-soft); line-height:1.5; margin:0;}
+  .tour-actions{display:flex; align-items:center; justify-content:space-between; margin-top:14px; gap:10px;}
+  .tour-skip{background:none; border:none; color:var(--ink-faint); font-size:12.5px; font-weight:600; cursor:pointer; padding:8px 2px;}
+  .tour-nextgroup{display:flex; align-items:center; gap:10px;}
+  .tour-dots{display:flex; gap:4px;}
+  .tour-dot{width:5px; height:5px; border-radius:99px; background:var(--border);}
+  .tour-dot.on{background:var(--accent); width:12px; border-radius:4px;}
+  .tour-btn{border:none; border-radius:10px; padding:9px 15px; font-size:13px; font-weight:700; cursor:pointer;}
+  .tour-btn-back{background:var(--surface-2); color:var(--ink);}
+  .tour-btn-next{background:var(--accent); color:var(--accent-ink);}
+
+  .option-grid{display:grid; grid-template-columns:1fr 1fr; gap:9px;}
+  .option-btn{
+    display:flex; align-items:center; gap:9px; padding:13px 12px; border-radius:12px;
+    border:1.5px solid var(--border); background:var(--surface); cursor:pointer; text-align:left;
+    font-family:inherit; font-size:13.5px; font-weight:600; color:var(--ink);
+  }
+  .option-btn .dot{width:9px; height:9px; border-radius:99px; flex:none;}
+  .option-btn.full{grid-column:1 / -1;}
+  .option-btn.selected{border-color:var(--accent); background:var(--accent-soft);}
+
+  .subtype-row{display:flex; gap:8px; margin-top:2px;}
+  .subtype-chip{
+    flex:1; padding:8px 6px; border-radius:9px; border:1.5px solid var(--border); background:var(--surface);
+    font-size:12.5px; font-weight:600; cursor:pointer; text-align:center; color:var(--ink-soft);
+  }
+  .subtype-chip.selected{border-color:var(--warn); color:var(--warn); background:var(--warn-soft);}
+
+  .toast{
+    position:fixed; left:50%; bottom:calc(96px + env(safe-area-inset-bottom)); transform:translateX(-50%) translateY(8px);
+    background:var(--ink); color:var(--bg); font-size:13px; font-weight:600; padding:10px 16px;
+    border-radius:99px; z-index:60; opacity:0; pointer-events:none; transition:all .2s ease;
+    box-shadow:0 8px 24px rgba(0,0,0,0.25); white-space:nowrap;
+  }
+  .toast.show{opacity:1; transform:translateX(-50%) translateY(0);}
+
+  .onboard{
+    position:fixed; inset:0; background:var(--bg); z-index:100;
+    display:flex; flex-direction:column; overflow-y:auto;
+  }
+  .onboard-inner{max-width:440px; margin:0 auto; padding:calc(40px + env(safe-area-inset-top)) 22px 40px; width:100%; flex:1; display:flex; flex-direction:column; justify-content:center; gap:22px;}
+  .onboard-mark{width:52px; height:52px; color:var(--accent);}
+  .onboard-mark rect{fill:none; stroke:currentColor; stroke-width:1.5;}
+  .onboard-mark line{stroke:currentColor; stroke-width:1.5;}
+  .onboard-mark polyline{fill:none; stroke:var(--warm); stroke-width:2; stroke-linecap:round; stroke-linejoin:round;}
+
+  /* Multi-step first-launch onboarding */
+  .ob-topbar{display:flex; align-items:center; justify-content:space-between; gap:10px;}
+  .ob-dots{display:flex; gap:6px;}
+  .ob-dot{width:6px; height:6px; border-radius:99px; background:var(--border); transition:all .2s ease;}
+  .ob-dot.on{background:var(--accent); width:20px; border-radius:4px;}
+  .ob-skip{background:none; border:none; color:var(--ink-faint); font-size:12.5px; font-weight:600; cursor:pointer; padding:4px 2px;}
+  .ob-slide{display:flex; flex-direction:column; gap:22px; animation:fade-in .22s ease;}
+  .ob-feature-list{display:flex; flex-direction:column; gap:14px;}
+  .ob-feature{display:flex; align-items:flex-start; gap:12px;}
+  .ob-feature-dot{width:10px; height:10px; border-radius:99px; margin-top:5px; flex:none;}
+  .ob-feature-title{font-weight:700; font-size:14.5px;}
+  .ob-feature-text{font-size:12.5px; color:var(--ink-soft); margin-top:2px;}
+  .ob-nav{display:flex; align-items:center; justify-content:space-between; gap:10px;}
+  .ob-nav .btn{flex:1;}
+
+  .formula-box{
+    background:var(--surface-2); border-radius:12px; padding:12px 14px; font-size:12.5px; line-height:1.6; color:var(--ink-soft);
+    font-family:"IBM Plex Mono", monospace;
+  }
+
+  .hidden{display:none !important;}
+
+  @media (min-width:640px){
+    body{background:var(--surface-2);}
+    #app{background:var(--bg); box-shadow:var(--shadow); min-height:100dvh;}
+  }
+
+  /* Tablets, foldables unfolded, and desktop preview: trade the phone-frame look
+     for a side navigation rail (the standard phone-to-tablet adaptation) and a
+     wider reading column, rather than just stretching the phone layout. */
+  @media (min-width:900px){
+    body{background:var(--bg);}
+    #app{
+      max-width:none; box-shadow:none; min-height:100vh;
+      padding-left:96px; padding-bottom:32px;
+    }
+    main{max-width:760px; margin:0 auto; width:100%; padding:26px 24px 8px; gap:16px;}
+    .topbar{padding-left:24px; padding-right:24px;}
+    .bottomnav{
+      top:0; bottom:0; left:0; right:auto; width:96px;
+      align-items:stretch; justify-content:flex-start;
+      padding:0; pointer-events:auto;
+    }
+    .bottomnav-inner{
+      flex-direction:column; max-width:none; width:100%; gap:6px;
+      border-radius:0; border:none; border-right:1px solid var(--border);
+      background:color-mix(in srgb, var(--surface) 90%, transparent);
+      box-shadow:none;
+      padding:calc(22px + env(safe-area-inset-top)) 6px 6px;
+    }
+    .navbtn{padding:15px 4px;}
+    .navbtn svg{width:23px; height:23px;}
+    .navbtn span{font-size:10.5px;}
+    .ring-wrap{width:172px; height:172px;}
+    .cal-cell{font-size:14.5px;}
+    .stat-chip .n{font-size:17px;}
+  }
+</style>
+
+
+</head>
+<body>
+<div id="app">
+  <header class="topbar">
+    <div class="brand">
+      <svg class="brand-mark" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="17" rx="4"></rect><line x1="3" y1="9" x2="21" y2="9"></line><polyline points="8 14.5 11 17.5 16.5 10.5"></polyline></svg>
+      <span class="brand-name">Office Ledger</span>
+    </div>
+    <div class="topbar-actions">
+      <button class="help-btn notif-btn" id="notifBtn" aria-label="Notifications" title="Notifications">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9a6 6 0 1 1 12 0c0 4.2 1.2 5.6 1.6 6.4H4.4C4.8 14.6 6 13.2 6 9z"></path><path d="M9.5 18.5a2.5 2.5 0 0 0 5 0"></path></svg>
+        <span class="notif-badge hidden" id="notifBadge">0</span>
+      </button>
+      <button class="help-btn" id="helpBtn" aria-label="Show guide for this page" title="How to use this page">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9.3"></circle><path d="M9.3 9.3a2.7 2.7 0 1 1 3.9 2.4c-.9.5-1.2 1-1.2 2"></path><line x1="12" y1="16.7" x2="12" y2="16.8"></line></svg>
+      </button>
+      <span class="fy-chip" id="fyChip">FY —</span>
+    </div>
+  </header>
+
+  <div class="ptr-bar" id="ptrBar"><div class="ptr-spinner" id="ptrSpinner"></div><span id="ptrLabel">Pull to refresh</span></div>
+
+  <main>
+    <section class="view active" id="view-today"></section>
+    <section class="view" id="view-calendar"></section>
+    <section class="view" id="view-leave"></section>
+    <section class="view" id="view-holidays"></section>
+    <section class="view" id="view-settings"></section>
+  </main>
+
+  <nav class="bottomnav">
+    <div class="bottomnav-inner">
+      <button class="navbtn active" data-view="today">
+        <svg viewBox="0 0 24 24"><polyline points="4 11 12 4 20 11"></polyline><path d="M6 10v9h12v-9"></path><line x1="10" y1="19" x2="10" y2="14"></line><line x1="14" y1="19" x2="14" y2="14"></line></svg>
+        <span>Today</span>
+      </button>
+      <button class="navbtn" data-view="calendar">
+        <svg viewBox="0 0 24 24"><rect x="4" y="5" width="16" height="15" rx="2"></rect><line x1="4" y1="9" x2="20" y2="9"></line><line x1="8" y1="3" x2="8" y2="6"></line><line x1="16" y1="3" x2="16" y2="6"></line></svg>
+        <span>Calendar</span>
+      </button>
+      <button class="navbtn" data-view="leave">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="4.3"></circle><line x1="12" y1="3" x2="12" y2="5.4"></line><line x1="12" y1="18.6" x2="12" y2="21"></line><line x1="3" y1="12" x2="5.4" y2="12"></line><line x1="18.6" y1="12" x2="21" y2="12"></line></svg>
+        <span>Leave</span>
+      </button>
+      <button class="navbtn" data-view="holidays">
+        <svg viewBox="0 0 24 24"><line x1="6" y1="3" x2="6" y2="21"></line><path d="M6 4h12l-3 4 3 4H6"></path></svg>
+        <span>Holidays</span>
+      </button>
+      <button class="navbtn" data-view="settings">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="7.3" stroke-dasharray="2.1 2.5"></circle><circle cx="12" cy="12" r="2.8"></circle></svg>
+        <span>Settings</span>
+      </button>
+    </div>
+  </nav>
+
+  <div class="overlay" id="sheetOverlay"><div class="sheet" id="sheetContent"></div></div>
+  <div class="toast" id="toast"></div>
+  <div class="onboard hidden" id="onboard"></div>
+</div>
+
+<script>
+(function(){
+"use strict";
+
+/* ---------- constants ---------- */
+var STORAGE_KEY = "officeLedger.v1";
+var APP_VERSION = "1.3.2"; // keep in sync with package.json's "version"
+var UPDATE_REPO = "debarun1234/anz-attendance-tracker-app"; // GitHub owner/repo checked for releases
+var DOW_LABELS = ["Mon","Tue","Wed","Thu","Fri","Sat","Sun"];
+var STATUS_META = {
+  present:        {label:"Present (Office)", color:"var(--good)"},
+  workedWeekend:  {label:"Worked Weekend",    color:"var(--good)"},
+  leave:          {label:"Leave",             color:"var(--warn)"},
+  holiday:        {label:"Public Holiday",    color:"var(--holiday)"},
+  compoff:        {label:"Comp Off Taken",    color:"var(--accent)"},
+  wfh:            {label:"Work From Home",    color:"var(--wfh)"},
+  weekend:        {label:"Weekend",           color:"var(--ink-faint)"},
+  unmarkedPast:   {label:"Unmarked",          color:"var(--critical)"},
+  future:         {label:"Upcoming",          color:"var(--ink-faint)"}
+};
+var LEAVE_TYPES = [{k:"annual",l:"Annual"},{k:"sick",l:"Sick"},{k:"carer",l:"Carer"}];
+
+/* ---------- date helpers (local time, no UTC drift) ---------- */
+function pad2(n){ return n<10 ? "0"+n : ""+n; }
+function iso(y,m,d){ return y+"-"+pad2(m+1)+"-"+pad2(d); }
+function isoOf(date){ return iso(date.getFullYear(), date.getMonth(), date.getDate()); }
+function parseIso(s){ var p=s.split("-"); return new Date(parseInt(p[0],10), parseInt(p[1],10)-1, parseInt(p[2],10)); }
+function today(){ var d=new Date(); return new Date(d.getFullYear(), d.getMonth(), d.getDate()); }
+function todayStr(){ return isoOf(today()); }
+function daysInMonth(y,m){ return new Date(y, m+1, 0).getDate(); }
+function mondayIndex(date){ return (date.getDay()+6)%7; } // 0=Mon..6=Sun
+function isWeekend(date){ var d=date.getDay(); return d===0 || d===6; }
+var MONTH_NAMES=["January","February","March","April","May","June","July","August","September","October","November","December"];
+var MONTH_SHORT=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+function fmtLong(dateOrStr){
+  var d = typeof dateOrStr==="string" ? parseIso(dateOrStr) : dateOrStr;
+  return ["Mon","Tue","Wed","Thu","Fri","Sat","Sun"][mondayIndex(d)]+", "+d.getDate()+" "+MONTH_SHORT[d.getMonth()]+" "+d.getFullYear();
+}
+function fmtShort(dateOrStr){
+  var d = typeof dateOrStr==="string" ? parseIso(dateOrStr) : dateOrStr;
+  return d.getDate()+" "+MONTH_SHORT[d.getMonth()]+" "+d.getFullYear();
+}
+
+/* ---------- FY helpers (Oct -> Sep) ---------- */
+var FY_START_MONTH = 9; // October, 0-indexed
+function fyOf(date){
+  var y=date.getFullYear(), m=date.getMonth();
+  var startYear = m>=FY_START_MONTH ? y : y-1;
+  return {
+    startYear:startYear,
+    start:new Date(startYear, FY_START_MONTH, 1),
+    end:new Date(startYear+1, FY_START_MONTH-1, daysInMonth(startYear+1, FY_START_MONTH-1)),
+    label:"FY "+startYear+"–"+String(startYear+1).slice(2)
+  };
+}
+function fyMonths(fy){
+  var out=[];
+  for(var i=0;i<12;i++){
+    var m = (FY_START_MONTH+i)%12;
+    var y = fy.startYear + (FY_START_MONTH+i>=12 ? 1 : 0);
+    out.push({year:y, month:m});
+  }
+  return out;
+}
+
+/* ---------- state ---------- */
+var state = null;
+function defaultState(){
+  return {
+    profile:{ name:"", targetPct:50, openingCompOff:0, openingAnnualLeave:null, openingCarerSickLeave:null, createdAt: todayStr(), tourSeen:{} },
+    days:{},          // "YYYY-MM-DD" -> {status, leaveType}
+    holidays:[],       // {id, date, name}
+    // Two separate pools, matching how the company actually runs leave:
+    // Annual leave accrues and is tracked on its own; Sick and Carer leave
+    // share one combined pool, distinct from Annual.
+    annualLeave:{ current:null, lastUpdated:null, history:[] },
+    carerSickLeave:{ current:null, lastUpdated:null, history:[] },
+    dismissed:{},       // banner dismissal keys
+    notified:{},        // native-notification dedupe keys (one push per reminder period)
+    monthOverrides:{},  // "YYYY-MM" -> {eligible, attended} — manual backfill for months
+                         // tracked before day-by-day logging started. Hidden testing tool,
+                         // not part of normal use — see openBackfillSheet().
+    fyTotalOverride:null, // number|null — forces the FY-to-date percentage shown on Calendar
+                         // to this exact figure, for matching an officially reported total
+                         // that doesn't reconcile with the per-month backfill's day-count math.
+    notifications:[],    // {id, type:'error'|'update'|'bug', title, message, ts, read} — newest first
+    lastUpdateCheck:0,    // ms timestamp of the last silent update check (throttles the GitHub call)
+    lastNotifiedVersion:null // last release tag we already raised an "update available" notification for
+  };
+}
+/* Storage: on the native app this writes through Capacitor's Preferences plugin,
+   which is backed by Android SharedPreferences / iOS UserDefaults — real device
+   storage, independent of the WebView's own site data. In a plain browser (or the
+   web preview) it falls back to localStorage. Either way the record lives only on
+   this device; there is no server. */
+function nativeStorageReady(){
+  return !!(window.Capacitor && window.Capacitor.isNativePlatform && window.Capacitor.isNativePlatform()
+    && window.Capacitor.Plugins && window.Capacitor.Plugins.Preferences);
+}
+async function storageGet(key){
+  try{
+    if(nativeStorageReady()){
+      var res = await window.Capacitor.Plugins.Preferences.get({key:key});
+      return (res && res.value != null) ? res.value : null;
+    }
+  }catch(e){ console.warn("Office Ledger: native storage read failed, falling back", e); }
+  try{ return localStorage.getItem(key); }catch(e){ return null; }
+}
+async function storageSet(key, value){
+  try{
+    if(nativeStorageReady()){
+      await window.Capacitor.Plugins.Preferences.set({key:key, value:value});
+      return;
+    }
+  }catch(e){ console.warn("Office Ledger: native storage write failed, falling back", e); }
+  localStorage.setItem(key, value);
+}
+async function storageRemove(key){
+  try{
+    if(nativeStorageReady()){
+      await window.Capacitor.Plugins.Preferences.remove({key:key});
+    }
+  }catch(e){ console.warn(e); }
+  try{ localStorage.removeItem(key); }catch(e){}
+}
+
+async function loadState(){
+  try{
+    var raw = await storageGet(STORAGE_KEY);
+    if(!raw) return null;
+    var parsed = JSON.parse(raw);
+    if(!parsed || typeof parsed!=="object" || !parsed.profile) return null;
+    var d = defaultState();
+    var merged = Object.assign(d, parsed, {
+      profile: Object.assign(d.profile, parsed.profile),
+      annualLeave: Object.assign(d.annualLeave, parsed.annualLeave),
+      carerSickLeave: Object.assign(d.carerSickLeave, parsed.carerSickLeave),
+      days: parsed.days || {},
+      holidays: parsed.holidays || [],
+      dismissed: parsed.dismissed || {},
+      notified: parsed.notified || {},
+      monthOverrides: parsed.monthOverrides || {},
+      notifications: parsed.notifications || []
+    });
+    // One-time migration: older backups stored a single shared leaveBalance
+    // pool. Carry that figure into Annual leave so nothing is lost, and
+    // leave Sick/Carer to be reported fresh under the new split.
+    if(parsed.leaveBalance && !parsed.annualLeave){
+      merged.annualLeave = Object.assign({current:null,lastUpdated:null,history:[]}, parsed.leaveBalance);
+    }
+    return merged;
+  }catch(e){ console.warn("Office Ledger: could not read saved data", e); return null; }
+}
+async function saveState(){
+  try{ await storageSet(STORAGE_KEY, JSON.stringify(state)); }
+  catch(e){ console.warn("Office Ledger: could not save data", e); showToast("Couldn't save — device storage may be full"); }
+}
+
+/* ---------- notification center ----------
+   A lightweight in-app inbox: app errors, "update available" pings, and a
+   record of bug reports you've sent — accessed via the bell icon in the
+   top bar. Stored on state so it survives restarts; capped so it can't
+   grow forever. */
+function addNotification(type, title, message){
+  if(!state) return; // nothing to log into before onboarding finishes
+  state.notifications = state.notifications || [];
+  state.notifications.unshift({
+    id:"n"+Date.now()+Math.random().toString(36).slice(2,7),
+    type:type, title:title, message:message||"", ts:Date.now(), read:false
+  });
+  if(state.notifications.length > 100) state.notifications.length = 100;
+  saveState();
+  updateNotifBadge();
+}
+function unreadNotifCount(){
+  return ((state && state.notifications) || []).filter(function(n){ return !n.read; }).length;
+}
+function updateNotifBadge(){
+  var badge = document.getElementById("notifBadge");
+  if(!badge) return;
+  var n = unreadNotifCount();
+  if(n>0){ badge.textContent = n>99 ? "99+" : String(n); badge.classList.remove("hidden"); }
+  else { badge.classList.add("hidden"); }
+}
+function notifIcon(type){
+  if(type==="error") return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9.3"></circle><line x1="12" y1="7.5" x2="12" y2="13"></line><line x1="12" y1="16.7" x2="12" y2="16.8"></line></svg>';
+  if(type==="update") return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"></path><polyline points="7 10 12 15 17 10"></polyline><path d="M5 19h14"></path></svg>';
+  return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="7" y="8" width="10" height="10" rx="3"></rect><path d="M9 8V6a3 3 0 0 1 6 0v2"></path><line x1="3.5" y1="12" x2="7" y2="12"></line><line x1="17" y1="12" x2="20.5" y2="12"></line><line x1="9" y1="18.5" x2="7" y2="21"></line><line x1="15" y1="18.5" x2="17" y2="21"></line></svg>';
+}
+function timeAgo(ts){
+  var s = Math.max(0, Math.floor((Date.now()-ts)/1000));
+  if(s<60) return "just now";
+  var m = Math.floor(s/60); if(m<60) return m+"m ago";
+  var h = Math.floor(m/60); if(h<24) return h+"h ago";
+  var d = Math.floor(h/24); if(d<7) return d+"d ago";
+  return new Date(ts).toLocaleDateString(undefined,{day:"numeric",month:"short"});
+}
+function openNotifCenter(){
+  var list = ((state && state.notifications) || []);
+  var rows = list.map(function(n){
+    return '<div class="notif-item'+(n.read?"":" unread")+'" data-id="'+n.id+'">'+
+      '<div class="notif-icon t-'+n.type+'">'+notifIcon(n.type)+'</div>'+
+      '<div class="notif-body"><div class="notif-title">'+esc(n.title)+'</div>'+
+      (n.message ? '<div class="notif-msg">'+esc(n.message)+'</div>' : '')+
+      '<div class="notif-time">'+timeAgo(n.ts)+'</div></div>'+
+    '</div>';
+  }).join("");
+  var html =
+    '<div class="sheet-grabber"></div>'+
+    '<div class="sheet-header">'+
+      '<div><div class="eyebrow">Inbox</div><h2 style="font-size:19px;">Notifications</h2></div>'+
+      '<button class="sheet-close" id="sheetClose" aria-label="Close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="5" y1="5" x2="19" y2="19"></line><line x1="19" y1="5" x2="5" y2="19"></line></svg></button>'+
+    '</div>'+
+    (list.length ? '<button class="btn btn-secondary btn-block" id="clearNotifsBtn" style="margin-top:4px;">Clear all</button>' : '')+
+    '<div style="margin-top:6px;">'+
+    (rows || '<div class="notif-empty">Nothing here yet — errors, update alerts and bug reports you send will show up in this list.</div>')+
+    '</div>';
+  document.getElementById("sheetContent").innerHTML = html;
+  var overlay = document.getElementById("sheetOverlay");
+  overlay.classList.add("center");
+  overlay.classList.add("open");
+  document.getElementById("sheetClose").addEventListener("click", closeSheet);
+  overlay.onclick = function(e){ if(e.target===overlay) closeSheet(); };
+  var clearBtn = document.getElementById("clearNotifsBtn");
+  if(clearBtn) clearBtn.addEventListener("click", function(){
+    state.notifications = [];
+    saveState();
+    updateNotifBadge();
+    closeSheet();
+    showToast("Notifications cleared");
+  });
+  // Opening the inbox marks everything read.
+  var changed = false;
+  list.forEach(function(n){ if(!n.read){ n.read = true; changed = true; } });
+  if(changed){ saveState(); updateNotifBadge(); }
+}
+// Catch runtime errors app-wide and log them into the notification center,
+// so "something broke" is visible in-app instead of only in a console
+// nobody on a phone can see.
+window.addEventListener("error", function(e){
+  try{ addNotification("error", "Something went wrong", (e && e.message) ? String(e.message) : "An unexpected error occurred."); }
+  catch(_e){}
+});
+window.addEventListener("unhandledrejection", function(e){
+  try{
+    var reason = e && e.reason;
+    var msg = (reason && (reason.message || String(reason))) || "An unexpected error occurred.";
+    addNotification("error", "Something went wrong", msg);
+  }catch(_e){}
+});
+
+/* ---------- holiday lookup ---------- */
+function holidayMap(){
+  var m={};
+  (state.holidays||[]).forEach(function(h){ m[h.date]=h.name; });
+  return m;
+}
+
+/* ---------- classification ---------- */
+function classifyDay(dateStr, hMap){
+  var explicit = state.days[dateStr];
+  if(explicit && explicit.status) return explicit.status;
+  if(hMap[dateStr]) return "holiday";
+  var d = parseIso(dateStr);
+  if(isWeekend(d)) return "weekend";
+  // Days before the profile existed aren't penalised unless explicitly backfilled above.
+  if(dateStr < state.profile.createdAt) return "untracked";
+  return "unmarked";
+}
+
+/* range stats: iterates [startStr, endStr] inclusive, split around cutoffStr (usually today).
+   "Resolved" days (<= cutoff) are the true to-date figures: an unmarked resolved weekday
+   counts as eligible but NOT attended (a logging gap that counts against you).
+   "Full" figures additionally fold in days after the cutoff, treating an unmarked future
+   weekday as still-eligible-but-not-yet-attended — useful for "what do I need by month end"
+   projections without inflating a to-date percentage with days that haven't happened. */
+/* Self-reported leave balances feed the eligible-day math too, not just
+   the Leave tab display. When a pool's reported balance drops between two
+   consecutive monthly updates, that drop is "leave taken" for the month
+   the newer entry is dated in. Any of that month's days already marked
+   "Leave" on the Calendar are subtracted first (an explicit mark always
+   wins and is never double-counted) — only the remaining, unmarked shortfall
+   is inferred and excluded from eligible working days for that month. */
+function monthStartStr(monthKey){ return monthKey+"-01"; }
+function monthEndStr(monthKey){
+  var y=parseInt(monthKey.slice(0,4),10), m=parseInt(monthKey.slice(5,7),10)-1;
+  return iso(y,m,daysInMonth(y,m));
+}
+function inferredLeaveByMonth(){
+  var out = {};
+  function scan(pool, matchTypes, openingValue){
+    var hist = (pool.history||[]).slice().sort(function(a,b){ return a.date<b.date?-1:1; });
+    // With a reported opening balance (set in Settings, like opening comp off),
+    // treat it as the baseline reading as of when tracking started — so even
+    // the very first monthly update produces a usable delta, instead of
+    // needing a second update before inference can kick in.
+    if(openingValue!==null && openingValue!==undefined && hist.length>0 && hist[0].date>state.profile.createdAt){
+      hist.unshift({date:state.profile.createdAt, value:openingValue});
+    }
+    for(var i=1;i<hist.length;i++){
+      var prev=hist[i-1], cur=hist[i];
+      var delta = prev.value - cur.value; // balance dropped => leave was taken
+      if(delta<=0) continue;
+      var monthKey = cur.date.slice(0,7);
+      var explicitCount = Object.keys(state.days).filter(function(ds){
+        if(ds.slice(0,7)!==monthKey) return false;
+        var day = state.days[ds];
+        return day.status==="leave" && matchTypes.indexOf(day.leaveType)!==-1;
+      }).length;
+      var inferred = Math.max(0, delta - explicitCount);
+      if(inferred>0) out[monthKey] = (out[monthKey]||0) + inferred;
+    }
+  }
+  scan(state.annualLeave, ["annual"], state.profile.openingAnnualLeave);
+  scan(state.carerSickLeave, ["sick","carer"], state.profile.openingCarerSickLeave);
+  return out;
+}
+
+function rangeStats(startStr, endStr, cutoffStr){
+  var hMap = holidayMap();
+  var start = parseIso(startStr), end = parseIso(endStr);
+  var eligibleResolved=0, eligibleFull=0, attendedResolved=0, attendedFull=0, leaveN=0, holidayN=0, compoffN=0,
+      weekendWorkedN=0, unmarkedResolvedN=0, unmarkedFutureN=0, wfhN=0;
+  var cur = new Date(start.getTime());
+  while(cur.getTime() <= end.getTime()){
+    var ds = isoOf(cur);
+    var cls = classifyDay(ds, hMap);
+    var isResolved = ds <= cutoffStr;
+    if(cls==="present" || cls==="workedWeekend"){
+      eligibleFull++; attendedFull++;
+      if(cls==="workedWeekend") weekendWorkedN++;
+      if(isResolved){ eligibleResolved++; attendedResolved++; }
+    }
+    else if(cls==="leave"){ leaveN++; }
+    else if(cls==="holiday"){ holidayN++; }
+    else if(cls==="compoff"){ compoffN++; }
+    else if(cls==="wfh"){
+      // Still a real working day (unlike leave/holiday), so it stays in the
+      // eligible denominator — it just never counts as attended, since the
+      // target is specifically about being physically in the office. Not
+      // flagged as a logging gap either, since it's a deliberate status.
+      wfhN++;
+      eligibleFull++;
+      if(isResolved) eligibleResolved++;
+    }
+    else if(cls==="weekend" || cls==="untracked"){ /* excluded */ }
+    else if(cls==="unmarked"){
+      eligibleFull++;
+      if(isResolved){ eligibleResolved++; unmarkedResolvedN++; }
+      else { unmarkedFutureN++; }
+    }
+    cur.setDate(cur.getDate()+1);
+  }
+  // Fold in leave inferred from reported balance drops, for any calendar
+  // month fully contained within [startStr, endStr] (every caller in this
+  // app queries either one whole month or the whole FY, so this always
+  // lands on clean month boundaries).
+  var inferredMap = inferredLeaveByMonth();
+  Object.keys(inferredMap).forEach(function(monthKey){
+    var mStart = monthStartStr(monthKey), mEnd = monthEndStr(monthKey);
+    if(mStart<startStr || mEnd>endStr) return;
+    var n = inferredMap[monthKey];
+    leaveN += n;
+    eligibleFull = Math.max(0, eligibleFull-n);
+    if(mEnd<=cutoffStr){
+      eligibleResolved = Math.max(0, eligibleResolved-n);
+      unmarkedResolvedN = Math.max(0, unmarkedResolvedN-n);
+    } else if(mStart<=cutoffStr){
+      var forgive = Math.min(n, unmarkedResolvedN);
+      eligibleResolved = Math.max(0, eligibleResolved-forgive);
+      unmarkedResolvedN = Math.max(0, unmarkedResolvedN-forgive);
+    }
+  });
+  return {
+    eligibleResolved:eligibleResolved, eligibleFull:eligibleFull,
+    attended:attendedResolved, attendedFull:attendedFull,
+    leave:leaveN, holiday:holidayN, compoff:compoffN, wfh:wfhN, weekendWorked:weekendWorkedN,
+    unmarkedPast:unmarkedResolvedN, pending:unmarkedFutureN,
+    pctResolved: eligibleResolved>0 ? (attendedResolved/eligibleResolved*100) : null,
+    pctFull: eligibleFull>0 ? (attendedFull/eligibleFull*100) : null
+  };
+}
+
+/* Manual month backfill (hidden testing tool — see openBackfillSheet()).
+   A month with an override in state.monthOverrides reports that eligible/
+   attended pair everywhere instead of what's computed from day-by-day
+   marks, so months tracked before this app existed can still feed the FY
+   aggregate. Every other field on the stats object is left as actually
+   computed, and untouched months are unaffected. */
+function monthOverrideKey(y,m){ return y+"-"+pad2(m+1); }
+function monthStats(y, m, cutoffStr){
+  var mr = monthRangeStr(y,m);
+  var real = rangeStats(mr.start, mr.end, cutoffStr);
+  var ov = state.monthOverrides && state.monthOverrides[monthOverrideKey(y,m)];
+  if(!ov) return real;
+  var eligible = Math.max(0, ov.eligible||0);
+  var attended = Math.max(0, Math.min(eligible, ov.attended||0));
+  return Object.assign({}, real, {
+    eligibleResolved: eligible, eligibleFull: eligible,
+    attended: attended, attendedFull: attended,
+    pctResolved: eligible>0 ? (attended/eligible*100) : null,
+    pctFull: eligible>0 ? (attended/eligible*100) : null,
+    overridden: true
+  });
+}
+/* FY-wide totals, summed month by month so each month can be individually
+   overridden — mathematically identical to one continuous rangeStats() call
+   over the whole FY when nothing is overridden, since day classification
+   and leave inference are both already month-scoped internally. */
+function fyAggregateStats(fy){
+  var tStr = todayStr();
+  var out = {eligibleResolved:0, eligibleFull:0, attended:0, attendedFull:0, pending:0};
+  fyMonths(fy).forEach(function(mo){
+    var s = monthStats(mo.year, mo.month, tStr);
+    out.eligibleResolved += s.eligibleResolved;
+    out.eligibleFull += s.eligibleFull;
+    out.attended += s.attended;
+    out.attendedFull += s.attendedFull;
+    out.pending += s.pending;
+  });
+  out.pctResolved = out.eligibleResolved>0 ? (out.attended/out.eligibleResolved*100) : null;
+  out.pctFull = out.eligibleFull>0 ? (out.attendedFull/out.eligibleFull*100) : null;
+  // A per-month backfill's day-count math is only ever an approximation —
+  // when the officially reported FY total doesn't reconcile with it, this
+  // pins the shown percentage to that exact figure instead. Set from the
+  // hidden backfill sheet (openBackfillSheet), same testing-only feature.
+  if(typeof state.fyTotalOverride==="number" && !isNaN(state.fyTotalOverride)){
+    out.pctResolved = state.fyTotalOverride;
+    out.pctFull = state.fyTotalOverride;
+    out.totalOverridden = true;
+  }
+  return out;
+}
+
+function monthRangeStr(y,m){
+  return {start: iso(y,m,1), end: iso(y,m,daysInMonth(y,m))};
+}
+
+function compOffBalance(){
+  var opening = state.profile.openingCompOff || 0;
+  var worked=0, taken=0;
+  Object.keys(state.days).forEach(function(ds){
+    var st = state.days[ds].status;
+    if(st==="workedWeekend") worked++;
+    else if(st==="compoff") taken++;
+  });
+  return {balance: opening + worked - taken, opening:opening, worked:worked, taken:taken};
+}
+
+/* ---------- rendering helpers ---------- */
+function el(html){ var t=document.createElement("template"); t.innerHTML=html.trim(); return t.content.firstElementChild; }
+function pctColorClass(pct, target){
+  if(pct===null) return "";
+  if(pct>=target) return "status-good";
+  if(pct>=target-15) return "status-warn";
+  return "status-critical";
+}
+function fmtPct(pct){ return pct===null ? "—" : Math.round(pct)+"%"; }
+function plural(n,label){ return n+" "+label+(n===1?"":"s"); }
+
+function ringSvg(pct, target, size){
+  size = size||150;
+  var stroke=12, r=(size-stroke)/2, c=2*Math.PI*r;
+  var p = pct===null?0:Math.max(0,Math.min(100,pct));
+  var offset = c - (p/100)*c;
+  var targetAngle = (target/100)*360;
+  var tx = size/2 + r*Math.cos((targetAngle-90)*Math.PI/180);
+  var ty = size/2 + r*Math.sin((targetAngle-90)*Math.PI/180);
+  var color = pct===null ? "var(--ink-faint)" : (pct>=target?"var(--good)":(pct>=target-15?"var(--warn)":"var(--critical)"));
+  return '<svg width="'+size+'" height="'+size+'" viewBox="0 0 '+size+' '+size+'">'+
+    '<circle cx="'+size/2+'" cy="'+size/2+'" r="'+r+'" fill="none" stroke="var(--surface-2)" stroke-width="'+stroke+'"/>'+
+    '<circle cx="'+size/2+'" cy="'+size/2+'" r="'+r+'" fill="none" stroke="'+color+'" stroke-width="'+stroke+'" stroke-linecap="round" stroke-dasharray="'+c+'" stroke-dashoffset="'+offset+'" style="transition:stroke-dashoffset .5s ease"/>'+
+    '<circle cx="'+tx+'" cy="'+ty+'" r="3.4" fill="var(--surface)" stroke="var(--ink-faint)" stroke-width="1.5" transform="rotate(90 '+size/2+' '+size/2+')"/>'+
+    '</svg>';
+}
+
+/* ---------- toast ---------- */
+var toastTimer=null;
+function showToast(msg){
+  var t=document.getElementById("toast");
+  t.textContent=msg;
+  t.classList.add("show");
+  clearTimeout(toastTimer);
+  toastTimer=setTimeout(function(){ t.classList.remove("show"); }, 2200);
+}
+
+/* ---------- navigation ---------- */
+var currentView="today";
+var calCursor = {year: today().getFullYear(), month: today().getMonth()};
+
+function switchView(v){
+  currentView=v;
+  document.querySelectorAll(".view").forEach(function(s){ s.classList.remove("active"); });
+  document.getElementById("view-"+v).classList.add("active");
+  document.querySelectorAll(".navbtn").forEach(function(b){ b.classList.toggle("active", b.dataset.view===v); });
+  renderCurrentView();
+  window.scrollTo(0,0);
+  maybeAutoTour(v);
+}
+
+function renderCurrentView(){
+  if(currentView==="today") renderToday();
+  else if(currentView==="calendar") renderCalendar();
+  else if(currentView==="leave") renderLeave();
+  else if(currentView==="holidays") renderHolidays();
+  else if(currentView==="settings") renderSettings();
+  document.getElementById("fyChip").textContent = fyOf(today()).label;
+}
+
+/* Today's FY summary lives on the Calendar page now — this jumps there and
+   scrolls straight to it, with a brief highlight so it's obvious what the
+   button was pointing at. */
+function goToFyTrend(){
+  switchView("calendar");
+  setTimeout(function(){
+    var el = document.getElementById("fyTrendCard");
+    if(!el) return;
+    el.scrollIntoView({behavior:"smooth", block:"start"});
+    el.classList.add("flash-highlight");
+    setTimeout(function(){ el.classList.remove("flash-highlight"); }, 1200);
+  }, 120);
+}
+
+/* ---------- Guided tour (first-run walkthrough, replayable per page) ----------
+   A lightweight coach-mark engine: no library, just a spotlight box positioned
+   over each target element (via a huge box-shadow "cutout" trick) plus a
+   tooltip card with Back / Next / Skip. Steps are walked one at a time —
+   nothing else on the page is reachable while a tour is active. Each page's
+   tour auto-plays the first time that page is visited (tracked in
+   profile.tourSeen so it never repeats uninvited), and can be replayed any
+   time from the help icon in the top bar or from About → Show all guides. */
+var TOUR_STEPS = {
+  today: [
+    {sel:".topbar", title:"Financial year", text:"Office Ledger tracks ANZ’s financial year — 1 October to 30 September. This chip always shows which one you're in. The bell next to it is your notification center — errors, update alerts, and bug reports you've sent."},
+    {sel:"#statHeroCard", title:"This month, live", text:"Your attendance percentage for the current month — present ÷ eligible days × 100 — recalculated the moment you log a day. Swipe it sideways for the financial-year aggregate."},
+    {sel:"#logTodayBtn", title:"Log today", text:"Tap here any day to mark Present, Work from home, Leave, or Comp off taken."},
+    {sel:".bottomnav-inner", title:"Get around", text:"Today, Calendar, Leave, Holidays and Settings — everything is one tap away."}
+  ],
+  calendar: [
+    {sel:".cal-nav", title:"Browse months", text:"Step through months, or jump straight back to today."},
+    {sel:"#view-calendar .cal-grid", title:"Tap any day", text:"Tap a date to set its status — Present, Work from home, Leave, Comp off, or a worked weekend."},
+    {sel:"#view-calendar .legend", title:"Color legend", text:"Each color is a day status, so a whole month reads at a glance."},
+    {sel:"#monthSummaryCard", title:"Month summary", text:"The full breakdown for the month you're viewing, and its attendance percentage."},
+    {sel:"#fyTrendCard", title:"FY trend at a glance", text:"Every month of the financial year to date, each with its own percentage, plus the aggregate total for the whole year so far."}
+  ],
+  leave: [
+    {sel:"#annualPoolCard", title:"Annual leave", text:"Report your Annual balance from HR each month — a drop since last time is counted as leave taken automatically."},
+    {sel:"#carerSickPoolCard", title:"Sick / Carer leave", text:"Tracked as its own separate pool from Annual, matching how the two are actually managed."}
+  ],
+  holidays: [
+    {sel:"#addHolidayCard", title:"Add public holidays", text:"Add every date your company releases for the financial year — they're excluded from eligible working days automatically."},
+    {sel:"#holidayListCard", title:"Your holiday list", text:"Everything you've added, sorted by date. Tap the × on any entry to remove it."}
+  ],
+  settings: [
+    {sel:"#profileForm", title:"Your profile", text:"Name, attendance target, opening leave balances, and your tracking start date all live here."},
+    {sel:"#setCreatedAt", title:"Tracking start date", text:"Keep this set to when you actually started using the app. Days before it aren't held against you — but if it's wrong, real unmarked days get silently excluded too."},
+    {sel:"#aboutBtn", title:"About & help", text:"App version, update checks, who built this, and how to report a bug."}
+  ]
+};
+var tour = { active:false, view:null, idx:0, steps:[] };
+
+function maybeAutoTour(v){
+  if(!state || !state.profile) return;
+  if(!state.profile.tourSeen) state.profile.tourSeen = {};
+  if(state.profile.tourSeen[v]) return;
+  setTimeout(function(){ startTour(v); }, 380);
+}
+function startTour(viewKey){
+  var steps = (TOUR_STEPS[viewKey]||[]).filter(function(s){ return !!document.querySelector(s.sel); });
+  if(!steps.length) return;
+  tour = { active:true, view:viewKey, idx:0, steps:steps };
+  if(!state.profile.tourSeen) state.profile.tourSeen = {};
+  state.profile.tourSeen[viewKey] = true;
+  saveState();
+  buildTourDom();
+  showTourStep();
+  window.addEventListener("resize", onTourResize);
+}
+function buildTourDom(){
+  if(!document.getElementById("tourBlock")){
+    var block = document.createElement("div"); block.id="tourBlock"; block.className="tour-block";
+    document.body.appendChild(block);
+  }
+  if(!document.getElementById("tourSpot")){
+    var spot = document.createElement("div"); spot.id="tourSpot"; spot.className="tour-spot";
+    document.body.appendChild(spot);
+  }
+  if(!document.getElementById("tourCard")){
+    var card = document.createElement("div"); card.id="tourCard"; card.className="tour-card";
+    document.body.appendChild(card);
+  }
+}
+function onTourResize(){ if(tour.active) positionTourStep(); }
+function showTourStep(){
+  var step = tour.steps[tour.idx];
+  var card = document.getElementById("tourCard");
+  var dots = tour.steps.map(function(_,i){ return '<span class="tour-dot'+(i===tour.idx?' on':'')+'"></span>'; }).join("");
+  card.innerHTML =
+    '<div class="tour-step">Step '+(tour.idx+1)+' of '+tour.steps.length+'</div>'+
+    '<h3>'+esc(step.title)+'</h3>'+
+    '<p>'+esc(step.text)+'</p>'+
+    '<div class="tour-actions">'+
+      '<button class="tour-skip" id="tourSkip">Skip</button>'+
+      '<div class="tour-nextgroup">'+
+        '<div class="tour-dots">'+dots+'</div>'+
+        (tour.idx>0 ? '<button class="tour-btn tour-btn-back" id="tourBack">Back</button>' : '')+
+        '<button class="tour-btn tour-btn-next" id="tourNext">'+(tour.idx===tour.steps.length-1 ? "Got it" : "Next")+'</button>'+
+      '</div>'+
+    '</div>';
+  document.getElementById("tourSkip").addEventListener("click", endTour);
+  document.getElementById("tourNext").addEventListener("click", function(){
+    if(tour.idx>=tour.steps.length-1) endTour();
+    else { tour.idx++; showTourStep(); }
+  });
+  var backBtn = document.getElementById("tourBack");
+  if(backBtn) backBtn.addEventListener("click", function(){ tour.idx--; showTourStep(); });
+  positionTourStep();
+}
+function positionTourStep(){
+  var step = tour.steps[tour.idx];
+  var el = document.querySelector(step.sel);
+  if(!el){ endTour(); return; }
+  el.scrollIntoView({block:"center", behavior:"auto"});
+  requestAnimationFrame(function(){ placeTourElements(el); });
+}
+function placeTourElements(el){
+  var spot = document.getElementById("tourSpot");
+  var card = document.getElementById("tourCard");
+  if(!spot || !card) return;
+  var pad = 8;
+  var r = el.getBoundingClientRect();
+  spot.style.top = (r.top-pad)+"px";
+  spot.style.left = (r.left-pad)+"px";
+  spot.style.width = (r.width+pad*2)+"px";
+  spot.style.height = (r.height+pad*2)+"px";
+
+  var cardH = card.offsetHeight || 170;
+  var cardW = card.offsetWidth || 288;
+  var spaceBelow = window.innerHeight - r.bottom;
+  var spaceAbove = r.top;
+  var top;
+  if(spaceBelow > cardH+24) top = r.bottom+16;
+  else if(spaceAbove > cardH+24) top = r.top-cardH-16;
+  else top = Math.max(16, window.innerHeight-cardH-16);
+  var left = Math.min(Math.max(16, r.left), Math.max(16, window.innerWidth-cardW-16));
+  card.style.top = top+"px";
+  card.style.left = left+"px";
+}
+function endTour(){
+  tour.active = false;
+  window.removeEventListener("resize", onTourResize);
+  ["tourBlock","tourSpot","tourCard"].forEach(function(id){
+    var el = document.getElementById(id);
+    if(el) el.remove();
+  });
+}
+
+/* ---------- TODAY view ---------- */
+function reminderBanners(){
+  var out=[];
+  var t = today();
+  var tStr = todayStr();
+  var monthKey = t.getFullYear()+"-"+pad2(t.getMonth()+1);
+  var monthLabel = MONTH_NAMES[t.getMonth()]+" "+t.getFullYear();
+
+  var al = state.annualLeave, csl = state.carerSickLeave;
+  var alMonthKey = al.lastUpdated ? al.lastUpdated.slice(0,7) : null;
+  var cslMonthKey = csl.lastUpdated ? csl.lastUpdated.slice(0,7) : null;
+  var alStale = alMonthKey!==monthKey, cslStale = cslMonthKey!==monthKey;
+  if((alStale || cslStale) && state.dismissed["leave-"+monthKey]!==true){
+    var which = alStale && cslStale ? "Annual and Sick/Carer balances" : (alStale ? "Annual leave balance" : "Sick/Carer leave balance");
+    out.push({
+      key:"leave-"+monthKey,
+      title:"Update your leave balance",
+      body:"Log your "+which+" for "+monthLabel+" so this month's numbers stay accurate.",
+      action:function(){ switchView("leave"); setTimeout(function(){ var i=document.getElementById((alStale?"annualLeaveInput":"carerSickLeaveInput")); if(i) i.focus(); }, 150); }
+    });
+  }
+  var fy = fyOf(t);
+  var hasHolidayThisFY = (state.holidays||[]).some(function(h){ return h.date>=isoOf(fy.start) && h.date<=isoOf(fy.end); });
+  if(!hasHolidayThisFY && state.dismissed["holiday-"+fy.label]!==true){
+    out.push({
+      key:"holiday-"+fy.label,
+      title:"Add this year's holiday list",
+      body:"No public holidays logged yet for "+fy.label+". Add the dates your company released so they count correctly.",
+      action:function(){ switchView("holidays"); }
+    });
+  }
+  return out;
+}
+
+/* ---------- native notifications (phone notification centre) ----------
+   In-app banners above already surface these reminders inside the app.
+   On the native build we also push the same reminder to the OS
+   notification centre, once per reminder period (tracked in
+   state.notified), so it's seen even when the app isn't open. */
+function nativeNotifReady(){
+  return !!(window.Capacitor && window.Capacitor.isNativePlatform && window.Capacitor.isNativePlatform()
+    && window.Capacitor.Plugins && window.Capacitor.Plugins.LocalNotifications);
+}
+async function ensureNotifPermission(){
+  if(!nativeNotifReady()) return false;
+  try{
+    var LN = window.Capacitor.Plugins.LocalNotifications;
+    var perm = await LN.checkPermissions();
+    if(perm.display !== "granted") perm = await LN.requestPermissions();
+    return perm.display === "granted";
+  }catch(e){ console.warn("Office Ledger: notification permission check failed", e); return false; }
+}
+async function notifyOnce(key, title, body){
+  if(state.notified && state.notified[key]) return;
+  var ok = await ensureNotifPermission();
+  if(!ok) return;
+  try{
+    await window.Capacitor.Plugins.LocalNotifications.schedule({
+      notifications:[{
+        id: Math.floor(Math.random()*2147000000),
+        title: title, body: body,
+        schedule:{ at: new Date(Date.now()+500) }
+      }]
+    });
+    state.notified = state.notified || {};
+    state.notified[key] = true;
+    saveState();
+  }catch(e){ console.warn("Office Ledger: could not send notification", e); }
+}
+async function sendPendingNotifications(){
+  if(!nativeNotifReady()) return;
+  var banners = reminderBanners();
+  for(var i=0;i<banners.length;i++){
+    var b = banners[i];
+    await notifyOnce(b.key, b.title, b.body);
+  }
+}
+
+/* If the financial-year-to-date % is below target, work out whether it's
+   still mathematically reachable by FY end (30 Sep) given the eligible
+   working days left, and if so, roughly how many of them are needed —
+   spread across the remaining months for a concrete recovery plan. */
+function fyRecoveryMessage(stats, target, fy, t){
+  if(stats.pctResolved===null || stats.pctResolved>=target) return null;
+  var neededMore = Math.max(0, Math.ceil(target/100*stats.eligibleFull) - stats.attendedFull);
+  var remaining = stats.pending;
+  if(neededMore===0){
+    return "There are still enough eligible days left in "+fy.label+" that keeping up attendance can bring you back to "+target+"% by year end.";
+  }
+  if(remaining===0){
+    return "The eligible working days for "+fy.label+" are over — "+target+"% was not reached this financial year.";
+  }
+  if(neededMore>remaining){
+    var bestCase = stats.eligibleFull>0 ? ((stats.attendedFull+remaining)/stats.eligibleFull*100) : null;
+    return "Even attending every remaining eligible day in "+fy.label+", the best reachable is <b>"+Math.round(bestCase)+"%</b> — below the "+target+"% target.";
+  }
+  var monthsLeft = (fy.end.getFullYear()*12+fy.end.getMonth()) - (t.getFullYear()*12+t.getMonth()) + 1;
+  var perMonth = Math.ceil(neededMore/monthsLeft);
+  return "To recover to "+target+"% by the end of "+fy.label+", attend <b>"+plural(neededMore,"more day")+"</b> out of the <b>"+plural(remaining,"eligible day")+"</b> left — roughly <b>"+plural(perMonth,"day")+"</b> a month across the remaining "+plural(monthsLeft,"month")+".";
+}
+
+function fyTrendTable(fy){
+  var tStr = todayStr();
+  var anyOverride = false;
+  var rows = fyMonths(fy).map(function(mo){
+    var mr = monthRangeStr(mo.year, mo.month);
+    if(mr.start > tStr) return null; // month hasn't started yet
+    var s = monthStats(mo.year, mo.month, tStr);
+    if(!s.overridden && s.eligibleResolved===0 && s.attended===0) return null; // nothing tracked this month
+    if(s.overridden) anyOverride = true;
+    return '<tr><td>'+MONTH_SHORT[mo.month]+' '+mo.year+(s.overridden?' <span class="mono" style="color:var(--ink-faint);font-size:10px;" title="Manually backfilled">†</span>':'')+'</td>'+
+      '<td class="num mono">'+s.eligibleResolved+'</td>'+
+      '<td class="num mono">'+s.attended+'</td>'+
+      '<td class="num mono">'+fmtPct(s.pctResolved)+'</td></tr>';
+  }).filter(Boolean);
+  if(!rows.length) return '<p class="subtext">Monthly trend appears here once a month is underway.</p>';
+  return '<span class="eyebrow">Month by month</span>'+
+    '<div class="table-scroll" style="margin-top:8px;"><table class="summary-table">'+
+    '<tr><th>Month</th><th class="num">Eligible</th><th class="num">Attended</th><th class="num">%</th></tr>'+
+    rows.join("")+
+    '</table></div>'+
+    (anyOverride ? '<p class="subtext" style="margin-top:8px;">† manually backfilled, not from day-by-day marks.</p>' : '');
+}
+
+/* Home's hero card carries two slides — "this month" and the FY aggregate —
+   swiped between horizontally. Rebuilt fresh each renderToday() call, so
+   wiring (and the touch listeners) is re-attached every time; always opens
+   back on the month slide. Deliberately independent of pull-to-refresh's
+   own touch listeners: a horizontal drag here calls stopPropagation once
+   committed, so it can't also trigger a refresh pull. */
+function setupStatHeroSwipe(){
+  var card = document.getElementById("statHeroCard");
+  var track = document.getElementById("statHeroTrack");
+  var dots = document.querySelectorAll("#statHeroDots .stat-hero-dot");
+  if(!card || !track) return;
+  var slide = 0, startX=null, startY=null, dragging=false, committed=false, deltaX=0, width=0;
+
+  function apply(pct, animate){
+    track.style.transition = animate ? "" : "none";
+    track.style.transform = "translateX("+pct+"%)";
+  }
+  function setSlide(i){
+    slide = Math.max(0, Math.min(1, i));
+    apply(-(slide*50), true);
+    dots.forEach(function(d,idx){ d.classList.toggle("on", idx===slide); });
+  }
+  card.addEventListener("touchstart", function(e){
+    startX = e.touches[0].clientX; startY = e.touches[0].clientY;
+    dragging = false; committed = false; deltaX = 0;
+    width = card.getBoundingClientRect().width;
+  }, {passive:true});
+  card.addEventListener("touchmove", function(e){
+    if(startX===null) return;
+    var dx = e.touches[0].clientX - startX;
+    var dy = e.touches[0].clientY - startY;
+    if(!dragging){
+      if(Math.abs(dx)<8 && Math.abs(dy)<8) return;
+      dragging = true;
+      committed = Math.abs(dx) > Math.abs(dy);
+      if(!committed) return;
+    }
+    if(!committed) return;
+    e.preventDefault();
+    e.stopPropagation();
+    deltaX = dx;
+    var pct = Math.max(-50, Math.min(0, -(slide*50) + (dx/width)*50));
+    apply(pct, false);
+  }, {passive:false});
+  card.addEventListener("touchend", function(e){
+    if(committed){
+      e.stopPropagation();
+      var threshold = width*0.22;
+      if(deltaX < -threshold && slide===0) setSlide(1);
+      else if(deltaX > threshold && slide===1) setSlide(0);
+      else setSlide(slide);
+    }
+    startX = null; dragging = false; committed = false; deltaX = 0;
+  }, {passive:true});
+
+  setSlide(0);
+}
+
+function renderToday(){
+  var t = today();
+  var mr = monthRangeStr(t.getFullYear(), t.getMonth());
+  var soFar = rangeStats(mr.start, mr.end, todayStr());
+  var target = state.profile.targetPct;
+
+  var oppLeft = soFar.pending; // remaining plain weekdays left this month, not yet resolved
+  var neededFull = Math.max(0, Math.ceil(target/100*soFar.eligibleFull) - soFar.attendedFull);
+  var bestCasePct = soFar.eligibleFull>0 ? ((soFar.attendedFull+oppLeft)/soFar.eligibleFull*100) : null;
+
+  var toTargetMsg;
+  if(soFar.eligibleResolved===0 && oppLeft===0){
+    toTargetMsg = "No eligible working days this month.";
+  } else if(neededFull===0){
+    toTargetMsg = soFar.eligibleResolved>0
+      ? "You're at or above target for the "+soFar.eligibleResolved+" eligible day"+(soFar.eligibleResolved===1?"":"s")+" so far."
+      : "Target already secured for this month.";
+  } else if(oppLeft===0){
+    toTargetMsg = "The month's working days are done — target of "+target+"% was not reached.";
+  } else if(neededFull>oppLeft){
+    toTargetMsg = "Even attending every remaining working day this month, the best reachable is <b>"+Math.round(bestCasePct)+"%</b> — below the "+target+"% target.";
+  } else {
+    toTargetMsg = "Attend <b>"+plural(neededFull,"more day")+"</b> in the remaining <b>"+plural(oppLeft,"working day")+"</b> this month to reach "+target+"%.";
+  }
+
+  var fy = fyOf(t);
+  var fyStats = fyAggregateStats(fy);
+  var fyRecovery = fyRecoveryMessage(fyStats, target, fy, t);
+
+  var banners = reminderBanners().map(function(b){
+    return '<div class="banner" data-bkey="'+b.key+'">'+
+      '<div class="banner-text"><strong>'+esc(b.title)+'</strong>'+esc(b.body)+
+        '<div class="banner-actions"><button class="banner-btn" data-baction="'+b.key+'">Update now</button></div>'+
+      '</div>'+
+      '<button class="banner-dismiss" data-bdismiss="'+b.key+'" aria-label="Dismiss">×</button>'+
+    '</div>';
+  }).join("");
+
+  var html =
+    (banners ? '<div style="display:flex; flex-direction:column; gap:10px;">'+banners+'</div>' : '') +
+    '<div>'+
+      '<div class="eyebrow">'+fmtLong(t)+'</div>'+
+      '<h1 class="page-title">Hi'+(state.profile.name?" "+esc(state.profile.name):"")+'</h1>'+
+    '</div>'+
+    '<div class="card stat-hero-card" id="statHeroCard">'+
+      '<div class="stat-hero-track" id="statHeroTrack">'+
+        '<div class="stat-hero-slide">'+
+          '<div class="stat-hero">'+
+            '<div class="ring-wrap">'+ringSvg(soFar.pctResolved, target)+
+              '<div class="ring-center"><span class="ring-pct mono">'+fmtPct(soFar.pctResolved)+'</span><span class="ring-label">this month</span></div>'+
+            '</div>'+
+            '<div class="stat-hero-info">'+
+              '<span class="status-pill '+pctColorClass(soFar.pctResolved,target)+'">'+(soFar.pctResolved===null?"No data yet":(soFar.pctResolved>=target?"On target":"Below target"))+'</span>'+
+              '<div class="stat-chip-row">'+
+                '<div class="stat-chip"><span class="n mono">'+soFar.attended+'</span><span class="l">Attended</span></div>'+
+                '<div class="stat-chip"><span class="n mono">'+soFar.eligibleResolved+'</span><span class="l">Eligible</span></div>'+
+                '<div class="stat-chip"><span class="n mono">'+target+'%</span><span class="l">Target</span></div>'+
+              '</div>'+
+            '</div>'+
+          '</div>'+
+          '<hr class="divider" style="margin:16px 0;">'+
+          '<p class="to-target">'+toTargetMsg+'</p>'+
+          (soFar.unmarkedPast>0 ? '<p class="subtext" style="margin-top:8px; color:var(--critical);">'+plural(soFar.unmarkedPast,"day")+" this month "+(soFar.unmarkedPast===1?"isn't":"aren't")+' logged and count against you. <button class="banner-btn" style="background:var(--critical);" data-goto="calendar">Log them</button></p>' : '')+
+        '</div>'+
+        '<div class="stat-hero-slide">'+
+          '<div class="stat-hero">'+
+            '<div class="ring-wrap">'+ringSvg(fyStats.pctResolved, target)+
+              '<div class="ring-center"><span class="ring-pct mono">'+fmtPct(fyStats.pctResolved)+(fyStats.totalOverridden?' †':'')+'</span><span class="ring-label">'+fy.label+'</span></div>'+
+            '</div>'+
+            '<div class="stat-hero-info">'+
+              '<span class="status-pill '+pctColorClass(fyStats.pctResolved,target)+'">'+(fyStats.pctResolved===null?"No data yet":(fyStats.pctResolved>=target?"On target":"Below target"))+'</span>'+
+              '<div class="stat-chip-row">'+
+                '<div class="stat-chip"><span class="n mono">'+fyStats.attended+'</span><span class="l">Attended</span></div>'+
+                '<div class="stat-chip"><span class="n mono">'+fyStats.eligibleResolved+'</span><span class="l">Eligible</span></div>'+
+                '<div class="stat-chip"><span class="n mono">'+target+'%</span><span class="l">Target</span></div>'+
+              '</div>'+
+            '</div>'+
+          '</div>'+
+          '<hr class="divider" style="margin:16px 0;">'+
+          '<p class="to-target">'+(fyRecovery || "You're at or above target for the financial year so far.")+'</p>'+
+          '<button class="banner-btn" id="statHeroFyBtn" style="margin-top:10px;">Full month-by-month</button>'+
+        '</div>'+
+      '</div>'+
+      '<div class="stat-hero-dots" id="statHeroDots"><span class="stat-hero-dot on"></span><span class="stat-hero-dot"></span></div>'+
+    '</div>'+
+    '<button class="btn btn-primary btn-block" id="logTodayBtn">Log today — '+fmtShort(t)+'</button>';
+
+  var v = document.getElementById("view-today");
+  v.innerHTML = html;
+  var btn = document.getElementById("logTodayBtn");
+  if(btn) btn.addEventListener("click", function(){ openDaySheet(todayStr()); });
+  var fyBtn = document.getElementById("statHeroFyBtn");
+  if(fyBtn) fyBtn.addEventListener("click", function(e){ e.stopPropagation(); goToFyTrend(); });
+  setupStatHeroSwipe();
+  v.querySelectorAll("[data-baction]").forEach(function(b){
+    b.addEventListener("click", function(){
+      var key=b.getAttribute("data-baction");
+      var match = reminderBanners().filter(function(x){return x.key===key;})[0];
+      if(match) match.action();
+    });
+  });
+  v.querySelectorAll("[data-bdismiss]").forEach(function(b){
+    b.addEventListener("click", function(){
+      state.dismissed[b.getAttribute("data-bdismiss")]=true;
+      saveState(); renderToday();
+    });
+  });
+  var gotoCal = v.querySelector("[data-goto='calendar']");
+  if(gotoCal) gotoCal.addEventListener("click", function(){ switchView("calendar"); });
+}
+
+function esc(s){ var d=document.createElement("div"); d.textContent=s; return d.innerHTML; }
+
+/* ---------- CALENDAR view ---------- */
+function renderCalendar(){
+  var y=calCursor.year, m=calCursor.month;
+  var hMap = holidayMap();
+  var first = new Date(y,m,1);
+  var lead = mondayIndex(first);
+  var total = daysInMonth(y,m);
+  var tStr = todayStr();
+
+  var cells = "";
+  for(var i=0;i<lead;i++) cells += '<div class="cal-cell empty"></div>';
+  for(var day=1; day<=total; day++){
+    var ds = iso(y,m,day);
+    var cls = classifyDay(ds, hMap);
+    var isPast = ds <= tStr;
+    var cssClass = cls==="unmarked" ? (isPast ? "st-unmarked-past" : "st-future") : "st-"+cls;
+    var todayCls = ds===tStr ? " is-today" : "";
+    cells += '<div class="cal-cell '+cssClass+todayCls+'" data-date="'+ds+'">'+day+'</div>';
+  }
+
+  var mr = monthRangeStr(y,m);
+  var stats = monthStats(y, m, tStr);
+  var weekdayTotal = stats.eligibleFull + stats.leave + stats.holiday + stats.compoff - stats.weekendWorked;
+
+  var fy = fyOf(today());
+  var fyStats = fyAggregateStats(fy);
+
+  var html =
+    '<div class="card">'+
+      '<div class="cal-nav">'+
+        '<button class="cal-nav-btn" id="calPrev" aria-label="Previous month"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="15 6 9 12 15 18"></polyline></svg></button>'+
+        '<div><div class="cal-month-label">'+MONTH_NAMES[m]+' '+y+'</div><button class="cal-today-link" id="calToday">Today</button></div>'+
+        '<button class="cal-nav-btn" id="calNext" aria-label="Next month"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="9 6 15 12 9 18"></polyline></svg></button>'+
+      '</div>'+
+      '<div class="cal-grid">'+
+        DOW_LABELS.map(function(d){ return '<div class="cal-dow">'+d+'</div>'; }).join("")+
+        cells+
+      '</div>'+
+      '<div class="legend" style="margin-top:14px;">'+
+        legendItem("var(--good)","Present / Worked wknd")+
+        legendItem("var(--warn)","Leave")+
+        legendItem("var(--holiday)","Public holiday")+
+        legendItem("var(--accent)","Comp off")+
+        legendItem("var(--wfh)","Work from home")+
+        legendItem("var(--critical)","Unmarked (past)")+
+      '</div>'+
+    '</div>'+
+    '<div class="card" id="monthSummaryCard">'+
+      '<span class="eyebrow">Month summary</span>'+
+      (stats.overridden ? '<p class="subtext" style="margin-top:4px; color:var(--ink-faint);">Manually backfilled — the totals below are what you entered, not individual day marks.</p>' : '')+
+      '<div class="kv-list" style="margin-top:6px;">'+
+        kvRow("Weekdays in month", weekdayTotal)+
+        kvRow("Leave days", stats.leave)+
+        kvRow("Public holidays", stats.holiday)+
+        kvRow("Comp off taken", stats.compoff)+
+        kvRow("Work from home", stats.wfh)+
+        kvRow("Weekend days worked", stats.weekendWorked)+
+        kvRow("Eligible working days (to date)", stats.eligibleResolved)+
+        kvRow("Attended", stats.attended)+
+      '</div>'+
+      '<hr class="divider" style="margin:10px 0;">'+
+      '<div class="card-row"><span style="font-weight:600;">Attendance</span><span class="status-pill '+pctColorClass(stats.pctResolved,state.profile.targetPct)+'">'+fmtPct(stats.pctResolved)+'</span></div>'+
+    '</div>'+
+    '<div class="card" id="fyTrendCard">'+
+      '<div class="card-row"><span class="eyebrow">'+fy.label+' to date</span><span class="status-pill '+pctColorClass(fyStats.pctResolved,state.profile.targetPct)+'">'+fmtPct(fyStats.pctResolved)+(fyStats.totalOverridden?' †':'')+'</span></div>'+
+      (fyStats.totalOverridden
+        ? '<p class="subtext" style="margin-top:6px;">Manually set to match your official total — the month-by-month breakdown below is still built from its own per-month figures, so its own weighted average may read slightly differently.</p>'
+        : '<p class="subtext" style="margin-top:6px;">'+fyStats.attended+' of '+fyStats.eligibleResolved+' eligible days attended since '+fmtShort(fy.start)+' — aggregated across every month below.</p>')+
+      (fyRecoveryMessage(fyStats, state.profile.targetPct, fy, today()) ? '<p class="to-target" style="margin-top:8px;">'+fyRecoveryMessage(fyStats, state.profile.targetPct, fy, today())+'</p>' : '')+
+      '<hr class="divider" style="margin:14px 0;">'+
+      fyTrendTable(fy)+
+    '</div>';
+
+  var v = document.getElementById("view-calendar");
+  v.innerHTML = html;
+  v.querySelectorAll(".cal-cell[data-date]").forEach(function(c){
+    c.addEventListener("click", function(){ openDaySheet(c.getAttribute("data-date")); });
+  });
+  document.getElementById("calPrev").addEventListener("click", function(){ shiftMonth(-1); });
+  document.getElementById("calNext").addEventListener("click", function(){ shiftMonth(1); });
+  document.getElementById("calToday").addEventListener("click", function(){ calCursor={year:today().getFullYear(), month:today().getMonth()}; renderCalendar(); });
+}
+function legendItem(color,label){
+  return '<div class="legend-item"><span class="legend-swatch" style="background:'+color+';"></span>'+label+'</div>';
+}
+function kvRow(label,val){
+  return '<div class="kv-row"><span>'+label+'</span><span class="v mono">'+val+'</span></div>';
+}
+function shiftMonth(delta){
+  var m=calCursor.month+delta, y=calCursor.year;
+  if(m<0){ m=11; y--; } else if(m>11){ m=0; y++; }
+  calCursor={year:y, month:m};
+  renderCalendar();
+}
+
+/* ---------- LEAVE view ---------- */
+function leavePoolCardHtml(pool, opts){
+  var history = (pool.history||[]).slice().reverse().slice(0,6);
+  return '<div class="card"'+(opts.id?(' id="'+opts.id+'"'):'')+'>'+
+    '<span class="eyebrow">'+opts.title+'</span>'+
+    '<p class="subtext" style="margin-top:2px;">'+opts.desc+'</p>'+
+    '<div style="display:flex; align-items:baseline; gap:8px; margin:14px 0 4px;">'+
+      '<span class="mono" style="font-size:34px; font-weight:600;">'+(pool.current===null?"—":pool.current)+'</span>'+
+      '<span class="subtext">days'+(pool.lastUpdated?(" · as of "+fmtShort(pool.lastUpdated)):"")+'</span>'+
+    '</div>'+
+    '<form id="'+opts.formId+'" style="margin-top:10px; flex-direction:row; align-items:flex-end; gap:8px;">'+
+      '<div class="field" style="flex:1;"><label for="'+opts.inputId+'">Update balance (days)</label>'+
+      '<input type="number" step="0.5" min="0" id="'+opts.inputId+'" placeholder="e.g. 6.5" required></div>'+
+      '<button class="btn btn-primary" type="submit">Save</button>'+
+    '</form>'+
+    (history.length ? (
+      '<hr class="divider" style="margin:14px 0;"><span class="eyebrow">Update history</span><div class="kv-list" style="margin-top:6px;">'+
+      history.map(function(hI){ return kvRow(fmtShort(hI.date), hI.value+" days"); }).join("")+
+      '</div>'
+    ) : "")+
+  '</div>';
+}
+function renderLeave(){
+  var co = compOffBalance();
+
+  var html =
+    '<div><div class="eyebrow">Leave &amp; comp off</div><h1 class="page-title">Balances</h1></div>'+
+    leavePoolCardHtml(state.annualLeave, {
+      id:"annualPoolCard",
+      title:"Annual leave pool",
+      desc:"Its own pool, separate from Sick/Carer. Report it from your HR system — a drop since your last update counts as leave taken and reduces eligible working days for that month, even for days you haven't marked individually on the Calendar.",
+      formId:"annualLeaveForm", inputId:"annualLeaveInput"
+    })+
+    leavePoolCardHtml(state.carerSickLeave, {
+      id:"carerSickPoolCard",
+      title:"Sick / Carer leave pool",
+      desc:"Shared pool — Sick and Carer leave both draw from this same balance, separate from Annual leave. Same rule: a drop since your last update counts toward eligible working days for that month.",
+      formId:"carerSickLeaveForm", inputId:"carerSickLeaveInput"
+    })+
+    '<div class="card">'+
+      '<span class="eyebrow">Comp off</span>'+
+      '<p class="subtext" style="margin-top:2px;">Earned automatically when you log a worked weekend, and spent when you mark a comp off day on the calendar.</p>'+
+      '<div style="display:flex; align-items:baseline; gap:8px; margin:14px 0 4px;">'+
+        '<span class="mono" style="font-size:34px; font-weight:600;">'+co.balance+'</span><span class="subtext">days available</span>'+
+      '</div>'+
+      '<div class="kv-list" style="margin-top:8px;">'+
+        kvRow("Opening balance", co.opening)+
+        kvRow("Earned (weekends worked)", "+"+co.worked)+
+        kvRow("Taken", "−"+co.taken)+
+      '</div>'+
+    '</div>';
+
+  var v = document.getElementById("view-leave");
+  v.innerHTML = html;
+
+  function wirePoolForm(formId, inputId, poolKey, label){
+    document.getElementById(formId).addEventListener("submit", function(e){
+      e.preventDefault();
+      var val = parseFloat(document.getElementById(inputId).value);
+      if(isNaN(val) || val<0) return;
+      var d = todayStr();
+      state[poolKey].current = val;
+      state[poolKey].lastUpdated = d;
+      state[poolKey].history.push({date:d, value:val});
+      saveState();
+      showToast(label+" balance updated");
+      renderLeave();
+      renderCurrentView();
+    });
+  }
+  wirePoolForm("annualLeaveForm", "annualLeaveInput", "annualLeave", "Annual leave");
+  wirePoolForm("carerSickLeaveForm", "carerSickLeaveInput", "carerSickLeave", "Sick/Carer leave");
+}
+
+/* ---------- HOLIDAYS view ---------- */
+function renderHolidays(){
+  var fy = fyOf(today());
+  var list = (state.holidays||[]).slice().sort(function(a,b){ return a.date<b.date?-1:1; });
+
+  var itemsHtml = list.length ? list.map(function(h){
+    var d = parseIso(h.date);
+    return '<div class="list-item">'+
+      '<div class="list-item-main">'+
+        '<div class="list-item-date">'+fmtLong(d)+'</div>'+
+        '<div class="list-item-name">'+esc(h.name)+'</div>'+
+      '</div>'+
+      '<button class="icon-btn" data-del="'+h.id+'" aria-label="Delete"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><line x1="5" y1="5" x2="19" y2="19"></line><line x1="19" y1="5" x2="5" y2="19"></line></svg></button>'+
+    '</div>';
+  }).join("") : '<div class="empty-state"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><line x1="6" y1="3" x2="6" y2="21"></line><path d="M6 4h12l-3 4 3 4H6"></path></svg><p>No holidays added for '+fy.label+' yet.</p></div>';
+
+  var html =
+    '<div><div class="eyebrow">'+fy.label+'</div><h1 class="page-title">Public holidays</h1></div>'+
+    '<div class="card" id="addHolidayCard">'+
+      '<span class="eyebrow">Add a holiday</span>'+
+      '<form id="holidayForm" style="margin-top:10px;">'+
+        '<div class="field"><label for="holDate">Date</label><input type="date" id="holDate" required></div>'+
+        '<div class="field"><label for="holName">Event name</label><input type="text" id="holName" placeholder="e.g. Diwali" required></div>'+
+        '<button class="btn btn-primary btn-block" type="submit">Add to calendar</button>'+
+      '</form>'+
+    '</div>'+
+    '<div class="card" id="holidayListCard">'+
+      '<span class="eyebrow">All holidays</span>'+
+      '<div style="margin-top:6px;">'+itemsHtml+'</div>'+
+    '</div>';
+
+  var v = document.getElementById("view-holidays");
+  v.innerHTML = html;
+  document.getElementById("holidayForm").addEventListener("submit", function(e){
+    e.preventDefault();
+    var date = document.getElementById("holDate").value;
+    var name = document.getElementById("holName").value.trim();
+    if(!date || !name) return;
+    state.holidays.push({id:"h"+Date.now()+Math.random().toString(36).slice(2,7), date:date, name:name});
+    saveState();
+    showToast("Holiday added");
+    renderHolidays();
+  });
+  v.querySelectorAll("[data-del]").forEach(function(b){
+    b.addEventListener("click", function(){
+      var id=b.getAttribute("data-del");
+      state.holidays = state.holidays.filter(function(h){ return h.id!==id; });
+      saveState();
+      renderHolidays();
+    });
+  });
+}
+
+/* ---------- SETTINGS view ---------- */
+function renderSettings(){
+  var p = state.profile;
+  var html =
+    '<div><div class="eyebrow">Settings</div><h1 class="page-title">Profile &amp; data</h1></div>'+
+    '<div class="card">'+
+      '<form id="profileForm">'+
+        '<div class="field"><label for="setName">Name</label><input type="text" id="setName" value="'+esc(p.name)+'"></div>'+
+        '<div class="field"><label for="setTarget">Attendance target (%)</label><input type="number" id="setTarget" min="0" max="100" value="'+p.targetPct+'"></div>'+
+        '<div class="field-hint">Financial year runs 1 October – 30 September, fixed to your company’s policy.</div>'+
+        '<div class="field"><label for="setOpeningAnnual">Opening Annual leave balance (days)</label><input type="number" step="0.5" min="0" id="setOpeningAnnual" placeholder="e.g. 10" value="'+(p.openingAnnualLeave===null?"":p.openingAnnualLeave)+'"></div>'+
+        '<div class="field"><label for="setOpeningCarerSick">Opening Sick/Carer leave balance (days)</label><input type="number" step="0.5" min="0" id="setOpeningCarerSick" placeholder="e.g. 8" value="'+(p.openingCarerSickLeave===null?"":p.openingCarerSickLeave)+'"></div>'+
+        '<div class="field-hint">Your balance as of when you started tracking. Setting this makes your very first monthly balance update on the Leave tab count toward eligible working days too, instead of only from the second update onward.</div>'+
+        '<div class="field"><label for="setCreatedAt">Tracking start date</label><input type="date" id="setCreatedAt" max="'+todayStr()+'" value="'+esc(p.createdAt)+'"></div>'+
+        '<div class="field-hint">Days before this date that you leave unmarked are excluded from the calculation rather than counted against you. Set it to when you actually started using the app — if it\'s wrong (e.g. stuck at today\'s date after a reset), earlier days you haven\'t marked yet get silently left out of eligible working days instead of showing up as unmarked.</div>'+
+        '<button class="btn btn-primary btn-block" type="submit">Save profile</button>'+
+      '</form>'+
+    '</div>'+
+    '<div class="card">'+
+      '<span class="eyebrow">How attendance is calculated</span>'+
+      '<div class="formula-box" style="margin-top:10px;">attendance % =<br>&nbsp;&nbsp;days present ÷ eligible working days × 100<br><br>eligible working days =<br>&nbsp;&nbsp;working days − leave − public holidays − comp off</div>'+
+      '<p class="subtext" style="margin-top:10px;">A day worked over a weekend adds to both the attended and eligible counts, and a comp off taken later is excluded like a holiday. "Leave" here counts both days you\'ve explicitly marked on the Calendar and, if not already marked, any drop in a reported leave balance since its last update. A day marked Work From Home stays an eligible working day — same as any other weekday — but never counts as attended, since the target is specifically about being in the office.</p>'+
+    '</div>'+
+    '<div class="card">'+
+      '<span class="eyebrow">Backup</span>'+
+      '<p class="subtext" style="margin-top:2px;">Your data lives only on this device. Export a backup before switching phones or clearing browser data.</p>'+
+      '<div style="display:flex; gap:9px; margin-top:12px;">'+
+        '<button class="btn btn-secondary" id="exportBtn" style="flex:1;">Export backup</button>'+
+        '<button class="btn btn-secondary" id="importBtn" style="flex:1;">Import backup</button>'+
+      '</div>'+
+      '<input type="file" id="importFile" accept="application/json" class="hidden">'+
+    '</div>'+
+    '<div class="card">'+
+      '<span class="eyebrow">Reset</span>'+
+      '<p class="subtext" style="margin-top:2px;">Erases everything stored on this device. This can’t be undone unless you’ve exported a backup.</p>'+
+      '<button class="btn btn-danger btn-block" id="resetBtn" style="margin-top:12px;">Reset all data</button>'+
+    '</div>'+
+    '<div class="card">'+
+      '<span class="eyebrow">About</span>'+
+      '<p class="subtext" style="margin-top:2px;">Version '+esc(APP_VERSION)+'</p>'+
+      '<button class="btn btn-secondary btn-block" id="aboutBtn" style="margin-top:12px;">About Office Ledger</button>'+
+    '</div>';
+
+  var v = document.getElementById("view-settings");
+  v.innerHTML = html;
+  document.getElementById("aboutBtn").addEventListener("click", openAboutSheet);
+
+  document.getElementById("profileForm").addEventListener("submit", function(e){
+    e.preventDefault();
+    state.profile.name = document.getElementById("setName").value.trim();
+    var tgt = parseInt(document.getElementById("setTarget").value,10);
+    state.profile.targetPct = isNaN(tgt) ? 50 : Math.max(0,Math.min(100,tgt));
+    var oa = document.getElementById("setOpeningAnnual").value;
+    var ocs = document.getElementById("setOpeningCarerSick").value;
+    state.profile.openingAnnualLeave = oa==="" ? null : Math.max(0, parseFloat(oa));
+    state.profile.openingCarerSickLeave = ocs==="" ? null : Math.max(0, parseFloat(ocs));
+    var startDate = document.getElementById("setCreatedAt").value;
+    if(startDate) state.profile.createdAt = startDate>todayStr() ? todayStr() : startDate;
+    saveState();
+    showToast("Profile saved");
+    document.getElementById("fyChip").textContent = fyOf(today()).label;
+  });
+
+  document.getElementById("exportBtn").addEventListener("click", function(){ exportBackup(); });
+  document.getElementById("importBtn").addEventListener("click", function(){ document.getElementById("importFile").click(); });
+  document.getElementById("importFile").addEventListener("change", function(e){
+    var file = e.target.files[0];
+    if(!file) return;
+    var reader = new FileReader();
+    reader.onload = function(){
+      try{
+        var parsed = JSON.parse(reader.result);
+        if(!parsed || typeof parsed!=="object" || !parsed.profile) throw new Error("bad shape");
+        if(!confirm("Import this backup? It will replace all data currently on this device.")) return;
+        state = Object.assign(defaultState(), parsed);
+        saveState();
+        showToast("Backup imported");
+        renderCurrentView();
+      }catch(err){ alert("That file doesn't look like an Office Ledger backup."); }
+    };
+    reader.readAsText(file);
+  });
+
+  document.getElementById("resetBtn").addEventListener("click", function(){
+    if(!confirm("Erase all Office Ledger data on this device? This cannot be undone.")) return;
+    storageRemove(STORAGE_KEY);
+    state = defaultState();
+    document.getElementById("onboard").classList.remove("hidden");
+    renderOnboard();
+  });
+}
+
+async function exportBackup(){
+  var payload = JSON.stringify(state, null, 2);
+  var filename = "office-ledger-backup-"+todayStr()+".json";
+  try{
+    if(window.Capacitor && window.Capacitor.isNativePlatform && window.Capacitor.isNativePlatform()){
+      var Filesystem = window.Capacitor.Plugins.Filesystem;
+      var Share = window.Capacitor.Plugins.Share;
+      var written = await Filesystem.writeFile({ path: filename, data: payload, directory: "CACHE", encoding: "utf8" });
+      await Share.share({ title: "Office Ledger backup", url: written.uri });
+      showToast("Backup ready to share");
+      return;
+    }
+  }catch(e){ console.warn("Office Ledger: native export failed", e); }
+  try{
+    var downloads = window.claude ? await window.claude.use("downloads") : null;
+    if(downloads){
+      await downloads.save({filename:filename, data:payload});
+      showToast("Backup ready to save");
+      return;
+    }
+  }catch(e){ /* fall through to manual copy */ }
+  try{
+    var blob = new Blob([payload], {type:"application/json"});
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement("a");
+    a.href=url; a.download=filename; document.body.appendChild(a); a.click();
+    document.body.removeChild(a);
+    setTimeout(function(){ URL.revokeObjectURL(url); }, 2000);
+    showToast("Backup downloaded");
+  }catch(e){
+    prompt("Copy your backup JSON:", payload);
+  }
+}
+
+/* ---------- Day sheet ---------- */
+var sheetDate = null;
+function openDaySheet(dateStr){
+  sheetDate = dateStr;
+  var d = parseIso(dateStr);
+  var weekend = isWeekend(d);
+  var hMap = holidayMap();
+  var explicit = state.days[dateStr] || {};
+  var holidayName = hMap[dateStr];
+  var effective = classifyDay(dateStr, hMap);
+
+  var optionsHtml;
+  if(weekend){
+    optionsHtml =
+      optBtn("weekend","Weekend off", effective==="weekend"||effective==="unmarked", "var(--ink-faint)")+
+      optBtn("workedWeekend","Worked (office)", effective==="workedWeekend", "var(--good)");
+  } else {
+    optionsHtml =
+      optBtn("present","Present", effective==="present", "var(--good)")+
+      optBtn("wfh","Work from home", effective==="wfh", "var(--wfh)")+
+      optBtn("leave","Leave", effective==="leave", "var(--warn)")+
+      optBtn("compoff","Comp off taken", effective==="compoff", "var(--accent)")+
+      optBtn("unmarked","Clear / unmark", effective==="unmarked", "var(--ink-faint)");
+  }
+
+  var subtypeHtml = '<div class="subtype-row hidden" id="subtypeRow">'+
+    LEAVE_TYPES.map(function(lt){
+      var sel = explicit.status==="leave" && explicit.leaveType===lt.k;
+      return '<button type="button" class="subtype-chip'+(sel?" selected":"")+'" data-leavetype="'+lt.k+'">'+lt.l+'</button>';
+    }).join("")+'</div>';
+
+  var holidayNote = holidayName ?
+    '<div class="banner" style="margin-bottom:14px;"><div class="banner-text"><strong>Public holiday</strong>'+esc(holidayName)+'</div></div>' : "";
+
+  var quickHolidayBtn = (!holidayName) ?
+    '<button class="btn btn-secondary btn-block" id="quickHolidayBtn" style="margin-top:12px;">Mark as public holiday</button>' : "";
+
+  var html =
+    '<div class="sheet-grabber"></div>'+
+    '<div class="sheet-header">'+
+      '<div><div class="eyebrow">'+(weekend?"Weekend":"Weekday")+'</div><h2 style="font-size:19px;">'+fmtLong(d)+'</h2></div>'+
+      '<button class="sheet-close" id="sheetClose" aria-label="Close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="5" y1="5" x2="19" y2="19"></line><line x1="19" y1="5" x2="5" y2="19"></line></svg></button>'+
+    '</div>'+
+    holidayNote+
+    '<div class="option-grid">'+optionsHtml+'</div>'+
+    subtypeHtml+
+    quickHolidayBtn+
+    '<div class="hidden" id="quickHolidayForm" style="margin-top:12px; display:flex; gap:8px;">'+
+      '<input type="text" id="quickHolidayName" placeholder="Holiday name" style="flex:1; font:inherit; padding:10px 12px; border-radius:10px; border:1px solid var(--border); background:var(--surface); color:var(--ink);">'+
+      '<button class="btn btn-primary" id="quickHolidaySave">Add</button>'+
+    '</div>';
+
+  document.getElementById("sheetContent").innerHTML = html;
+  var overlay = document.getElementById("sheetOverlay");
+  overlay.classList.remove("center");
+  overlay.classList.add("open");
+
+  document.getElementById("sheetClose").addEventListener("click", closeSheet);
+  overlay.onclick = function(e){ if(e.target===overlay) closeSheet(); };
+
+  document.querySelectorAll("#sheetContent [data-status]").forEach(function(b){
+    b.addEventListener("click", function(){
+      var status = b.getAttribute("data-status");
+      if(status==="leave"){
+        document.getElementById("subtypeRow").classList.remove("hidden");
+        document.querySelectorAll("#sheetContent [data-status]").forEach(function(x){ x.classList.toggle("selected", x===b); });
+        setDay(dateStr, "leave", explicit.leaveType||null);
+      } else if(status==="unmarked"){
+        clearDay(dateStr);
+        closeSheet();
+      } else {
+        setDay(dateStr, status, null);
+        closeSheet();
+      }
+    });
+  });
+  document.querySelectorAll("#sheetContent [data-leavetype]").forEach(function(b){
+    b.addEventListener("click", function(){
+      setDay(dateStr, "leave", b.getAttribute("data-leavetype"));
+      closeSheet();
+    });
+  });
+  var qb = document.getElementById("quickHolidayBtn");
+  if(qb) qb.addEventListener("click", function(){
+    document.getElementById("quickHolidayForm").classList.remove("hidden");
+    qb.classList.add("hidden");
+    document.getElementById("quickHolidayName").focus();
+  });
+  var qs = document.getElementById("quickHolidaySave");
+  if(qs) qs.addEventListener("click", function(){
+    var name = document.getElementById("quickHolidayName").value.trim();
+    if(!name) return;
+    state.holidays.push({id:"h"+Date.now()+Math.random().toString(36).slice(2,7), date:dateStr, name:name});
+    saveState();
+    showToast("Holiday added");
+    closeSheet();
+  });
+}
+function optBtn(status,label,selected,color){
+  return '<button type="button" class="option-btn'+(selected?" selected":"")+'" data-status="'+status+'"><span class="dot" style="background:'+color+';"></span>'+label+'</button>';
+}
+function setDay(dateStr, status, leaveType){
+  state.days[dateStr] = {status:status, leaveType:leaveType||null};
+  saveState();
+  showToast("Saved");
+  renderCurrentView();
+}
+function clearDay(dateStr){
+  delete state.days[dateStr];
+  saveState();
+  showToast("Cleared");
+  renderCurrentView();
+}
+function closeSheet(){
+  document.getElementById("sheetOverlay").classList.remove("open");
+}
+
+/* ---------- Hidden backfill tool (personal testing only) ----------
+   Tap the FY chip in the top bar 7 times within 2 seconds to open it — the
+   same "tap the build number" idiom used to unlock Android developer
+   options. Not discoverable from any menu on purpose: it's for entering a
+   known historical percentage for a month tracked before day-by-day
+   logging started, so the FY aggregate can be tested/backfilled without
+   faking hundreds of individual day marks. */
+function setupBackfillTrigger(){
+  var chip = document.getElementById("fyChip");
+  var count = 0, resetTimer = null;
+  chip.addEventListener("click", function(){
+    count++;
+    clearTimeout(resetTimer);
+    resetTimer = setTimeout(function(){ count = 0; }, 2000);
+    if(count>=7){
+      count = 0;
+      clearTimeout(resetTimer);
+      openBackfillSheet();
+    }
+  });
+}
+/* Percentage is all most backfilled months have (an HR portal or a manual
+   spreadsheet rarely hands you exact day counts). To still sum correctly
+   into a weighted FY total, each row needs SOME eligible-day count as the
+   basis for that percentage — defaulted to the number of weekdays in the
+   month (editable, in case the real basis excluded holidays or was
+   otherwise different), and attended is derived from percentage × basis. */
+function weekdaysInMonth(y,m){
+  var total = daysInMonth(y,m), n=0;
+  for(var d=1; d<=total; d++){ if(!isWeekend(new Date(y,m,d))) n++; }
+  return n;
+}
+function bfRowPreview(row){
+  var pctInput = row.querySelector(".bf-pctinput");
+  var basisInput = row.querySelector(".bf-basis");
+  var preview = row.querySelector(".bf-preview");
+  var pct = parseFloat(pctInput.value);
+  var basis = Math.max(0, parseInt(basisInput.value,10) || 0);
+  if(isNaN(pct) || basis<=0){ preview.textContent = "Enter a percentage and day basis."; return; }
+  var attended = Math.max(0, Math.min(basis, Math.round(pct/100*basis)));
+  preview.textContent = "≈ "+attended+" of "+basis+" days";
+}
+function openBackfillSheet(){
+  var fy = fyOf(today());
+  var tStr = todayStr();
+  var rowsHtml = fyMonths(fy).filter(function(mo){
+    return monthRangeStr(mo.year, mo.month).start <= tStr;
+  }).map(function(mo){
+    var key = monthOverrideKey(mo.year, mo.month);
+    var ov = state.monthOverrides[key];
+    var basisDefault = weekdaysInMonth(mo.year, mo.month);
+    var basisVal = ov ? ov.eligible : basisDefault;
+    var pctVal = ov ? (ov.eligible>0 ? Math.round((ov.attended/ov.eligible*100)*100)/100 : 0) : "";
+    var attendedPreview = ov ? ov.attended : "";
+    return '<div class="bf-row" data-month="'+key+'">'+
+      '<div class="bf-row-head">'+
+        '<span class="bf-month">'+MONTH_SHORT[mo.month]+' '+mo.year+'</span>'+
+        '<label class="bf-toggle"><input type="checkbox" class="bf-enable"'+(ov?' checked':'')+'> Override</label>'+
+      '</div>'+
+      '<div class="bf-fields">'+
+        '<div class="field"><label>Attendance %</label><input type="number" min="0" max="100" step="0.01" class="bf-pctinput" placeholder="e.g. 47.37" value="'+pctVal+'"'+(ov?'':' disabled')+'></div>'+
+        '<div class="field"><label>Day basis</label><input type="number" min="0" step="1" class="bf-basis" value="'+basisVal+'"'+(ov?'':' disabled')+'></div>'+
+      '</div>'+
+      '<div class="bf-pct bf-preview">'+(ov ? ("≈ "+attendedPreview+" of "+basisVal+" days") : "Enter a percentage and day basis.")+'</div>'+
+    '</div>';
+  }).join("");
+
+  var html =
+    '<div class="sheet-grabber"></div>'+
+    '<div class="sheet-header">'+
+      '<div><div class="eyebrow">Testing only</div><h2 style="font-size:19px;">Backfill FY data</h2></div>'+
+      '<button class="sheet-close" id="sheetClose" aria-label="Close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="5" y1="5" x2="19" y2="19"></line><line x1="19" y1="5" x2="5" y2="19"></line></svg></button>'+
+    '</div>'+
+    '<div class="bf-note">Hidden dev tool — for a month you only know a percentage for, from before this app existed. Turn Override on, enter the percentage, and check the day basis (defaults to that month\'s weekdays — edit it if your percentage was based on a different count). It replaces that month everywhere the FY aggregate is shown until you turn it back off. Doesn\'t touch individual Calendar day marks.</div>'+
+    '<div class="bf-row" id="bfTotalRow">'+
+      '<div class="bf-row-head">'+
+        '<span class="bf-month">FY total (optional)</span>'+
+        '<label class="bf-toggle"><input type="checkbox" id="bfTotalEnable"'+(state.fyTotalOverride!=null?' checked':'')+'> Override</label>'+
+      '</div>'+
+      '<div class="field"><label>Official FY-to-date %</label><input type="number" min="0" max="100" step="0.01" id="bfTotalInput" placeholder="e.g. 49.46" value="'+(state.fyTotalOverride!=null?state.fyTotalOverride:"")+'"'+(state.fyTotalOverride!=null?'':' disabled')+'></div>'+
+      '<div class="bf-pct">If the month-by-month figures below don\'t add up to an officially reported total, this pins the FY percentage shown on this page to exactly that number instead — the months below stay as entered either way.</div>'+
+    '</div>'+
+    '<div id="bfRows">'+rowsHtml+'</div>'+
+    '<button class="btn btn-primary btn-block" id="bfSaveBtn" style="margin-top:16px;">Save</button>';
+
+  document.getElementById("sheetContent").innerHTML = html;
+  var overlay = document.getElementById("sheetOverlay");
+  overlay.classList.add("center");
+  overlay.classList.add("open");
+  document.getElementById("sheetClose").addEventListener("click", closeSheet);
+  overlay.onclick = function(e){ if(e.target===overlay) closeSheet(); };
+
+  document.querySelectorAll("#bfRows .bf-enable").forEach(function(cb){
+    cb.addEventListener("change", function(){
+      var row = cb.closest(".bf-row");
+      row.querySelectorAll(".bf-pctinput, .bf-basis").forEach(function(inp){ inp.disabled = !cb.checked; });
+      bfRowPreview(row);
+    });
+  });
+  document.querySelectorAll("#bfRows .bf-pctinput, #bfRows .bf-basis").forEach(function(inp){
+    inp.addEventListener("input", function(){ bfRowPreview(inp.closest(".bf-row")); });
+  });
+  document.getElementById("bfTotalEnable").addEventListener("change", function(){
+    document.getElementById("bfTotalInput").disabled = !this.checked;
+  });
+
+  document.getElementById("bfSaveBtn").addEventListener("click", function(){
+    document.querySelectorAll("#bfRows .bf-row").forEach(function(row){
+      var key = row.getAttribute("data-month");
+      var on = row.querySelector(".bf-enable").checked;
+      if(!on){ delete state.monthOverrides[key]; return; }
+      var pct = parseFloat(row.querySelector(".bf-pctinput").value);
+      var basis = Math.max(0, parseInt(row.querySelector(".bf-basis").value, 10) || 0);
+      if(isNaN(pct) || basis<=0) return; // nothing usable entered — leave any existing override alone
+      var attended = Math.max(0, Math.min(basis, Math.round(pct/100*basis)));
+      state.monthOverrides[key] = {eligible:basis, attended:attended};
+    });
+    var totalOn = document.getElementById("bfTotalEnable").checked;
+    var totalPct = parseFloat(document.getElementById("bfTotalInput").value);
+    state.fyTotalOverride = (totalOn && !isNaN(totalPct)) ? Math.max(0, Math.min(100, totalPct)) : null;
+    saveState();
+    closeSheet();
+    showToast("Backfill saved");
+    renderCurrentView();
+  });
+}
+
+/* ---------- About & update check ---------- */
+function compareVersions(a,b){
+  var pa=String(a).split(".").map(function(n){return parseInt(n,10)||0;});
+  var pb=String(b).split(".").map(function(n){return parseInt(n,10)||0;});
+  for(var i=0;i<Math.max(pa.length,pb.length);i++){
+    var na=pa[i]||0, nb=pb[i]||0;
+    if(na>nb) return 1;
+    if(na<nb) return -1;
+  }
+  return 0;
+}
+async function openExternal(url){
+  try{
+    if(window.Capacitor && window.Capacitor.isNativePlatform && window.Capacitor.isNativePlatform() && window.Capacitor.Plugins.Browser){
+      await window.Capacitor.Plugins.Browser.open({url:url});
+      return;
+    }
+  }catch(e){ console.warn("Office Ledger: native browser open failed", e); }
+  window.open(url, "_blank");
+}
+async function syncStatusBar(){
+  try{
+    if(!(window.Capacitor && window.Capacitor.isNativePlatform && window.Capacitor.isNativePlatform() && window.Capacitor.Plugins.StatusBar)) return;
+    var themeAttr = document.documentElement.getAttribute("data-theme");
+    var dark = themeAttr === "dark" || (themeAttr !== "light" && window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches);
+    // Dark background -> light icons (Style.Dark); light background -> dark icons (Style.Light)
+    await window.Capacitor.Plugins.StatusBar.setStyle({style: dark ? "DARK" : "LIGHT"});
+  }catch(e){ console.warn("Office Ledger: status bar style sync failed", e); }
+}
+async function fetchLatestRelease(){
+  var res = await fetch("https://api.github.com/repos/"+UPDATE_REPO+"/releases/latest", {
+    headers:{"Accept":"application/vnd.github+json"}
+  });
+  if(!res.ok) throw new Error("GitHub API returned "+res.status);
+  var data = await res.json();
+  var apkAsset = (data.assets||[]).find(function(a){ return /\.apk$/i.test(a.name||""); });
+  return {
+    tag:(data.tag_name||"").replace(/^v/i,""),
+    url:data.html_url,
+    apkUrl: apkAsset ? apkAsset.browser_download_url : null,
+    apkName: apkAsset ? apkAsset.name : "update.apk"
+  };
+}
+function notifyUpdateAvailable(tag){
+  if(!state || !tag) return;
+  if(state.lastNotifiedVersion === tag) return; // already raised for this version
+  state.lastNotifiedVersion = tag;
+  saveState();
+  var title = "Update available";
+  var body = "Version "+tag+" is available — you're on "+APP_VERSION+".";
+  addNotification("update", title, body);
+  // Also push to the phone's own notification panel, not just the in-app
+  // inbox, so it's seen even if the app isn't open — same mechanism the
+  // day-logging reminders already use, deduped per version via its own key.
+  notifyOnce("update-"+tag, title, body);
+}
+/* True only on the native Android build, with both the Filesystem plugin
+   (to download the APK) and the custom ApkInstaller plugin (to hand it to
+   the OS package installer) present. Anywhere else — iOS, the web preview,
+   or an older build without ApkInstaller — the update flow falls back to
+   just opening the release page in a browser. */
+function apkInstallReady(){
+  return !!(window.Capacitor && window.Capacitor.isNativePlatform && window.Capacitor.isNativePlatform()
+    && window.Capacitor.getPlatform && window.Capacitor.getPlatform()==="android"
+    && window.Capacitor.Plugins && window.Capacitor.Plugins.Filesystem && window.Capacitor.Plugins.ApkInstaller);
+}
+/* Downloads the release APK straight into the app's cache dir, then hands
+   it to Android's own package installer — the same "sideload" install
+   prompt as before, just without the user having to leave the app, find
+   the file in Downloads, and open it themselves. Android still requires a
+   final tap to actually install (no app can silently replace itself), and
+   the very first time it also requires the user to grant "install unknown
+   apps" for Office Ledger specifically — handled below. */
+async function downloadAndInstallUpdate(rel, btn, statusEl){
+  if(!apkInstallReady() || !rel.apkUrl){
+    openExternal(rel.url);
+    return;
+  }
+  var originalLabel = btn ? btn.textContent : "";
+  try{
+    if(btn){ btn.disabled = true; btn.textContent = "Downloading…"; }
+    if(statusEl) statusEl.textContent = "Downloading "+rel.apkName+"…";
+    var dl = await window.Capacitor.Plugins.Filesystem.downloadFile({
+      url: rel.apkUrl, path: "update.apk", directory: "CACHE"
+    });
+    if(statusEl) statusEl.textContent = "Opening installer…";
+    await window.Capacitor.Plugins.ApkInstaller.install({ path: dl.path });
+    if(statusEl) statusEl.textContent = "Follow the prompt to finish installing "+rel.tag+".";
+  }catch(e){
+    console.warn("Office Ledger: update download/install failed", e);
+    var reason = (e && (e.message||e.errorMessage)) || "";
+    if(/install_unknown_apps/i.test(reason)){
+      if(statusEl) statusEl.textContent = "Allow \"Install unknown apps\" for Office Ledger in the settings screen that just opened, then tap Update again.";
+    } else {
+      if(statusEl) statusEl.textContent = "Couldn't download the update — opening the release page instead.";
+      openExternal(rel.url);
+    }
+  } finally {
+    if(btn){ btn.disabled = false; btn.textContent = originalLabel || "Update now"; }
+  }
+}
+async function checkForUpdate(){
+  var statusEl = document.getElementById("updateStatus");
+  var btn = document.getElementById("checkUpdateBtn");
+  var openBtn = document.getElementById("openReleaseBtn");
+  if(statusEl) statusEl.textContent = "Checking…";
+  if(btn) btn.disabled = true;
+  try{
+    var rel = await fetchLatestRelease();
+    if(rel.tag && compareVersions(rel.tag, APP_VERSION) > 0){
+      if(statusEl) statusEl.innerHTML = "Version <b>"+esc(rel.tag)+"</b> is available — you're on "+esc(APP_VERSION)+".";
+      if(openBtn){
+        openBtn.classList.remove("hidden");
+        openBtn.textContent = apkInstallReady() ? "Update now" : "View latest release";
+        openBtn.onclick = function(){ downloadAndInstallUpdate(rel, openBtn, statusEl); };
+      }
+      notifyUpdateAvailable(rel.tag);
+    } else {
+      if(statusEl) statusEl.textContent = "You're on the latest version ("+esc(APP_VERSION)+").";
+      if(openBtn) openBtn.classList.add("hidden");
+    }
+  }catch(e){
+    console.warn("Office Ledger: update check failed", e);
+    if(statusEl) statusEl.textContent = "Couldn't check for updates — check your connection and try again.";
+  } finally {
+    if(btn) btn.disabled = false;
+  }
+}
+// Silent background check, run once at startup and throttled to at most
+// once every 12h — surfaces a notification without the user having to
+// open About and tap "Check for updates" themselves.
+async function checkForUpdateAuto(){
+  try{
+    if(!state) return;
+    var last = state.lastUpdateCheck || 0;
+    if(Date.now() - last < 12*60*60*1000) return;
+    state.lastUpdateCheck = Date.now();
+    saveState();
+    var rel = await fetchLatestRelease();
+    if(rel.tag && compareVersions(rel.tag, APP_VERSION) > 0) notifyUpdateAvailable(rel.tag);
+  }catch(e){ console.warn("Office Ledger: silent update check failed", e); }
+}
+function openAboutSheet(){
+  var html =
+    '<div class="sheet-grabber"></div>'+
+    '<div class="sheet-header">'+
+      '<div><div class="eyebrow">About</div><h2 style="font-size:19px;">Office Ledger</h2></div>'+
+      '<button class="sheet-close" id="sheetClose" aria-label="Close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="5" y1="5" x2="19" y2="19"></line><line x1="19" y1="5" x2="5" y2="19"></line></svg></button>'+
+    '</div>'+
+    '<p class="subtext">Version <span class="mono">'+esc(APP_VERSION)+'</span></p>'+
+    '<p class="subtext" style="margin-top:8px;">Office Ledger tracks office attendance against ANZ’s hybrid-work target — leave, public holidays, comp off and work-from-home all counted the way the policy actually works. Built for ANZ employees; everything stays stored only on your device, with no login, backend or sync.</p>'+
+    '<hr class="divider" style="margin:16px 0;">'+
+    '<span class="eyebrow">Guide</span>'+
+    '<p class="subtext" style="margin-top:4px;">Every page has a short walkthrough of what does what. Tap the help icon in the top bar any time to replay it for the page you’re on.</p>'+
+    '<button class="btn btn-secondary btn-block" id="replayGuidesBtn" style="margin-top:10px;">Show all guides again</button>'+
+    '<hr class="divider" style="margin:16px 0;">'+
+    '<span class="eyebrow">Developer</span>'+
+    '<div class="about-person">'+
+      '<div class="about-avatar">DG</div>'+
+      '<div><div class="about-person-name">Debarun Ghosh</div><div class="about-person-role">SRE Engineer, ANZ Operations &amp; Technology</div></div>'+
+    '</div>'+
+    '<div class="about-link-row">'+
+      '<a href="https://www.linkedin.com/in/debarunghosh2024/" class="about-link" id="linkedinLink"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M4.98 3.5a2.5 2.5 0 1 1 0 5 2.5 2.5 0 0 1 0-5zM3 9h4v12H3zM9 9h3.8v1.7h.05c.53-1 1.83-2 3.77-2 4.03 0 4.78 2.6 4.78 6V21h-4v-5.7c0-1.36-.02-3.1-1.9-3.1-1.9 0-2.2 1.48-2.2 3v5.8H9z"></path></svg>LinkedIn</a>'+
+      '<a href="https://github.com/debarun1234" class="about-link" id="githubLink"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a10 10 0 0 0-3.16 19.5c.5.1.68-.22.68-.48v-1.7c-2.78.6-3.37-1.34-3.37-1.34-.46-1.15-1.11-1.46-1.11-1.46-.9-.62.07-.6.07-.6 1 .07 1.53 1.03 1.53 1.03.9 1.52 2.34 1.08 2.91.83.09-.65.35-1.08.63-1.33-2.22-.25-4.56-1.11-4.56-4.94 0-1.09.39-1.98 1.03-2.68-.1-.25-.45-1.27.1-2.65 0 0 .84-.27 2.75 1.02a9.6 9.6 0 0 1 5 0c1.91-1.3 2.75-1.02 2.75-1.02.55 1.38.2 2.4.1 2.65.64.7 1.03 1.59 1.03 2.68 0 3.84-2.34 4.68-4.57 4.93.36.31.68.92.68 1.85v2.74c0 .27.18.58.69.48A10 10 0 0 0 12 2z"></path></svg>GitHub</a>'+
+    '</div>'+
+    '<hr class="divider" style="margin:16px 0;">'+
+    '<span class="eyebrow">Help &amp; support</span>'+
+    '<p class="subtext" style="margin-top:4px;">Found a bug, or something looks off? Fill in a quick form and it goes straight to the developer.</p>'+
+    '<button class="btn btn-secondary btn-block" id="reportBugBtn" style="margin-top:10px;">Report a bug</button>'+
+    '<hr class="divider" style="margin:16px 0;">'+
+    '<button class="btn btn-secondary btn-block" id="checkUpdateBtn">Check for updates</button>'+
+    '<p class="subtext" id="updateStatus" style="margin-top:10px;"></p>'+
+    '<button class="btn btn-primary btn-block hidden" id="openReleaseBtn" style="margin-top:8px;">View latest release</button>';
+
+  document.getElementById("sheetContent").innerHTML = html;
+  var overlay = document.getElementById("sheetOverlay");
+  overlay.classList.add("center");
+  overlay.classList.add("open");
+  document.getElementById("sheetClose").addEventListener("click", closeSheet);
+  overlay.onclick = function(e){ if(e.target===overlay) closeSheet(); };
+  document.getElementById("checkUpdateBtn").addEventListener("click", checkForUpdate);
+  document.getElementById("linkedinLink").addEventListener("click", function(e){ e.preventDefault(); openExternal("https://www.linkedin.com/in/debarunghosh2024/"); });
+  document.getElementById("githubLink").addEventListener("click", function(e){ e.preventDefault(); openExternal("https://github.com/debarun1234"); });
+  document.getElementById("reportBugBtn").addEventListener("click", openBugReportSheet);
+  document.getElementById("replayGuidesBtn").addEventListener("click", function(){
+    state.profile.tourSeen = {};
+    saveState();
+    closeSheet();
+    showToast("Guides will show again as you visit each page");
+    setTimeout(function(){ maybeAutoTour(currentView); }, 300);
+  });
+}
+
+function openBugReportSheet(){
+  var platform = "web";
+  try{ if(window.Capacitor && window.Capacitor.getPlatform) platform = window.Capacitor.getPlatform(); }catch(e){}
+  var html =
+    '<div class="sheet-grabber"></div>'+
+    '<div class="sheet-header">'+
+      '<div><div class="eyebrow">Help &amp; support</div><h2 style="font-size:19px;">Report a bug</h2></div>'+
+      '<button class="sheet-close" id="sheetClose" aria-label="Close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="5" y1="5" x2="19" y2="19"></line><line x1="19" y1="5" x2="5" y2="19"></line></svg></button>'+
+    '</div>'+
+    '<p class="subtext" style="margin-top:4px;">Describe what happened — this opens your email app with the details filled in, addressed straight to me.</p>'+
+    '<form id="bugForm" style="display:flex; flex-direction:column; gap:12px; margin-top:14px;">'+
+      '<div class="field"><label for="bugWhat">What happened? *</label><textarea id="bugWhat" rows="4" placeholder="e.g. The Calendar screen froze when I tapped a holiday" required></textarea></div>'+
+      '<div class="field"><label for="bugSteps">Steps to reproduce (optional)</label><textarea id="bugSteps" rows="3" placeholder="1. Open Calendar&#10;2. Tap a date&#10;3. ..."></textarea></div>'+
+      '<div class="field-hint">App version '+esc(APP_VERSION)+' · '+esc(platform)+' — included automatically.</div>'+
+      '<button type="submit" class="btn btn-primary btn-block">Send bug report</button>'+
+    '</form>';
+  document.getElementById("sheetContent").innerHTML = html;
+  var overlay = document.getElementById("sheetOverlay");
+  overlay.classList.add("center");
+  overlay.classList.add("open");
+  document.getElementById("sheetClose").addEventListener("click", closeSheet);
+  overlay.onclick = function(e){ if(e.target===overlay) closeSheet(); };
+  document.getElementById("bugForm").addEventListener("submit", function(e){
+    e.preventDefault();
+    var what = document.getElementById("bugWhat").value.trim();
+    var steps = document.getElementById("bugSteps").value.trim();
+    if(!what){ showToast("Describe what happened first"); return; }
+    var subject = "Office Ledger bug report (v"+APP_VERSION+")";
+    var body = "What happened:\n"+what+"\n\n"+(steps ? ("Steps to reproduce:\n"+steps+"\n\n") : "")+"---\nApp version: "+APP_VERSION+"\nPlatform: "+platform;
+    var url = "mailto:debarun.ghosh.2024@gmail.com?subject="+encodeURIComponent(subject)+"&body="+encodeURIComponent(body);
+    try{ window.location.href = url; }
+    catch(err){ showToast("Couldn't open email — write to debarun.ghosh.2024@gmail.com"); }
+    addNotification("bug", "Bug report submitted", what.length>90 ? (what.slice(0,90)+"…") : what);
+    closeSheet();
+    showToast("Opening your email app to send the report…");
+  });
+}
+
+/* ---------- Onboarding ---------- */
+/* First-launch onboarding is a short multi-step wizard — a welcome slide,
+   a how-it-works slide, a what-you-can-track slide, then the actual profile
+   setup form on the last step. Purely presentational steps can be skipped
+   straight to setup; the form step can't, since the app needs that data.
+   Submitting the form on the last step does the same thing the old
+   single-screen onboarding always did. */
+var obStep = 0;
+function obFeature(color, title, text){
+  return '<div class="ob-feature">'+
+    '<span class="ob-feature-dot" style="background:'+color+';"></span>'+
+    '<div><div class="ob-feature-title">'+title+'</div><div class="ob-feature-text">'+text+'</div></div>'+
+  '</div>';
+}
+var OB_SLIDES = [
+  { render:function(){
+    return '<svg class="onboard-mark" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="17" rx="4"></rect><line x1="3" y1="9" x2="21" y2="9"></line><polyline points="8 14.5 11 17.5 16.5 10.5"></polyline></svg>'+
+      '<div>'+
+        '<div class="eyebrow">Welcome</div>'+
+        '<h1 style="font-size:26px; margin-top:4px;">Office Ledger</h1>'+
+        '<p class="subtext" style="margin-top:8px;">Built for ANZ employees to track office attendance against the company’s hybrid-work target. Log your days, leave, public holidays and comp off, and watch your percentage update live. Everything stays on this device.</p>'+
+      '</div>';
+  }},
+  { render:function(){
+    return '<div>'+
+        '<div class="eyebrow">How it works</div>'+
+        '<h1 style="font-size:23px; margin-top:4px;">One simple formula</h1>'+
+        '<p class="subtext" style="margin-top:8px;">The financial year runs 1 October – 30 September. Every day you log feeds straight into this:</p>'+
+      '</div>'+
+      '<div class="formula-box">attendance % =<br>&nbsp;&nbsp;days present ÷ eligible working days × 100<br><br>eligible working days =<br>&nbsp;&nbsp;working days − leave − public holidays − comp off</div>';
+  }},
+  { render:function(){
+    return '<div><div class="eyebrow">What you can track</div><h1 style="font-size:23px; margin-top:4px;">Everything, in one tap</h1></div>'+
+      '<div class="ob-feature-list">'+
+        obFeature("var(--good)","Present or Work from home","Mark each weekday from the Calendar tab.")+
+        obFeature("var(--warn)","Annual &amp; Sick/Carer leave","Two separate pools, reported monthly — the app works out the days taken from the drop.")+
+        obFeature("var(--holiday)","Public holidays","Add your company’s list once a year and they’re excluded automatically.")+
+        obFeature("var(--accent)","Comp off","Earned on worked weekends, spent when you take it.")+
+      '</div>';
+  }},
+  { render:function(){
+    return '<div><div class="eyebrow">Almost there</div><h1 style="font-size:23px; margin-top:4px;">Set up your profile</h1></div>'+
+      '<form id="onboardForm" style="gap:12px;">'+
+        '<div class="field"><label for="obName">Your name</label><input type="text" id="obName" placeholder="e.g. Debarun" required></div>'+
+        '<div class="field"><label for="obTarget">Attendance target (%)</label><input type="number" id="obTarget" min="0" max="100" value="50" required></div>'+
+        '<div class="field"><label for="obCompOff">Current comp off balance (days)</label><input type="number" id="obCompOff" min="0" step="0.5" value="0"></div>'+
+      '</form>';
+  }}
+];
+function renderOnboard(){
+  obStep = 0;
+  var shell =
+    '<div class="onboard-inner">'+
+      '<div class="ob-topbar">'+
+        '<div class="ob-dots" id="obDots"></div>'+
+        '<button class="ob-skip" id="obSkip">Skip intro</button>'+
+      '</div>'+
+      '<div class="ob-slide" id="obSlide"></div>'+
+      '<div class="ob-nav" id="obNav"></div>'+
+    '</div>';
+  document.getElementById("onboard").innerHTML = shell;
+  document.getElementById("obSkip").addEventListener("click", function(){ goToObStep(OB_SLIDES.length-1); });
+  renderObStep();
+}
+function goToObStep(n){
+  obStep = Math.max(0, Math.min(OB_SLIDES.length-1, n));
+  renderObStep();
+}
+function renderObStep(){
+  var isLast = obStep===OB_SLIDES.length-1;
+  var dots = document.getElementById("obDots");
+  dots.innerHTML = OB_SLIDES.map(function(_,i){ return '<span class="ob-dot'+(i===obStep?' on':'')+'"></span>'; }).join("");
+  document.getElementById("obSkip").classList.toggle("hidden", isLast);
+
+  var slide = document.getElementById("obSlide");
+  slide.classList.remove("ob-slide"); void slide.offsetWidth; slide.classList.add("ob-slide"); // restart fade-in
+  slide.innerHTML = OB_SLIDES[obStep].render();
+
+  document.getElementById("obNav").innerHTML =
+    (obStep>0 ? '<button class="btn btn-secondary" id="obBack" type="button">Back</button>' : '<span></span>')+
+    '<button class="btn btn-primary" id="obNext" type="'+(isLast?'submit':'button')+'"'+(isLast?' form="onboardForm"':'')+'>'+(isLast?"Start tracking":"Next")+'</button>';
+  var backBtn = document.getElementById("obBack");
+  if(backBtn) backBtn.addEventListener("click", function(){ goToObStep(obStep-1); });
+  if(!isLast){
+    document.getElementById("obNext").addEventListener("click", function(){ goToObStep(obStep+1); });
+  } else {
+    document.getElementById("onboardForm").addEventListener("submit", function(e){
+      e.preventDefault();
+      var name = document.getElementById("obName").value.trim();
+      var tgt = parseInt(document.getElementById("obTarget").value,10);
+      var co = parseFloat(document.getElementById("obCompOff").value);
+      state = defaultState();
+      state.profile.name = name;
+      state.profile.targetPct = isNaN(tgt)?50:Math.max(0,Math.min(100,tgt));
+      state.profile.openingCompOff = isNaN(co)?0:co;
+      saveState();
+      document.getElementById("onboard").classList.add("hidden");
+      switchView("today");
+      checkForUpdateAuto(); // init() ran before state existed, so this session's first check happens here instead
+    });
+  }
+}
+
+/* ---------- pull-to-refresh ----------
+   Reloads state fresh from device storage and re-renders the current view —
+   covers the (rare) case data changed outside this running instance (an
+   import, or another entry point), and gives a visible confirmation that
+   the numbers on screen are live, not a cached snapshot. Only arms when
+   the page is already scrolled to the very top, so it never fights normal
+   scrolling further down a view. */
+function setupPullToRefresh(){
+  var ptrBar = document.getElementById("ptrBar");
+  var ptrLabel = document.getElementById("ptrLabel");
+  if(!ptrBar || !ptrLabel) return;
+  var THRESHOLD = 64;
+  var startY = null, pulling = false, refreshing = false;
+
+  function setHeight(px){
+    ptrBar.style.height = px+"px";
+    ptrBar.style.opacity = String(Math.min(1, px/THRESHOLD));
+  }
+  document.addEventListener("touchstart", function(e){
+    if(refreshing || tour.active || (window.scrollY||0) > 0){ startY=null; pulling=false; return; }
+    startY = e.touches[0].clientY;
+    pulling = true;
+  }, {passive:true});
+  document.addEventListener("touchmove", function(e){
+    if(!pulling || startY===null || refreshing) return;
+    if((window.scrollY||0) > 0){ pulling=false; setHeight(0); return; }
+    var dy = e.touches[0].clientY - startY;
+    if(dy<=0){ setHeight(0); return; }
+    var damped = Math.min(THRESHOLD*1.5, dy*0.5);
+    setHeight(damped);
+    ptrLabel.textContent = damped>=THRESHOLD ? "Release to refresh" : "Pull to refresh";
+  }, {passive:true});
+  document.addEventListener("touchend", function(){
+    if(!pulling || refreshing){ pulling=false; return; }
+    pulling=false;
+    var h = parseFloat(ptrBar.style.height)||0;
+    if(h>=THRESHOLD) doRefresh();
+    else setHeight(0);
+  }, {passive:true});
+
+  async function doRefresh(){
+    refreshing = true;
+    ptrLabel.textContent = "Refreshing…";
+    setHeight(THRESHOLD*0.85);
+    var startedAt = Date.now();
+    try{
+      var fresh = await loadState();
+      if(fresh) state = fresh;
+    }catch(e){ console.warn("Office Ledger: refresh failed", e); }
+    renderCurrentView();
+    if(nativeNotifReady()) sendPendingNotifications();
+    var wait = Math.max(0, 400 - (Date.now()-startedAt));
+    setTimeout(function(){ setHeight(0); refreshing=false; }, wait);
+  }
+}
+
+/* ---------- init ---------- */
+async function init(){
+  state = await loadState();
+  document.querySelectorAll(".navbtn").forEach(function(b){
+    b.addEventListener("click", function(){ switchView(b.getAttribute("data-view")); });
+  });
+  document.getElementById("fyChip").textContent = fyOf(today()).label;
+  document.getElementById("helpBtn").addEventListener("click", function(){ startTour(currentView); });
+  document.getElementById("notifBtn").addEventListener("click", openNotifCenter);
+  updateNotifBadge();
+  setupBackfillTrigger();
+  setupPullToRefresh();
+  syncStatusBar();
+  checkForUpdateAuto();
+  if(window.matchMedia){
+    var darkModeQuery = window.matchMedia("(prefers-color-scheme: dark)");
+    if(darkModeQuery.addEventListener) darkModeQuery.addEventListener("change", syncStatusBar);
+    else if(darkModeQuery.addListener) darkModeQuery.addListener(syncStatusBar); // older WebViews
+  }
+  if(!state){
+    document.getElementById("onboard").classList.remove("hidden");
+    renderOnboard();
+  } else {
+    switchView("today");
+    sendPendingNotifications();
+  }
+}
+if(document.readyState==="loading") document.addEventListener("DOMContentLoaded", init);
+else init();
+
+})();
+</script>
+
+<script>
+// PWA service worker: enables offline load + installability.
+// Guarded — a plain unsupported browser just skips this silently.
+if ("serviceWorker" in navigator) {
+  window.addEventListener("load", function () {
+    navigator.serviceWorker.register("./sw.js").catch(function (err) {
+      console.warn("Office Ledger: service worker registration failed", err);
+    });
+  });
+}
+</script>
+
+</body>
+</html>
