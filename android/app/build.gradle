@@ -13,7 +13,7 @@ android {
         // flow). It was hardcoded at 1 for every build through v1.3.0 — bump
         // both of these together with every release from here on.
         versionCode 5
-        versionName "1.5.0"
+        versionName "1.5.0-a"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         aaptOptions {
              // Files and dirs to omit from the packaged assets dir, modified to accommodate modern web apps.
