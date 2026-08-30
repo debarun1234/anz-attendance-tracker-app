@@ -617,6 +617,53 @@
     .cal-cell{font-size:14.5px;}
     .stat-chip .n{font-size:17px;}
   }
+
+  /* GPS celebration: a full-screen "stamped" reveal — see showGpsCelebration().
+     White text on a fixed dark scrim regardless of theme, so it stays legible
+     over either the light or dark app background without extra branching. */
+  .gps-celebration-overlay{
+    position:fixed; inset:0; z-index:500;
+    display:flex; align-items:center; justify-content:center;
+    background:rgba(0,0,0,0); pointer-events:none;
+    opacity:0; transition:opacity .35s ease, background-color .35s ease;
+  }
+  .gps-celebration-overlay.show{
+    pointer-events:auto; opacity:1;
+    background:rgba(6,30,20,.88);
+  }
+  .gps-celebration-canvas{position:absolute; inset:0; width:100%; height:100%;}
+  .gps-celebration-content{
+    position:relative; display:flex; flex-direction:column; align-items:center; gap:16px;
+    transform:translateY(8px); opacity:0;
+    transition:opacity .3s ease .05s, transform .3s ease .05s;
+    padding:0 30px; text-align:center;
+  }
+  .gps-celebration-overlay.show .gps-celebration-content{opacity:1; transform:translateY(0);}
+  .gps-stamp{
+    position:relative; width:118px; height:118px; border-radius:50%;
+    display:flex; align-items:center; justify-content:center; color:var(--good);
+    transform:scale(2.3) rotate(-14deg); opacity:0;
+  }
+  .gps-celebration-overlay.show .gps-stamp{ animation:gpsStampLand .62s cubic-bezier(.17,1.4,.4,1) forwards; }
+  @keyframes gpsStampLand{
+    0%{ transform:scale(2.3) rotate(-14deg); opacity:0; }
+    55%{ transform:scale(.92) rotate(-6deg); opacity:1; }
+    75%{ transform:scale(1.06) rotate(-9deg); }
+    100%{ transform:scale(1) rotate(-8deg); opacity:1; }
+  }
+  .gps-stamp-ring{position:absolute; inset:0; width:100%; height:100%; fill:none; stroke:currentColor; stroke-width:4;}
+  .gps-stamp-ring circle{stroke-dasharray:340; stroke-dashoffset:340;}
+  .gps-celebration-overlay.show .gps-stamp-ring circle{ animation:gpsRingDraw .5s ease-out .1s forwards; }
+  @keyframes gpsRingDraw{ to{ stroke-dashoffset:0; } }
+  .gps-stamp-check{width:44px; height:44px; opacity:0; transform:scale(.5);}
+  .gps-celebration-overlay.show .gps-stamp-check{ animation:gpsCheckPop .4s cubic-bezier(.2,1.6,.4,1) .32s forwards; }
+  @keyframes gpsCheckPop{ to{ opacity:1; transform:scale(1); } }
+  .gps-celebration-title{font-family:"Fraunces", serif; font-weight:600; font-size:22px; color:#fff;}
+  .gps-celebration-sub{font-family:"IBM Plex Mono", monospace; font-size:12px; color:rgba(255,255,255,.74); margin-top:2px;}
+  @media (prefers-reduced-motion: reduce){
+    .gps-stamp, .gps-stamp-ring circle, .gps-stamp-check{ animation:none !important; transform:none !important; opacity:1 !important; stroke-dashoffset:0 !important; }
+    .gps-celebration-content{ transition:opacity .2s ease; }
+  }
 </style>
 
 
@@ -687,7 +734,7 @@
 
 /* ---------- constants ---------- */
 var STORAGE_KEY = "officeLedger.v1";
-var APP_VERSION = "1.5.0-a"; // keep in sync with package.json's "version"
+var APP_VERSION = "1.5.3"; // keep in sync with package.json's "version"
 var UPDATE_REPO = "debarun1234/anz-attendance-tracker-app"; // GitHub owner/repo checked for releases
 var DOW_LABELS = ["Mon","Tue","Wed","Thu","Fri","Sat","Sun"];
 var STATUS_META = {
@@ -765,9 +812,13 @@ function defaultState(){
       { id:"loc-acacia", name:"Acacia Office", address:"Acacia Parcel 1, Embassy Manyata Business Park, Outer Ring Road, Rachenahalli Village, K.R. Puram Hobli, Nagavara, Bengaluru - 560045, Karnataka", lat:13.048355, lng:77.620706, radiusM:350 },
       { id:"loc-hibiscus", name:"Hibiscus Office", address:"2B Tower 1 (Hibiscus), Embassy Tech Village, 6th & 7th Floor, Devarabeesanahalli Village, Varthur Hobli, Bengaluru East Taluk, Bengaluru - 560103, Karnataka", lat:12.926596, lng:77.693002, radiusM:350 }
     ],
-    locationSettings:{ enabled:false, confirmedDates:{}, dismissedDates:{} },
+    locationSettings:{ enabled:false, confirmedDates:{}, dismissedDates:{}, confirmedOffice:{}, celebrationShownDates:{} },
                          // confirmedDates/dismissedDates: "YYYY-MM-DD" -> true, per-day dedupe
                          // so a match is only ever offered once, whichever way it's resolved.
+                         // confirmedOffice: "YYYY-MM-DD" -> office name, so a later celebration
+                         // reveal can still say which office matched. celebrationShownDates:
+                         // "YYYY-MM-DD" -> true, so the GPS celebration animation plays once per
+                         // day regardless of how many times the app is opened or resumed.
     wfhReminders:{ enabled:false, startTime:"09:15", endTime:"17:45" },
     // Two separate pools, matching how the company actually runs leave:
     // Annual leave accrues and is tracked on its own; Sick and Carer leave
@@ -841,7 +892,9 @@ async function loadState(){
       officeLocations: parsed.officeLocations || defaultState().officeLocations,
       locationSettings: Object.assign(d.locationSettings, parsed.locationSettings, {
         confirmedDates: (parsed.locationSettings && parsed.locationSettings.confirmedDates) || {},
-        dismissedDates: (parsed.locationSettings && parsed.locationSettings.dismissedDates) || {}
+        dismissedDates: (parsed.locationSettings && parsed.locationSettings.dismissedDates) || {},
+        confirmedOffice: (parsed.locationSettings && parsed.locationSettings.confirmedOffice) || {},
+        celebrationShownDates: (parsed.locationSettings && parsed.locationSettings.celebrationShownDates) || {}
       }),
       wfhReminders: Object.assign(d.wfhReminders, parsed.wfhReminders),
       dismissed: parsed.dismissed || {},
@@ -1505,23 +1558,35 @@ async function ensureLocationPermission(){
     return !!(navigator.geolocation);
   }catch(e){ console.warn("Office Ledger: location permission check failed", e); return false; }
 }
+/* Set alongside a null return from getCurrentPosition() so callers that
+   care WHY it failed (the Settings live-status readout) can tell "you
+   never granted permission" apart from "GPS just couldn't get a fix" —
+   the native Capacitor path already knows the difference from
+   checkPermissions(); the browser fallback only finds out from the
+   geolocation error callback's PERMISSION_DENIED code (1). */
+var lastGeoErrorCode = null;
 async function getCurrentPosition(){
+  lastGeoErrorCode = null;
   var ok = await ensureLocationPermission();
-  if(!ok) return null;
+  if(!ok){ lastGeoErrorCode = "denied"; return null; }
   try{
     if(nativeGeoReady()){
-      var pos = await window.Capacitor.Plugins.Geolocation.getCurrentPosition({enableHighAccuracy:true, timeout:15000});
+      var pos = await window.Capacitor.Plugins.Geolocation.getCurrentPosition({enableHighAccuracy:true, timeout:15000, maximumAge:0});
       return {lat:pos.coords.latitude, lng:pos.coords.longitude, accuracy:pos.coords.accuracy};
     }
-    if(!navigator.geolocation) return null;
+    if(!navigator.geolocation){ lastGeoErrorCode = "unavailable"; return null; }
     return await new Promise(function(resolve){
       navigator.geolocation.getCurrentPosition(
         function(pos){ resolve({lat:pos.coords.latitude, lng:pos.coords.longitude, accuracy:pos.coords.accuracy}); },
-        function(err){ console.warn("Office Ledger: geolocation error", err); resolve(null); },
-        {enableHighAccuracy:true, timeout:15000, maximumAge:60000}
+        function(err){
+          console.warn("Office Ledger: geolocation error", err);
+          lastGeoErrorCode = (err && err.code===1) ? "denied" : "unavailable"; // 1 === PERMISSION_DENIED
+          resolve(null);
+        },
+        {enableHighAccuracy:true, timeout:15000, maximumAge:0}
       );
     });
-  }catch(e){ console.warn("Office Ledger: could not read location", e); return null; }
+  }catch(e){ console.warn("Office Ledger: could not read location", e); lastGeoErrorCode = "unavailable"; return null; }
 }
 function haversineMeters(lat1,lng1,lat2,lng2){
   var R = 6371000;
@@ -1570,14 +1635,82 @@ async function checkOfficeLocationAuto(){
     renderCurrentView();
   }catch(e){ console.warn("Office Ledger: location auto-check failed", e); }
 }
+/* ---------- Settings' "live" GPS status readout ----------
+   Not a background tracker — it's a point-in-time check, run once when
+   Settings opens (or on demand via "Check GPS now"), that walks through
+   the same permission + read + match steps checkOfficeLocationAuto()
+   uses, and shows the result plainly: no permission, no signal, or how
+   far the last reading was from the nearest saved office. Stops looking
+   the instant the check resolves — consistent with the app never
+   watching location continuously. */
+var locStatusState = {status:"idle", text:"", checkedAt:null};
+function fmtCheckedTime(ms){
+  try{ return new Date(ms).toLocaleTimeString(undefined,{hour:"numeric",minute:"2-digit"}); }
+  catch(e){ return ""; }
+}
+function renderLocationStatusUI(){
+  var el = document.getElementById("locLiveStatus");
+  if(!el) return;
+  var cls = {
+    off:"status-warn", checking:"status-warn", acquiring:"status-warn",
+    denied:"status-critical", error:"status-critical",
+    "active-match":"status-good", "active-nomatch":"status-warn"
+  }[locStatusState.status] || "status-warn";
+  el.innerHTML =
+    '<span class="status-pill '+cls+'">'+esc(locStatusState.text)+'</span>'+
+    (locStatusState.checkedAt ? '<span class="field-hint" style="margin:0;">Checked '+esc(fmtCheckedTime(locStatusState.checkedAt))+'</span>' : '');
+}
+async function refreshLocationStatus(){
+  if(!state.locationSettings.enabled) return;
+  locStatusState = {status:"checking", text:"Checking permission…", checkedAt:null};
+  renderLocationStatusUI();
+  var permOk = await ensureLocationPermission();
+  if(!permOk){
+    locStatusState = {status:"denied", text:"Permission needed — enable Location for Office Ledger in your phone's app settings", checkedAt:Date.now()};
+    renderLocationStatusUI();
+    return;
+  }
+  locStatusState = {status:"acquiring", text:"Acquiring GPS…", checkedAt:null};
+  renderLocationStatusUI();
+  var pos = await getCurrentPosition();
+  if(!pos){
+    locStatusState = (lastGeoErrorCode==="denied") ?
+      {status:"denied", text:"Permission needed — enable Location for Office Ledger in your phone's app settings", checkedAt:Date.now()} :
+      {status:"error", text:"No GPS signal right now — try again in a moment", checkedAt:Date.now()};
+    renderLocationStatusUI();
+    return;
+  }
+  var match = findNearestOfficeMatch(pos.lat, pos.lng);
+  if(match){
+    locStatusState = {status:"active-match", text:"GPS active — "+Math.round(match.dist)+"m from "+match.loc.name, checkedAt:Date.now()};
+  } else {
+    var locs = state.officeLocations||[], nearest=null;
+    for(var i=0;i<locs.length;i++){
+      var l = locs[i];
+      if(l.lat==null||l.lng==null) continue;
+      var d = haversineMeters(pos.lat,pos.lng,l.lat,l.lng);
+      if(!nearest || d<nearest.dist) nearest = {loc:l, dist:d};
+    }
+    locStatusState = nearest ?
+      {status:"active-nomatch", text:"GPS active — "+Math.round(nearest.dist)+"m from "+nearest.loc.name+", outside its "+(nearest.loc.radiusM||300)+"m range", checkedAt:Date.now()} :
+      {status:"active-nomatch", text:"GPS active — no saved office nearby", checkedAt:Date.now()};
+  }
+  renderLocationStatusUI();
+}
 function confirmOfficeMatch(){
   if(!pendingOfficeMatch) return;
   var dStr = pendingOfficeMatch.dateStr;
+  var officeName = pendingOfficeMatch.loc.name;
   state.days[dStr] = {status:"present", leaveType:null};
   state.locationSettings.confirmedDates[dStr] = true;
+  state.locationSettings.confirmedOffice = state.locationSettings.confirmedOffice || {};
+  state.locationSettings.confirmedOffice[dStr] = officeName;
+  state.locationSettings.celebrationShownDates = state.locationSettings.celebrationShownDates || {};
+  state.locationSettings.celebrationShownDates[dStr] = true;
   pendingOfficeMatch = null;
   saveState();
   renderCurrentView();
+  showGpsCelebration(officeName);
 }
 function dismissOfficeMatch(){
   if(!pendingOfficeMatch) return;
@@ -1596,6 +1729,124 @@ function dismissLocationNudge(){
   pendingLocationNudge = null;
   saveState();
   renderCurrentView();
+}
+
+/* ---------- GPS celebration animation ----------
+   A full-screen, one-time-a-day reveal: a "stamped" present mark with a
+   burst of ink-coloured particles (canvas, no library), shown the moment
+   someone confirms a GPS match, and — the actual point of this feature —
+   ALSO the next time the app is opened or resumed, even hours later, if
+   today's already been logged via GPS and this hasn't played yet today.
+   That second path is what makes "I checked in at 9am, came back to the
+   app at 9pm" still get the reveal. Deduped by celebrationShownDates so
+   it never replays the same day, however many times the app is reopened. */
+function buildGpsCelebrationDom(){
+  if(document.getElementById("gpsCelebration")) return;
+  var overlay = document.createElement("div");
+  overlay.id = "gpsCelebration";
+  overlay.className = "gps-celebration-overlay";
+  overlay.setAttribute("aria-hidden","true");
+  overlay.innerHTML =
+    '<canvas id="gpsCelebrationCanvas" class="gps-celebration-canvas"></canvas>'+
+    '<div class="gps-celebration-content">'+
+      '<div class="gps-stamp">'+
+        '<svg class="gps-stamp-ring" viewBox="0 0 120 120"><circle cx="60" cy="60" r="54"></circle></svg>'+
+        '<svg class="gps-stamp-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>'+
+      '</div>'+
+      '<div class="gps-celebration-text">'+
+        '<div class="gps-celebration-title">Present — logged</div>'+
+        '<div class="gps-celebration-sub"></div>'+
+      '</div>'+
+    '</div>';
+  document.body.appendChild(overlay);
+  overlay.addEventListener("click", hideGpsCelebration);
+}
+function burstGpsParticles(canvas){
+  var ctx = canvas.getContext("2d");
+  if(!ctx) return function(){};
+  var reduced = !!(window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches);
+  var dpr = window.devicePixelRatio||1;
+  var w = canvas.clientWidth||window.innerWidth, h = canvas.clientHeight||window.innerHeight;
+  canvas.width = w*dpr; canvas.height = h*dpr;
+  ctx.setTransform(dpr,0,0,dpr,0,0);
+  var cx = w/2, cy = h/2 - 44;
+  var css = getComputedStyle(document.documentElement);
+  var colors = [
+    (css.getPropertyValue("--good")||"#2E9E5B").trim(),
+    (css.getPropertyValue("--accent")||"#0B63C4").trim(),
+    "#ffffff"
+  ];
+  var particles = [];
+  var count = reduced ? 0 : 48;
+  for(var i=0;i<count;i++){
+    var ang = Math.random()*Math.PI*2;
+    var speed = 2.1+Math.random()*4.4;
+    particles.push({
+      x:cx, y:cy, vx:Math.cos(ang)*speed, vy:Math.sin(ang)*speed-1.6,
+      size:2+Math.random()*3, color:colors[i%colors.length],
+      life:1, decay:0.011+Math.random()*0.013
+    });
+  }
+  var raf=null;
+  function tick(){
+    ctx.clearRect(0,0,w,h);
+    var alive=false;
+    particles.forEach(function(p){
+      if(p.life<=0) return;
+      alive=true;
+      p.vy += 0.09; p.x += p.vx; p.y += p.vy; p.life -= p.decay;
+      ctx.globalAlpha = Math.max(0,p.life);
+      ctx.fillStyle = p.color;
+      ctx.beginPath(); ctx.arc(p.x,p.y,p.size,0,Math.PI*2); ctx.fill();
+    });
+    ctx.globalAlpha = 1;
+    if(alive) raf = requestAnimationFrame(tick);
+  }
+  if(count>0) raf = requestAnimationFrame(tick);
+  return function cleanup(){ if(raf) cancelAnimationFrame(raf); ctx.clearRect(0,0,w,h); };
+}
+var gpsCelebrationTimer=null, gpsCelebrationCleanup=null;
+function showGpsCelebration(officeName){
+  buildGpsCelebrationDom();
+  var overlay = document.getElementById("gpsCelebration");
+  if(!overlay) return;
+  var sub = overlay.querySelector(".gps-celebration-sub");
+  if(sub) sub.textContent = (officeName ? officeName+" · " : "")+"Logged via GPS · "+fmtLong(today());
+  overlay.setAttribute("aria-hidden","false");
+  // restart the CSS animations even if shown again shortly after
+  overlay.classList.remove("show");
+  void overlay.offsetWidth;
+  overlay.classList.add("show");
+  if(gpsCelebrationCleanup){ gpsCelebrationCleanup(); gpsCelebrationCleanup=null; }
+  var canvas = document.getElementById("gpsCelebrationCanvas");
+  if(canvas){
+    setTimeout(function(){ if(overlay.classList.contains("show")) gpsCelebrationCleanup = burstGpsParticles(canvas); }, 260);
+  }
+  clearTimeout(gpsCelebrationTimer);
+  gpsCelebrationTimer = setTimeout(hideGpsCelebration, 3200);
+}
+function hideGpsCelebration(){
+  var overlay = document.getElementById("gpsCelebration");
+  if(!overlay) return;
+  overlay.classList.remove("show");
+  overlay.setAttribute("aria-hidden","true");
+  clearTimeout(gpsCelebrationTimer);
+  if(gpsCelebrationCleanup){ gpsCelebrationCleanup(); gpsCelebrationCleanup=null; }
+}
+/* Called on cold start AND every time the app becomes visible again
+   (tab switch, or brought forward from the Android task switcher) — see
+   the visibilitychange/resume listeners wired in init(). Only plays if
+   today is already GPS-confirmed and the reveal hasn't run yet today. */
+function maybeShowGpsCelebration(){
+  if(!state || !state.locationSettings) return;
+  var dStr = todayStr();
+  if(!state.locationSettings.confirmedDates || !state.locationSettings.confirmedDates[dStr]) return;
+  if(state.locationSettings.celebrationShownDates && state.locationSettings.celebrationShownDates[dStr]) return;
+  state.locationSettings.celebrationShownDates = state.locationSettings.celebrationShownDates || {};
+  state.locationSettings.celebrationShownDates[dStr] = true;
+  saveState();
+  var officeName = (state.locationSettings.confirmedOffice && state.locationSettings.confirmedOffice[dStr]) || null;
+  showGpsCelebration(officeName);
 }
 
 /* ---------- WFH day-start / day-end reminders ----------
@@ -2320,6 +2571,11 @@ function renderSettings(){
         '</label>'+
       '</div>'+
       '<p class="field-hint" style="margin-top:0;">When you\'re near an office you\'ve added below, Today will ask you to confirm before marking the day present — it never logs a day on its own. Not near any of them, on a weekday? It nudges you to log it yourself instead of staying quiet — handy if you split time between offices, work from a client site, or just forget. Off on weekends and on any day you\'ve already logged, always. Location is compared entirely on this device; nothing is ever sent anywhere.</p>'+
+      (state.locationSettings.enabled ?
+        '<div id="locLiveStatus" style="margin-top:10px; display:flex; align-items:center; gap:8px; flex-wrap:wrap;"><span class="status-pill status-warn">Checking…</span></div>'+
+        '<p class="field-hint" style="margin-top:6px;">This is a point-in-time check, not a running tracker — it re-checks when you open Settings or tap below, and stops looking the moment you leave the app, same as the auto-detect itself.</p>'+
+        '<button class="btn btn-secondary btn-block" id="locCheckNowBtn" style="margin-top:4px;">Check GPS now</button>'
+      : '')+
       '<button class="btn btn-secondary btn-block" id="manageLocBtn" style="margin-top:12px;">Manage office locations ('+((state.officeLocations||[]).length)+')</button>'+
     '</div>'+
     '<div class="card">'+
@@ -2379,8 +2635,12 @@ function renderSettings(){
     state.locationSettings.enabled = e.target.checked;
     saveState();
     if(state.locationSettings.enabled) checkOfficeLocationAuto();
+    renderSettings(); // rebuild the card so the live status block appears/disappears with the toggle
   });
   document.getElementById("manageLocBtn").addEventListener("click", function(){ locEditId=null; switchView("location"); });
+  var locCheckNowBtn = document.getElementById("locCheckNowBtn");
+  if(locCheckNowBtn) locCheckNowBtn.addEventListener("click", refreshLocationStatus);
+  if(state.locationSettings.enabled) refreshLocationStatus();
   document.getElementById("wfhEnableToggle").addEventListener("change", function(e){
     state.wfhReminders.enabled = e.target.checked;
     saveState();
@@ -2884,6 +3144,40 @@ function apkInstallReady(){
     && window.Capacitor.getPlatform && window.Capacitor.getPlatform()==="android"
     && window.Capacitor.Plugins && window.Capacitor.Plugins.Filesystem && window.Capacitor.Plugins.ApkInstaller);
 }
+/* Everywhere apkInstallReady() is false, this is the PWA — installed to a
+   home screen (standalone display mode, or iOS Safari's Add to Home
+   Screen) or just open in a browser tab. Either way there's no APK to
+   hand to a package installer, so the update flow is fundamentally
+   different: a service worker can silently fetch the new version in the
+   background, but it can never rewrite a page that's already loaded in
+   memory — only reopening (or an automatic reload once the new version
+   takes over, wired in the PWA's own bootstrap script) actually shows it.
+   Nudges the installed web app to pick up a new version: asks its own
+   service worker to re-check the network right now (normally a browser
+   only does this occasionally on its own), then explains — because
+   there is no single "tap to finish" step here the way there is on
+   Android — that the actual switch-over happens automatically within a
+   few seconds if this window stays open, or the next time it's fully
+   closed and reopened otherwise. */
+function applyPwaUpdate(rel, btn, statusEl){
+  var originalLabel = btn ? btn.textContent : "";
+  if(btn){ btn.disabled = true; btn.textContent = "Updating…"; }
+  if(statusEl) statusEl.textContent = "Checking in the background — this stays open for a few seconds while it fetches "+esc(rel.tag)+".";
+  try{
+    if("serviceWorker" in navigator && navigator.serviceWorker.getRegistration){
+      navigator.serviceWorker.getRegistration().then(function(reg){ if(reg) reg.update(); });
+    }
+  }catch(e){ console.warn("Office Ledger: PWA update check failed", e); }
+  setTimeout(function(){
+    if(statusEl) statusEl.innerHTML =
+      "Unlike the Android app, an installed web app can't swap itself in instantly — it finishes on its own, usually within a few seconds, and this screen will reload itself when it does. Still on "+esc(APP_VERSION)+" after a bit? Fully close Office Ledger — swipe it away from your recent apps, or close every tab it's open in, not just switch away from it — then reopen it once. That's normally all it takes, and it's completely safe: your logged days, offices and leave balances live in a separate storage the update never touches, so nothing gets reset.";
+    if(btn){ btn.disabled = false; btn.textContent = originalLabel || "Update the app"; }
+  }, 4500);
+}
+function handleUpdateAction(rel, btn, statusEl){
+  if(apkInstallReady()) downloadAndInstallUpdate(rel, btn, statusEl);
+  else applyPwaUpdate(rel, btn, statusEl);
+}
 /* Downloads the release APK straight into the app's cache dir, then hands
    it to Android's own package installer — the same "sideload" install
    prompt as before, just without the user having to leave the app, find
@@ -2931,8 +3225,8 @@ async function checkForUpdate(){
       if(statusEl) statusEl.innerHTML = "Version <b>"+esc(rel.tag)+"</b> is available — you're on "+esc(APP_VERSION)+".";
       if(openBtn){
         openBtn.classList.remove("hidden");
-        openBtn.textContent = apkInstallReady() ? "Update now" : "View latest release";
-        openBtn.onclick = function(){ downloadAndInstallUpdate(rel, openBtn, statusEl); };
+        openBtn.textContent = apkInstallReady() ? "Update now" : "Update the app";
+        openBtn.onclick = function(){ handleUpdateAction(rel, openBtn, statusEl); };
       }
       notifyUpdateAvailable(rel.tag);
     } else {
@@ -2989,6 +3283,10 @@ function openAboutSheet(){
     '<button class="btn btn-secondary btn-block" id="reportBugBtn" style="margin-top:10px;">Report a bug</button>'+
     '<hr class="divider" style="margin:16px 0;">'+
     '<button class="btn btn-secondary btn-block" id="checkUpdateBtn">Check for updates</button>'+
+    '<p class="subtext" style="margin-top:6px;">'+(apkInstallReady() ?
+      "Downloads and installs the new APK for you — one tap to finish." :
+      "Installed as a web app, so there's no single install step: it finishes updating on its own, usually within a few seconds of reopening. This just checks what's out now."
+    )+'</p>'+
     '<p class="subtext" id="updateStatus" style="margin-top:10px;"></p>'+
     '<button class="btn btn-primary btn-block hidden" id="openReleaseBtn" style="margin-top:8px;">View latest release</button>';
 
@@ -3235,7 +3533,23 @@ async function init(){
     sendPendingNotifications();
     scheduleWfhReminders();
     checkOfficeLocationAuto();
+    maybeShowGpsCelebration();
   }
+  // Re-check location and the GPS celebration reveal whenever the app comes
+  // back to the foreground — not just on a fresh cold start. Covers both a
+  // PWA tab regaining focus and, on Android, the app being brought forward
+  // from the recent-apps/task switcher rather than freshly launched (that's
+  // what "resume" is here; "visibilitychange" covers the same case in the
+  // WebView and doubles as the PWA/browser-tab path).
+  function onAppForeground(){
+    if(!state) return;
+    checkOfficeLocationAuto();
+    maybeShowGpsCelebration();
+  }
+  document.addEventListener("visibilitychange", function(){
+    if(document.visibilityState==="visible") onAppForeground();
+  });
+  document.addEventListener("resume", onAppForeground);
 }
 if(document.readyState==="loading") document.addEventListener("DOMContentLoaded", init);
 else init();

@@ -325,7 +325,7 @@
       <span><b>Form</b> ATT&#8209;2026</span>
       <span><b>Status</b> Unofficial</span>
       <span><b>Filed by</b> D. Ghosh, SRE</span>
-      <span><b>Rev.</b> 1.5.0-a</span>
+      <span><b>Rev.</b> 1.5.3</span>
     </div>
   </div>
 </header>
@@ -389,7 +389,7 @@
       <div class="ledger-row"><div class="idx">04</div><div><h3>Recovery maths</h3><p>Below target? It tells you exactly how many more days, out of how many are left, to get back on track — no mental arithmetic required on a Friday afternoon.</p></div></div>
       <div class="ledger-row"><div class="idx">05</div><div><h3>Notification centre</h3><p>App errors, update alerts, and a receipt every time you send a bug report — one bell icon, not three toast messages you never saw.</p></div></div>
       <div class="ledger-row"><div class="idx">06</div><div><h3>Nothing leaves your phone</h3><p>No login, no backend, no server to breach. Your attendance history is exactly as private as your actual attendance.</p></div></div>
-      <div class="ledger-row"><div class="idx">07</div><div><h3>Office auto-detection</h3><p>Add every office you use and get a confirm-first banner when you're near any of them — never silent, off by default, never on a weekend or over a day you've already logged. Not near any of them? It nudges you to log the day yourself instead of quietly saying nothing. Plus daily WFH reminders so a work-from-home day never slips through unmarked.</p></div></div>
+      <div class="ledger-row"><div class="idx">07</div><div><h3>Office auto-detection</h3><p>Add every office you use and get a confirm-first banner when you're near any of them — never silent, off by default, never on a weekend or over a day you've already logged. Not near any of them? It nudges you to log the day yourself instead of quietly saying nothing. Confirm it and a full-screen "Present — logged" reveal plays once, the moment it's actually true — even if that's hours later, when you pick the phone back up. Plus daily WFH reminders so a work-from-home day never slips through unmarked.</p></div></div>
     </div>
   </section>
 
@@ -413,7 +413,7 @@
           </span>
         </span>
         <h3>Android</h3>
-        <div class="meta">v1.5.0-a &middot; ~3.8&nbsp;MB &middot; sideload, no Play Store</div>
+        <div class="meta">v1.5.3 &middot; ~3.8&nbsp;MB &middot; sideload, no Play Store</div>
         <p class="desc">A signed APK, built straight from the repo linked above. Android will call it "unrecognised" — correct, it's from one person's GitHub, not a corporation.</p>
         <div class="actions" style="flex-direction:column; align-items:stretch; gap:10px;">
           <a class="btn btn-primary btn-block" href="https://github.com/debarun1234/anz-attendance-tracker-app/releases/latest/download/app-release.apk">
@@ -437,7 +437,7 @@
           </span>
         </span>
         <h3>iOS</h3>
-        <div class="meta">v1.5.0-a &middot; installs from Safari, no App Store</div>
+        <div class="meta">v1.5.3 &middot; installs from Safari, no App Store</div>
         <p class="desc">No $99/year developer account, no App Store review — this is a PWA. Open it in Safari, tap Share, then "Add to Home Screen." It runs full-screen with its own icon like any other app.</p>
         <div class="actions" style="flex-direction:column; align-items:stretch; gap:10px;">
           <a class="btn btn-primary btn-block" href="./app/">
@@ -468,6 +468,10 @@
         <p>iOS won't let a locally-installed app push to the lock screen or notification centre without a server sending that push — and standing one up would mean this app suddenly needing a backend and an internet connection it doesn't have today. The in-app reminders still work the moment you open it; you just won't get pinged while it's closed. Android gets the full treatment because it allows notifications to be scheduled locally, no server required.</p>
       </details>
       <details class="faq">
+        <summary>The app told me an update is out — why doesn't it just update?</summary>
+        <p>Depends which version you're on. The Android app downloads the new APK and hands it to the system installer for you — one tap and a confirm. The web app (iPhone, or Android installed as a home-screen app) can't do that; there's no installer to hand a file to. Instead it fetches the new version quietly in the background and swaps over on its own, usually within a few seconds — Settings &rarr; About &rarr; Update the app nudges that along. If it's still showing the old version a bit later, fully close it — swipe it away from your recent apps, or close every tab it's open in, not just switch away — and reopen it once. That's normally all it takes, and it never touches your data: an update only replaces the app's own code, kept in a separate storage from your logged days, offices and leave balances. No sign-up either way, before or after — there's never been one.</p>
+      </details>
+      <details class="faq">
         <summary>Does Plan mode count toward my real percentage?</summary>
         <p>No, on purpose. Plan mode is a forecast — turn it on for a future month, sketch out Present/WFH/Leave/Comp off day by day, and it shows a separate "Projected" percentage next to your real one. Nothing you plan touches the actual figure until that day arrives and you log it for real, exactly the same way you always have.</p>
       </details>
@@ -488,12 +492,20 @@
         <p>Nowhere. Your coordinates are compared to the office list you saved, entirely on your own phone, using ordinary geometry — no server, no API call, no map provider involved. The comparison result (a match or not) never leaves the device either.</p>
       </details>
       <details class="faq">
+        <summary>How do I know GPS is actually working?</summary>
+        <p>Turn on auto-detect and Settings shows a live line under it: permission granted or not, a signal or not, and how far the last reading was from your nearest saved office. It's a one-off check — refreshed when you open Settings, or on tap with "Check GPS now" — not a running tracker, same as auto-detection itself only ever looks once when the app is open.</p>
+      </details>
+      <details class="faq">
         <summary>What if I walk past the office on a Saturday?</summary>
         <p>Nothing happens. Auto-detection is switched off for every weekend automatically — no exceptions, no setting to override it — so passing near an office off the clock never gets logged as a working day. It also skips any day you've already marked yourself, and only ever asks once per day either way.</p>
       </details>
       <details class="faq">
         <summary>Why confirm instead of just logging it automatically?</summary>
         <p>Because "nearby" isn't the same as "at work" — you could be in the building's car park heading somewhere else, or the coordinates could be a little off. A one-tap confirm keeps the ledger accurate without needing to trust GPS blindly, and it means the app never silently rewrites your attendance behind your back.</p>
+      </details>
+      <details class="faq">
+        <summary>What's the full-screen animation after a GPS confirm?</summary>
+        <p>A one-time "Present — logged" reveal for the day — a stamp landing with a burst of colour, your office name, and the date. It plays the moment you confirm, and it also catches up if you open the app later: check in at 9am, come back at 9pm, and it still plays once, on that return. It works the same in the installed app and the browser version, and it fires even from the Android recent-apps switcher, not just a fresh launch — because that's the actual point of it. Once a day, then it's done; opening the app again after that shows the ordinary Today screen.</p>
       </details>
       <details class="faq">
         <summary>Do the WFH reminders work on iPhone?</summary>
@@ -535,7 +547,7 @@
         <a href="mailto:debarun.ghosh.2024@gmail.com">Email</a>
       </div>
     </div>
-    <div class="footer-fine">&copy; 2026 Debarun Ghosh &middot; Office Ledger v1.5.0-a &middot; Data lives on your device only.</div>
+    <div class="footer-fine">&copy; 2026 Debarun Ghosh &middot; Office Ledger v1.5.3 &middot; Data lives on your device only.</div>
   </div>
 </footer>
 
