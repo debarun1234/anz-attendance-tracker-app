@@ -734,7 +734,7 @@
 
 /* ---------- constants ---------- */
 var STORAGE_KEY = "officeLedger.v1";
-var APP_VERSION = "1.5.3"; // keep in sync with package.json's "version"
+var APP_VERSION = "1.5.4"; // keep in sync with package.json's "version"
 var UPDATE_REPO = "debarun1234/anz-attendance-tracker-app"; // GitHub owner/repo checked for releases
 var DOW_LABELS = ["Mon","Tue","Wed","Thu","Fri","Sat","Sun"];
 var STATUS_META = {
@@ -835,7 +835,12 @@ function defaultState(){
                          // that doesn't reconcile with the per-month backfill's day-count math.
     notifications:[],    // {id, type:'error'|'update'|'bug', title, message, ts, read} — newest first
     lastUpdateCheck:0,    // ms timestamp of the last silent update check (throttles the GitHub call)
-    lastNotifiedVersion:null // last release tag we already raised an "update available" notification for
+    lastNotifiedVersion:null, // last release tag we already raised an "update available" notification for
+    lastSeenVersion:null  // APP_VERSION as of the last run — lets init() notice "this is a fresh
+                         // version since I last opened" and confirm the update actually landed,
+                         // instead of leaving the PWA's background switch-over to fail silently.
+                         // null means either a brand-new install or a pre-1.5.4 save that never
+                         // recorded one — either way, no confirmation toast on that first run.
   };
 }
 /* Storage: on the native app this writes through Capacitor's Preferences plugin,
@@ -3170,7 +3175,7 @@ function applyPwaUpdate(rel, btn, statusEl){
   }catch(e){ console.warn("Office Ledger: PWA update check failed", e); }
   setTimeout(function(){
     if(statusEl) statusEl.innerHTML =
-      "Unlike the Android app, an installed web app can't swap itself in instantly — it finishes on its own, usually within a few seconds, and this screen will reload itself when it does. Still on "+esc(APP_VERSION)+" after a bit? Fully close Office Ledger — swipe it away from your recent apps, or close every tab it's open in, not just switch away from it — then reopen it once. That's normally all it takes, and it's completely safe: your logged days, offices and leave balances live in a separate storage the update never touches, so nothing gets reset.";
+      "Unlike the Android app, an installed web app can't swap itself in instantly — it finishes on its own, usually within a few seconds, and this screen will reload itself when it does. Still on "+esc(APP_VERSION)+" after a bit? Fully close Office Ledger — swipe it away from your recent apps, or close every tab it's open in, not just switch away from it — then reopen it once. That's the ceiling of what's ever needed; there's no reinstalling, no removing and re-adding the icon, ever. And it's completely safe either way: your logged days, offices and leave balances live in a separate storage the update never touches, so nothing gets reset.";
     if(btn){ btn.disabled = false; btn.textContent = originalLabel || "Update the app"; }
   }, 4500);
 }
@@ -3253,6 +3258,19 @@ async function checkForUpdateAuto(){
     var rel = await fetchLatestRelease();
     if(rel.tag && compareVersions(rel.tag, APP_VERSION) > 0) notifyUpdateAvailable(rel.tag);
   }catch(e){ console.warn("Office Ledger: silent update check failed", e); }
+}
+/* Closes the loop on "did the update actually land?" — especially for the
+   PWA, which has no install confirmation step the way the Android app's
+   package installer does. Compares the version stored last run to the
+   one actually running now: different means an update landed since the
+   last open, so it gets a one-time toast. Same version, or no prior
+   value at all (a brand-new install, or a save from before this existed)
+   stays quiet — there's nothing to confirm yet. */
+function checkVersionChanged(){
+  if(!state) return;
+  var prev = state.lastSeenVersion;
+  if(prev && prev !== APP_VERSION) showToast("Updated to v"+APP_VERSION);
+  if(prev !== APP_VERSION){ state.lastSeenVersion = APP_VERSION; saveState(); }
 }
 function openAboutSheet(){
   var html =
@@ -3530,6 +3548,7 @@ async function init(){
     renderOnboard();
   } else {
     switchView("today");
+    checkVersionChanged();
     sendPendingNotifications();
     scheduleWfhReminders();
     checkOfficeLocationAuto();

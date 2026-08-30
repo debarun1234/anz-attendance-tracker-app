@@ -836,7 +836,12 @@ function defaultState(){
                          // that doesn't reconcile with the per-month backfill's day-count math.
     notifications:[],    // {id, type:'error'|'update'|'bug', title, message, ts, read} — newest first
     lastUpdateCheck:0,    // ms timestamp of the last silent update check (throttles the GitHub call)
-    lastNotifiedVersion:null // last release tag we already raised an "update available" notification for
+    lastNotifiedVersion:null, // last release tag we already raised an "update available" notification for
+    lastSeenVersion:null  // APP_VERSION as of the last run — lets init() notice "this is a fresh
+                         // version since I last opened" and confirm the update actually landed,
+                         // instead of leaving the PWA's background switch-over to fail silently.
+                         // null means either a brand-new install or a pre-1.5.4 save that never
+                         // recorded one — either way, no confirmation toast on that first run.
   };
 }
 /* Storage: on the native app this writes through Capacitor's Preferences plugin,
@@ -3255,6 +3260,19 @@ async function checkForUpdateAuto(){
     if(rel.tag && compareVersions(rel.tag, APP_VERSION) > 0) notifyUpdateAvailable(rel.tag);
   }catch(e){ console.warn("Office Ledger: silent update check failed", e); }
 }
+/* Closes the loop on "did the update actually land?" — especially for the
+   PWA, which has no install confirmation step the way the Android app's
+   package installer does. Compares the version stored last run to the
+   one actually running now: different means an update landed since the
+   last open, so it gets a one-time toast. Same version, or no prior
+   value at all (a brand-new install, or a save from before this existed)
+   stays quiet — there's nothing to confirm yet. */
+function checkVersionChanged(){
+  if(!state) return;
+  var prev = state.lastSeenVersion;
+  if(prev && prev !== APP_VERSION) showToast("Updated to v"+APP_VERSION);
+  if(prev !== APP_VERSION){ state.lastSeenVersion = APP_VERSION; saveState(); }
+}
 function openAboutSheet(){
   var html =
     '<div class="sheet-grabber"></div>'+
@@ -3531,6 +3549,7 @@ async function init(){
     renderOnboard();
   } else {
     switchView("today");
+    checkVersionChanged();
     sendPendingNotifications();
     scheduleWfhReminders();
     checkOfficeLocationAuto();
@@ -3562,6 +3581,12 @@ else init();
 if ("serviceWorker" in navigator) {
   window.addEventListener("load", function () {
     navigator.serviceWorker.register("./sw.js").then(function (reg) {
+      // Force a fresh check against the network every time the app opens,
+      // rather than waiting on the browser's own occasional update timing
+      // (which can be lazy — up to ~24h between checks on some browsers).
+      // This is what actually shrinks how long anyone, especially someone
+      // arriving from an old cached version, stays on stale code.
+      try { reg.update(); } catch (e) { /* ignore */ }
       if (navigator.serviceWorker.controller) {
         var reloaded = false;
         navigator.serviceWorker.addEventListener("controllerchange", function () {

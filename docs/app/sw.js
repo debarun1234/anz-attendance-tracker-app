@@ -1,7 +1,7 @@
 // Office Ledger — PWA service worker.
 // Bump CACHE_NAME whenever index.html/manifest/icons change materially,
 // so installed devices pick up the update instead of serving a stale copy.
-const CACHE_NAME = "office-ledger-v1.5.3";
+const CACHE_NAME = "office-ledger-v1.5.4";
 const APP_SHELL = [
   "./",
   "./index.html",
