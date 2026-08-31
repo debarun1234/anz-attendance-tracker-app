@@ -735,7 +735,7 @@
 
 /* ---------- constants ---------- */
 var STORAGE_KEY = "officeLedger.v1";
-var APP_VERSION = "1.5.5"; // keep in sync with package.json's "version"
+var APP_VERSION = "1.5.7"; // keep in sync with package.json's "version"
 var UPDATE_REPO = "debarun1234/anz-attendance-tracker-app"; // GitHub owner/repo checked for releases
 var DOW_LABELS = ["Mon","Tue","Wed","Thu","Fri","Sat","Sun"];
 var STATUS_META = {
@@ -1162,13 +1162,26 @@ function rangeStats(startStr, endStr, cutoffStr, classifier){
     var mStart = monthStartStr(monthKey), mEnd = monthEndStr(monthKey);
     if(mStart<startStr || mEnd>endStr) return;
     var n = inferredMap[monthKey];
-    leaveN += n;
-    eligibleFull = Math.max(0, eligibleFull-n);
+    if(n<=0) return;
+    // A balance drop can only explain days that are still genuinely
+    // unmarked — it must never eat into a day already explicitly logged as
+    // present/WFH/comp off, no matter how large the drop looks (the drop
+    // may be unrelated to this month, or a manual balance correction).
+    // Capping to the real unmarked count keeps Eligible and Attended
+    // mutually consistent; the uncapped version could shrink Eligible
+    // below what Attended already requires, producing an impossible
+    // "Attended > Eligible − WFH" reading.
+    var unmarkedAvail = unmarkedResolvedN + unmarkedFutureN;
+    var applied = Math.min(n, unmarkedAvail);
+    if(applied<=0) return;
+    leaveN += applied;
+    eligibleFull = Math.max(0, eligibleFull-applied);
     if(mEnd<=cutoffStr){
-      eligibleResolved = Math.max(0, eligibleResolved-n);
-      unmarkedResolvedN = Math.max(0, unmarkedResolvedN-n);
+      var forgiveDone = Math.min(applied, unmarkedResolvedN);
+      eligibleResolved = Math.max(0, eligibleResolved-forgiveDone);
+      unmarkedResolvedN = Math.max(0, unmarkedResolvedN-forgiveDone);
     } else if(mStart<=cutoffStr){
-      var forgive = Math.min(n, unmarkedResolvedN);
+      var forgive = Math.min(applied, unmarkedResolvedN);
       eligibleResolved = Math.max(0, eligibleResolved-forgive);
       unmarkedResolvedN = Math.max(0, unmarkedResolvedN-forgive);
     }
@@ -3161,15 +3174,24 @@ async function fetchLatestRelease(){
 }
 function notifyUpdateAvailable(tag){
   if(!state || !tag) return;
-  if(state.lastNotifiedVersion === tag) return; // already raised for this version
-  state.lastNotifiedVersion = tag;
-  saveState();
   var title = "Update available";
   var body = "Version "+tag+" is available — you're on "+APP_VERSION+".";
-  addNotification("update", title, body);
-  // Also push to the phone's own notification panel, not just the in-app
-  // inbox, so it's seen even if the app isn't open — same mechanism the
-  // day-logging reminders already use, deduped per version via its own key.
+  // lastNotifiedVersion only dedupes the in-app inbox entry (so re-checking
+  // the same pending version every 12h doesn't pile up duplicate rows) —
+  // it must NOT gate the OS push below. Deliberately kept separate: this
+  // fires unconditionally right away and is safe to overwrite even after a
+  // successful push, since addNotification below only actually runs once.
+  if(state.lastNotifiedVersion !== tag){
+    state.lastNotifiedVersion = tag;
+    saveState();
+    addNotification("update", title, body);
+  }
+  // Always attempt the OS push, every time this runs, regardless of the
+  // inbox dedup above. notifyOnce() has its own dedup (state.notified[key])
+  // that's only set AFTER a push actually succeeds — so if permission
+  // wasn't granted yet (or the push failed for any other reason) the last
+  // time this ran, it keeps retrying here on every subsequent check instead
+  // of being permanently blocked by an earlier failed attempt.
   notifyOnce("update-"+tag, title, body);
 }
 /* True only on the native Android build, with both the Filesystem plugin

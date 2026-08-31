@@ -325,7 +325,7 @@
       <span><b>Form</b> ATT&#8209;2026</span>
       <span><b>Status</b> Unofficial</span>
       <span><b>Filed by</b> D. Ghosh, SRE</span>
-      <span><b>Rev.</b> 1.5.5</span>
+      <span><b>Rev.</b> 1.5.7</span>
     </div>
   </div>
 </header>
@@ -413,7 +413,7 @@
           </span>
         </span>
         <h3>Android</h3>
-        <div class="meta">v1.5.5 &middot; ~3.8&nbsp;MB &middot; sideload, no Play Store</div>
+        <div class="meta">v1.5.7 &middot; ~3.8&nbsp;MB &middot; sideload, no Play Store</div>
         <p class="desc">A signed APK, built straight from the repo linked above. Android will call it "unrecognised" — correct, it's from one person's GitHub, not a corporation.</p>
         <div class="actions" style="flex-direction:column; align-items:stretch; gap:10px;">
           <a class="btn btn-primary btn-block" href="https://github.com/debarun1234/anz-attendance-tracker-app/releases/latest/download/app-release.apk">
@@ -437,7 +437,7 @@
           </span>
         </span>
         <h3>iOS</h3>
-        <div class="meta">v1.5.5 &middot; installs from Safari, no App Store</div>
+        <div class="meta">v1.5.7 &middot; installs from Safari, no App Store</div>
         <p class="desc">No $99/year developer account, no App Store review — this is a PWA. Open it in Safari, tap Share, then "Add to Home Screen." It runs full-screen with its own icon like any other app.</p>
         <div class="actions" style="flex-direction:column; align-items:stretch; gap:10px;">
           <a class="btn btn-primary btn-block" href="./app/">
@@ -470,6 +470,14 @@
       <details class="faq">
         <summary>The app told me an update is out — why doesn't it just update?</summary>
         <p>Depends which version you're on. The Android app downloads the new APK and hands it to the system installer for you — one tap and a confirm. The web app (iPhone, or Android installed as a home-screen app) can't do that; there's no installer to hand a file to. Instead it fetches the new version quietly in the background, checking automatically every time you open it, and swaps over on its own, usually within a few seconds — Settings &rarr; About &rarr; Update the app nudges that along. If it's still showing the old version a bit later, fully close it — swipe it away from your recent apps, or close every tab it's open in, not just switch away — and reopen it once. That's the ceiling of what's ever needed: never a reinstall, never removing and re-adding the home-screen icon. Coming from a version installed well before this was added, the very first update after it ships still needs that one manual reopen — a service worker can only start auto-reloading once the page carrying that logic has actually loaded — but every update after that lands on its own. And it never touches your data: an update only replaces the app's own code, kept in a separate storage from your logged days, offices and leave balances. No sign-up either way, before or after — there's never been one.</p>
+      </details>
+      <details class="faq">
+        <summary>Why didn't I get an Android notification for an update, even though Settings clearly shows one?</summary>
+        <p>Fixed in 1.5.6. The on-screen "Version X available" text in Settings and the phone's own push notification are two separate things under the hood, and a bug meant one failed push attempt — most likely notification permission not being granted the very first time it silently checked in the background — permanently stopped it from ever trying again for that version, even though the on-screen text kept working correctly the whole time. It now keeps retrying every check until the push actually goes through, without piling up duplicate rows in your in-app notification list.</p>
+      </details>
+      <details class="faq">
+        <summary>Why did my Attendance % suddenly look higher than it should?</summary>
+        <p>Fixed in 1.5.7. The app can infer extra "leave taken" days when a reported leave balance drops by more than what's explicitly marked as Leave on the Calendar — useful when leave gets taken without a matching tap on a day. A bug meant it did this even when there was no genuinely-unmarked day left to explain the drop — every weekday already accounted for as Present, WFH, or explicit Leave — quietly shrinking Eligible working days without touching Attended, which inflated the percentage. It now only ever borrows from days that are actually still unmarked, and never more of them than exist. Every past month recalculates on its own — nothing to redo.</p>
       </details>
       <details class="faq">
         <summary>Does Plan mode count toward my real percentage?</summary>
@@ -547,7 +555,7 @@
         <a href="mailto:debarun.ghosh.2024@gmail.com">Email</a>
       </div>
     </div>
-    <div class="footer-fine">&copy; 2026 Debarun Ghosh &middot; Office Ledger v1.5.5 &middot; Data lives on your device only.</div>
+    <div class="footer-fine">&copy; 2026 Debarun Ghosh &middot; Office Ledger v1.5.7 &middot; Data lives on your device only.</div>
   </div>
 </footer>
 
